@@ -36,6 +36,9 @@ void yyerror(const char* s);
 %left  "&&"
 %left  "==" "!="
 %left  ">" ">=" "<" "<="
+%left  "|"
+%left  "&"
+%left  "^"
 %left  "<<" ">>"
 %left  "+" "-"
 %left  "*"
@@ -182,6 +185,9 @@ expression
     | expression "-=" error{ EX } | expression "-=" expression
     | expression "<<" error{ EX } | expression "<<" expression
     | expression ">>" error{ EX } | expression ">>" expression
+    | expression "^"  error{ EX } | expression "^"  expression
+    | expression "&"  error{ EX } | expression "&"  expression
+    | expression "|"  error{ EX } | expression "|"  expression
     |            "++" error{ EX } |            "++" expression
     |            "--" error{ EX } |            "--" expression %prec "++"
     |                               expression "++"
