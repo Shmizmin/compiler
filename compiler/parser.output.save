@@ -1,0 +1,2627 @@
+Nonterminals useless in grammar
+
+    expect_rbrace
+
+
+Terminals unused in grammar
+
+    "/"
+    "%"
+    "!"
+    "~"
+    "|"
+    "^^"
+    "^"
+    "<<"
+    ">>"
+    "<="
+    ">="
+    "<"
+    ">"
+    "for"
+    "addrof"
+    "deref"
+
+
+Rules useless in grammar
+
+   87 expect_rbrace: error
+   88              | "}"
+
+
+State 21 conflicts: 1 shift/reduce
+State 129 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: program T_END
+
+    1 program: definitions_opt T_END
+
+    2 definitions_opt: ε
+    3                | definitions_opt definition
+
+    4 definition: function_declarator
+    5           | global_declarator
+
+    6 type_specifier: "byte"
+    7               | "word"
+    8               | "void"
+
+    9 type_qualifier: "copy"
+   10               | "ptr"
+   11               | "val"
+
+   12 complete_type: type_specifier type_qualifier T_IDENTIFIER
+
+   13 function_prototype: "function" complete_type "=" "(" arguments_opt expect_rparen
+
+   14 arguments: complete_type
+   15          | arguments_opt "," complete_type
+
+   16 arguments_opt: ε
+   17              | arguments
+
+   18 function_declarator: "proto" function_prototype
+   19                    | function_prototype compound_statement
+
+   20 variable_declarator: type_specifier type_qualifier variable_declarator_i
+   21                    | variable_declarator "," variable_declarator_i
+
+   22 variable_declarator_i: T_IDENTIFIER "=" expression
+   23                      | T_IDENTIFIER
+
+   24 local_declarator: "local" variable_declarator
+
+   25 global_declarator: "global" variable_declarator
+
+   26 expect_semicolon: error
+   27                 | ";"
+
+   28 expect_rparen: error
+   29              | ")"
+
+   30 expect_rbracket: error
+   31                | "]"
+
+   32 compound_statement: "{"
+   33                   | compound_statement statement
+
+   34 else_opt: ε
+   35         | "else" statement
+
+   36 args_delim: expression
+   37           | args_delim "," expression
+
+   38 args_delim_opt: ε
+   39               | args_delim
+
+   40 statement: compound_statement "}"
+   41          | "if" "(" expression expect_rparen statement else_opt
+   42          | "while" "(" expression expect_rparen statement
+   43          | "return" expression expect_semicolon
+   44          | expect_semicolon
+   45          | local_declarator expect_semicolon
+   46          | global_declarator expect_semicolon
+
+   47 expression: T_NUMCONST
+   48           | T_STRINGCONST
+   49           | T_IDENTIFIER
+   50           | "(" expression expect_rparen
+   51           | expression "[" expression expect_rbracket
+   52           | expression "(" args_delim_opt expect_rparen
+   53           | expression "=" error
+   54           | expression "=" expression
+   55           | expression "+" error
+   56           | expression "+" expression
+   57           | expression "-" error
+   58           | expression "-" expression
+   59           | expression "+=" error
+   60           | expression "+=" expression
+   61           | expression "-=" error
+   62           | expression "-=" expression
+   63           | "++" error
+   64           | "++" expression
+   65           | "--" error
+   66           | "--" expression
+   67           | expression "++"
+   68           | expression "--"
+   69           | expression "||" error
+   70           | expression "||" expression
+   71           | expression "&&" error
+   72           | expression "&&" expression
+   73           | expression "==" error
+   74           | expression "==" expression
+   75           | expression "!=" error
+   76           | expression "!=" expression
+   77           | "&" error
+   78           | "&" expression
+   79           | "*" error
+   80           | "*" expression
+   81           | "-" error
+   82           | "-" expression
+   83           | "+" error
+   84           | "+" expression
+   85           | expression "?" error
+   86           | expression "?" expression ":" expression
+
+
+Terminals, with rules where they appear
+
+    T_END (0) 0 1
+    error (256) 26 28 30 53 55 57 59 61 63 65 69 71 73 75 77 79 81 83 85
+    "--" (258) 65 66 68
+    "-" (259) 57 58 81 82
+    "++" (260) 63 64 67
+    "+" (261) 55 56 83 84
+    "*" (262) 79 80
+    "/" (263)
+    "%" (264)
+    "!" (265)
+    "~" (266)
+    "||" (267) 69 70
+    "|" (268)
+    "&&" (269) 71 72
+    "&" (270) 77 78
+    "^^" (271)
+    "^" (272)
+    "<<" (273)
+    ">>" (274)
+    "<=" (275)
+    ">=" (276)
+    "<" (277)
+    ">" (278)
+    "!=" (279) 75 76
+    "==" (280) 73 74
+    ";" (281) 27
+    "," (282) 15 21 37
+    "=" (283) 13 22 53 54
+    "(" (284) 13 41 42 50 52
+    ")" (285) 29
+    "{" (286) 32
+    "}" (287) 40
+    "[" (288) 51
+    "]" (289) 31
+    "function" (290) 13
+    "proto" (291) 18
+    "copy" (292) 9
+    "ptr" (293) 10
+    "val" (294) 11
+    "void" (295) 8
+    "byte" (296) 6
+    "word" (297) 7
+    "local" (298) 24
+    "global" (299) 25
+    "if" (300) 41
+    "else" (301) 35
+    "while" (302) 42
+    "for" (303)
+    "return" (304) 43
+    "addrof" (305)
+    "deref" (306)
+    "?" (307) 85 86
+    ":" (308) 86
+    "+=" (309) 59 60
+    "-=" (310) 61 62
+    T_NUMCONST <ival> (311) 47
+    T_IDENTIFIER <cval> (312) 12 22 23 49
+    T_STRINGCONST <cval> (313) 48
+
+
+Nonterminals, with rules where they appear
+
+    $accept (59)
+        on left: 0
+    program (60)
+        on left: 1
+        on right: 0
+    definitions_opt (61)
+        on left: 2 3
+        on right: 1 3
+    definition (62)
+        on left: 4 5
+        on right: 3
+    type_specifier (63)
+        on left: 6 7 8
+        on right: 12 20
+    type_qualifier (64)
+        on left: 9 10 11
+        on right: 12 20
+    complete_type (65)
+        on left: 12
+        on right: 13 14 15
+    function_prototype (66)
+        on left: 13
+        on right: 18 19
+    arguments (67)
+        on left: 14 15
+        on right: 17
+    arguments_opt (68)
+        on left: 16 17
+        on right: 13 15
+    function_declarator (69)
+        on left: 18 19
+        on right: 4
+    variable_declarator (70)
+        on left: 20 21
+        on right: 21 24 25
+    variable_declarator_i (71)
+        on left: 22 23
+        on right: 20 21
+    local_declarator (72)
+        on left: 24
+        on right: 45
+    global_declarator (73)
+        on left: 25
+        on right: 5 46
+    expect_semicolon (74)
+        on left: 26 27
+        on right: 43 44 45 46
+    expect_rparen (75)
+        on left: 28 29
+        on right: 13 41 42 50 52
+    expect_rbracket (76)
+        on left: 30 31
+        on right: 51
+    compound_statement (77)
+        on left: 32 33
+        on right: 19 33 40
+    else_opt (78)
+        on left: 34 35
+        on right: 41
+    args_delim (79)
+        on left: 36 37
+        on right: 37 39
+    args_delim_opt (80)
+        on left: 38 39
+        on right: 52
+    statement (81)
+        on left: 40 41 42 43 44 45 46
+        on right: 33 35 41 42
+    expression (82)
+        on left: 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86
+        on right: 22 36 37 41 42 43 50 51 52 53 54 55 56 57 58 59 60 61 62 64 66 67 68 69 70 71 72 73 74 75 76 78 80 82 84 85 86
+
+
+State 0
+
+    0 $accept: • program T_END
+
+    $default  reduce using rule 2 (definitions_opt)
+
+    program          go to state 1
+    definitions_opt  go to state 2
+
+
+State 1
+
+    0 $accept: program • T_END
+
+    T_END  shift, and go to state 3
+
+
+State 2
+
+    1 program: definitions_opt • T_END
+    3 definitions_opt: definitions_opt • definition
+
+    T_END       shift, and go to state 4
+    "function"  shift, and go to state 5
+    "proto"     shift, and go to state 6
+    "global"    shift, and go to state 7
+
+    definition           go to state 8
+    function_prototype   go to state 9
+    function_declarator  go to state 10
+    global_declarator    go to state 11
+
+
+State 3
+
+    0 $accept: program T_END •
+
+    $default  accept
+
+
+State 4
+
+    1 program: definitions_opt T_END •
+
+    $default  reduce using rule 1 (program)
+
+
+State 5
+
+   13 function_prototype: "function" • complete_type "=" "(" arguments_opt expect_rparen
+
+    "void"  shift, and go to state 12
+    "byte"  shift, and go to state 13
+    "word"  shift, and go to state 14
+
+    type_specifier  go to state 15
+    complete_type   go to state 16
+
+
+State 6
+
+   18 function_declarator: "proto" • function_prototype
+
+    "function"  shift, and go to state 5
+
+    function_prototype  go to state 17
+
+
+State11 7
+
+   25 global_declarator: "global" • variable_declarator
+
+    "void"  shift, and go to state 12
+    "byte"  shift, and go to state 13
+    "word"  shift, and go to state 14
+
+    type_specifier       go to state 18
+    variable_declarator  go to state 19
+
+
+State 8
+
+    3 definitions_opt: definitions_opt definition •
+
+    $de1111111111111111111fault  reduce using rule 3 (definitions_opt)
+
+
+State 9
+
+   19 function_declarator: function_prototype • compound_statement
+
+    "{"  shift, and go to state 20
+
+    compound_statement  go to state 21
+
+
+State 10
+
+    4 definition: function_declarator •
+
+    $default  reduce using rule 4 (definition)
+
+
+State 11
+
+    5 definition: global_declarator •
+
+    $default  reduce using rule 5 (definition)
+
+
+State 12
+
+    8 type_specifier: "void" •
+
+    $default  reduce using rule 8 (type_specifier)
+
+
+State 13
+
+    6 type_specifier: "byte" •
+
+    $default  reduce using rule 6 (type_specifier)
+
+
+State 14
+
+    7 type_specifier: "word" •
+
+    $default  reduce using rule 7 (type_specifier)
+
+
+State 15
+
+   12 complete_type: type_specifier • type_qualifier T_IDENTIFIER
+
+    "copy"  shift, and go to state 22
+    "ptr"   shift, and go to state 23
+    "val"   shift, and go to state 24
+
+    type_qualifier  go to state 25
+
+
+State 16
+
+   13 function_prototype: "function" complete_type • "=" "(" arguments_opt expect_rparen
+
+    "="  shift, and go to state 26
+
+
+State 17
+
+   18 function_declarator: "proto" function_prototype •
+
+    $default  reduce using rule 18 (function_declarator)
+
+
+State 18
+
+   20 variable_declarator: type_specifier • type_qualifier variable_declarator_i
+
+    "copy"  shift, and go to state 22
+    "ptr"   shift, and go to state 23
+    "val"   shift, and go to state 24
+
+    type_qualifier  go to state 27
+
+
+State 19
+
+   21 variable_declarator: variable_declarator • "," variable_declarator_i
+   25 global_declarator: "global" variable_declarator •
+
+    ","  shift, and go to state 28
+
+    $default  reduce using rule 25 (global_declarator)
+
+
+State 20
+
+   32 compound_statement: "{" •
+
+    $default  reduce using rule 32 (compound_statement)
+
+
+State 21
+
+   19 function_declarator: function_prototype compound_statement •
+   33 compound_statement: compound_statement • statement
+
+    error     shift, and go to state 29
+    ";"       shift, and go to state 30
+    "{"       shift, and go to state 20
+    "local"   shift, and go to state 31
+    "global"  shift, and go to state 7
+    "if"      shift, and go to state 32
+    "while"   shift, and go to state 33
+    "return"  shift, and go to state 34
+
+    T_END       reduce using rule 19 (function_declarator)
+    "function"  reduce using rule 19 (function_declarator)
+    "proto"     reduce using rule 19 (function_declarator)
+    "global"    [reduce using rule 19 (function_declarator)]
+
+    local_declarator    go to state 35
+    global_declarator   go to state 36
+    expect_semicolon    go to state 37
+    compound_statement  go to state 38
+    statement           go to state 39
+
+
+State 22
+
+    9 type_qualifier: "copy" •
+
+    $default  reduce using rule 9 (type_qualifier)
+
+
+State 23
+
+   10 type_qualifier: "ptr" •
+
+    $default  reduce using rule 10 (type_qualifier)
+
+
+State 24
+
+   11 type_qualifier: "val" •
+
+    $default  reduce using rule 11 (type_qualifier)
+
+
+State 25
+
+   12 complete_type: type_specifier type_qualifier • T_IDENTIFIER
+
+    T_IDENTIFIER  shift, and go to state 40
+
+
+State 26
+
+   13 function_prototype: "function" complete_type "=" • "(" arguments_opt expect_rparen
+
+    "("  shift, and go to state 41
+
+
+State 27
+
+   20 variable_declarator: type_specifier type_qualifier • variable_declarator_i
+
+    T_IDENTIFIER  shift, and go to state 42
+
+    variable_declarator_i  go to state 43
+
+
+State 28
+
+   21 variable_declarator: variable_declarator "," • variable_declarator_i
+
+    T_IDENTIFIER  shift, and go to state 42
+
+    variable_declarator_i  go to state 44
+
+
+State 29
+
+   26 expect_semicolon: error •
+
+    $default  reduce using rule 26 (expect_semicolon)
+
+
+State 30
+
+   27 expect_semicolon: ";" •
+
+    $default  reduce using rule 27 (expect_semicolon)
+
+
+State 31
+
+   24 local_declarator: "local" • variable_declarator
+
+    "void"  shift, and go to state 12
+    "byte"  shift, and go to state 13
+    "word"  shift, and go to state 14
+
+    type_specifier       go to state 18
+    variable_declarator  go to state 45
+
+
+State 32
+
+   41 statement: "if" • "(" expression expect_rparen statement else_opt
+
+    "("  shift, and go to state 46
+
+
+State 33
+
+   42 statement: "while" • "(" expression expect_rparen statement
+
+    "("  shift, and go to state 47
+
+
+State 34
+
+   43 statement: "return" • expression expect_semicolon
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 58
+
+
+State 35
+
+   45 statement: local_declarator • expect_semicolon
+
+    error  shift, and go to state 29
+    ";"    shift, and go to state 30
+
+    expect_semicolon  go to state 59
+
+
+State 36
+
+   46 statement: global_declarator • expect_semicolon
+
+    error  shift, and go to state 29
+    ";"    shift, and go to state 30
+
+    expect_semicolon  go to state 60
+
+
+State 37
+
+   44 statement: expect_semicolon •
+
+    $default  reduce using rule 44 (statement)
+
+
+State 38
+
+   33 compound_statement: compound_statement • statement
+   40 statement: compound_statement • "}"
+
+    error     shift, and go to state 29
+    ";"       shift, and go to state 30
+    "{"       shift, and go to state 20
+    "}"       shift, and go to state 61
+    "local"   shift, and go to state 31
+    "global"  shift, and go to state 7
+    "if"      shift, and go to state 32
+    "while"   shift, and go to state 33
+    "return"  shift, and go to state 34
+
+    local_declarator    go to state 35
+    global_declarator   go to state 36
+    expect_semicolon    go to state 37
+    compound_statement  go to state 38
+    statement           go to state 39
+
+
+State 39
+
+   33 compound_statement: compound_statement statement •
+
+    $default  reduce using rule 33 (compound_statement)
+
+
+State 40
+
+   12 complete_type: type_specifier type_qualifier T_IDENTIFIER •
+
+    $default  reduce using rule 12 (complete_type)
+
+
+State 41
+
+   13 function_prototype: "function" complete_type "=" "(" • arguments_opt expect_rparen
+
+    "void"  shift, and go to state 12
+    "byte"  shift, and go to state 13
+    "word"  shift, and go to state 14
+
+    $default  reduce using rule 16 (arguments_opt)
+
+    type_specifier  go to state 15
+    complete_type   go to state 62
+    arguments       go to state 63
+    arguments_opt   go to state 64
+
+
+State 42
+
+   22 variable_declarator_i: T_IDENTIFIER • "=" expression
+   23                      | T_IDENTIFIER •
+
+    "="  shift, and go to state 65
+
+    $default  reduce using rule 23 (variable_declarator_i)
+
+
+State 43
+
+   20 variable_declarator: type_specifier type_qualifier variable_declarator_i •
+
+    $default  reduce using rule 20 (variable_declarator)
+
+
+State 44
+
+   21 variable_declarator: variable_declarator "," variable_declarator_i •
+
+    $default  reduce using rule 21 (variable_declarator)
+
+
+State 45
+
+   21 variable_declarator: variable_declarator • "," variable_declarator_i
+   24 local_declarator: "local" variable_declarator •
+
+    ","  shift, and go to state 28
+
+    $default  reduce using rule 24 (local_declarator)
+
+
+State 46
+
+   41 statement: "if" "(" • expression expect_rparen statement else_opt
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 66
+
+
+State 47
+
+   42 statement: "while" "(" • expression expect_rparen statement
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 67
+
+
+State 48
+
+   65 expression: "--" • error
+   66           | "--" • expression
+
+    error          shift, and go to state 68
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 69
+
+
+State 49
+
+   81 expression: "-" • error
+   82           | "-" • expression
+
+    error          shift, and go to state 70
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 71
+
+
+State 50
+
+   63 expression: "++" • error
+   64           | "++" • expression
+
+    error          shift, and go to state 72
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 73
+
+
+State 51
+
+   83 expression: "+" • error
+   84           | "+" • expression
+
+    error          shift, and go to state 74
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 75
+
+
+State 52
+
+   79 expression: "*" • error
+   80           | "*" • expression
+
+    error          shift, and go to state 76
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 77
+
+
+State 53
+
+   77 expression: "&" • error
+   78           | "&" • expression
+
+    error          shift, and go to state 78
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 79
+
+
+State 54
+
+   50 expression: "(" • expression expect_rparen
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 80
+
+
+State 55
+
+   47 expression: T_NUMCONST •
+
+    $default  reduce using rule 47 (expression)
+
+
+State 56
+
+   49 expression: T_IDENTIFIER •
+
+    $default  reduce using rule 49 (expression)
+
+
+State 57
+
+   48 expression: T_STRINGCONST •
+
+    $default  reduce using rule 48 (expression)
+
+
+State 58
+
+   43 statement: "return" expression • expect_semicolon
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    error  shift, and go to state 29
+    "--"   shift, and go to state 81
+    "-"    shift, and go to state 82
+    "++"   shift, and go to state 83
+    "+"    shift, and go to state 84
+    "||"   shift, and go to state 85
+    "&&"   shift, and go to state 86
+    "!="   shift, and go to state 87
+    "=="   shift, and go to state 88
+    ";"    shift, and go to state 30
+    "="    shift, and go to state 89
+    "("    shift, and go to state 90
+    "["    shift, and go to state 91
+    "?"    shift, and go to state 92
+    "+="   shift, and go to state 93
+    "-="   shift, and go to state 94
+
+    expect_semicolon  go to state 95
+
+
+State 59
+
+   45 statement: local_declarator expect_semicolon •
+
+    $default  reduce using rule 45 (statement)
+
+
+State 60
+
+   46 statement: global_declarator expect_semicolon •
+
+    $default  reduce using rule 46 (statement)
+
+
+State 61
+
+   40 statement: compound_statement "}" •
+
+    $default  reduce using rule 40 (statement)
+
+
+State 62
+
+   14 arguments: complete_type •
+
+    $default  reduce using rule 14 (arguments)
+
+
+State 63
+
+   17 arguments_opt: arguments •
+
+    $default  reduce using rule 17 (arguments_opt)
+
+
+State 64
+
+   13 function_prototype: "function" complete_type "=" "(" arguments_opt • expect_rparen
+   15 arguments: arguments_opt • "," complete_type
+
+    error  shift, and go to state 96
+    ","    shift, and go to state 97
+    ")"    shift, and go to state 98
+
+    expect_rparen  go to state 99
+
+
+State 65
+
+   22 variable_declarator_i: T_IDENTIFIER "=" • expression
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 100
+
+
+State 66
+
+   41 statement: "if" "(" expression • expect_rparen statement else_opt
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    error  shift, and go to state 96
+    "--"   shift, and go to state 81
+    "-"    shift, and go to state 82
+    "++"   shift, and go to state 83
+    "+"    shift, and go to state 84
+    "||"   shift, and go to state 85
+    "&&"   shift, and go to state 86
+    "!="   shift, and go to state 87
+    "=="   shift, and go to state 88
+    "="    shift, and go to state 89
+    "("    shift, and go to state 90
+    ")"    shift, and go to state 98
+    "["    shift, and go to state 91
+    "?"    shift, and go to state 92
+    "+="   shift, and go to state 93
+    "-="   shift, and go to state 94
+
+    expect_rparen  go to state 101
+
+
+State 67
+
+   42 statement: "while" "(" expression • expect_rparen statement
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    error  shift, and go to state 96
+    "--"   shift, and go to state 81
+    "-"    shift, and go to state 82
+    "++"   shift, and go to state 83
+    "+"    shift, and go to state 84
+    "||"   shift, and go to state 85
+    "&&"   shift, and go to state 86
+    "!="   shift, and go to state 87
+    "=="   shift, and go to state 88
+    "="    shift, and go to state 89
+    "("    shift, and go to state 90
+    ")"    shift, and go to state 98
+    "["    shift, and go to state 91
+    "?"    shift, and go to state 92
+    "+="   shift, and go to state 93
+    "-="   shift, and go to state 94
+
+    expect_rparen  go to state 102
+
+
+State 68
+
+   65 expression: "--" error •
+
+    $default  reduce using rule 65 (expression)
+
+
+State 69
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   66           | "--" expression •
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "++"  shift, and go to state 83
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 66 (expression)
+
+
+State 70
+
+   81 expression: "-" error •
+
+    $default  reduce using rule 81 (expression)
+
+
+State 71
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   82           | "-" expression •
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "++"  shift, and go to state 83
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 82 (expression)
+
+
+State 72
+
+   63 expression: "++" error •
+
+    $default  reduce using rule 63 (expression)
+
+
+State 73
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   64           | "++" expression •
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "++"  shift, and go to state 83
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 64 (expression)
+
+
+State 74
+
+   83 expression: "+" error •
+
+    $default  reduce using rule 83 (expression)
+
+
+State 75
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   84           | "+" expression •
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "++"  shift, and go to state 83
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 84 (expression)
+
+
+State 76
+
+   79 expression: "*" error •
+
+    $default  reduce using rule 79 (expression)
+
+
+State 77
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   80           | "*" expression •
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "++"  shift, and go to state 83
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 80 (expression)
+
+
+State 78
+
+   77 expression: "&" error •
+
+    $default  reduce using rule 77 (expression)
+
+
+State 79
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   78           | "&" expression •
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "++"  shift, and go to state 83
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 78 (expression)
+
+
+State 80
+
+   50 expression: "(" expression • expect_rparen
+   51           | expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    error  shift, and go to state 96
+    "--"   shift, and go to state 81
+    "-"    shift, and go to state 82
+    "++"   shift, and go to state 83
+    "+"    shift, and go to state 84
+    "||"   shift, and go to state 85
+    "&&"   shift, and go to state 86
+    "!="   shift, and go to state 87
+    "=="   shift, and go to state 88
+    "="    shift, and go to state 89
+    "("    shift, and go to state 90
+    ")"    shift, and go to state 98
+    "["    shift, and go to state 91
+    "?"    shift, and go to state 92
+    "+="   shift, and go to state 93
+    "-="   shift, and go to state 94
+
+    expect_rparen  go to state 103
+
+
+State 81
+
+   68 expression: expression "--" •
+
+    $default  reduce using rule 68 (expression)
+
+
+State 82
+
+   57 expression: expression "-" • error
+   58           | expression "-" • expression
+
+    error          shift, and go to state 104
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 105
+
+
+State 83
+
+   67 expression: expression "++" •
+
+    $default  reduce using rule 67 (expression)
+
+
+State 84
+
+   55 expression: expression "+" • error
+   56           | expression "+" • expression
+
+    error          shift, and go to state 106
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 107
+
+
+State 85
+
+   69 expression: expression "||" • error
+   70           | expression "||" • expression
+
+    error          shift, and go to state 108
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 109
+
+
+State 86
+
+   71 expression: expression "&&" • error
+   72           | expression "&&" • expression
+
+    error          shift, and go to state 110
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 111
+
+
+State 87
+
+   75 expression: expression "!=" • error
+   76           | expression "!=" • expression
+
+    error          shift, and go to state 112
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 113
+
+
+State 88
+
+   73 expression: expression "==" • error
+   74           | expression "==" • expression
+
+    error          shift, and go to state 114
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 115
+
+
+State 89
+
+   53 expression: expression "=" • error
+   54           | expression "=" • expression
+
+    error          shift, and go to state 116
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 117
+
+
+State 90
+
+   52 expression: expression "(" • args_delim_opt expect_rparen
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    $default  reduce using rule 38 (args_delim_opt)
+
+    args_delim      go to state 118
+    args_delim_opt  go to state 119
+    expression      go to state 120
+
+
+State 91
+
+   51 expression: expression "[" • expression expect_rbracket
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 121
+
+
+State 92
+
+   85 expression: expression "?" • error
+   86           | expression "?" • expression ":" expression
+
+    error          shift, and go to state 122
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 123
+
+
+State 93
+
+   59 expression: expression "+=" • error
+   60           | expression "+=" • expression
+
+    error          shift, and go to state 124
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 125
+
+
+State 94
+
+   61 expression: expression "-=" • error
+   62           | expression "-=" • expression
+
+    error          shift, and go to state 126
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 127
+
+
+State 95
+
+   43 statement: "return" expression expect_semicolon •
+
+    $default  reduce using rule 43 (statement)
+
+
+State 96
+
+   28 expect_rparen: error •
+
+    $default  reduce using rule 28 (expect_rparen)
+
+
+State 97
+
+   15 arguments: arguments_opt "," • complete_type
+
+    "void"  shift, and go to state 12
+    "byte"  shift, and go to state 13
+    "word"  shift, and go to state 14
+
+    type_specifier  go to state 15
+    complete_type   go to state 128
+
+
+State 98
+
+   29 expect_rparen: ")" •
+
+    $default  reduce using rule 29 (expect_rparen)
+
+
+State 99
+
+   13 function_prototype: "function" complete_type "=" "(" arguments_opt expect_rparen •
+
+    $default  reduce using rule 13 (function_prototype)
+
+
+State 100
+
+   22 variable_declarator_i: T_IDENTIFIER "=" expression •
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "||"  shift, and go to state 85
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "="   shift, and go to state 89
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+    "?"   shift, and go to state 92
+    "+="  shift, and go to state 93
+    "-="  shift, and go to state 94
+
+    $default  reduce using rule 22 (variable_declarator_i)
+
+
+State 101
+
+   41 statement: "if" "(" expression expect_rparen • statement else_opt
+
+    error     shift, and go to state 29
+    ";"       shift, and go to state 30
+    "{"       shift, and go to state 20
+    "local"   shift, and go to state 31
+    "global"  shift, and go to state 7
+    "if"      shift, and go to state 32
+    "while"   shift, and go to state 33
+    "return"  shift, and go to state 34
+
+    local_declarator    go to state 35
+    global_declarator   go to state 36
+    expect_semicolon    go to state 37
+    compound_statement  go to state 38
+    statement           go to state 129
+
+
+State 102
+
+   42 statement: "while" "(" expression expect_rparen • statement
+
+    error     shift, and go to state 29
+    ";"       shift, and go to state 30
+    "{"       shift, and go to state 20
+    "local"   shift, and go to state 31
+    "global"  shift, and go to state 7
+    "if"      shift, and go to state 32
+    "while"   shift, and go to state 33
+    "return"  shift, and go to state 34
+
+    local_declarator    go to state 35
+    global_declarator   go to state 36
+    expect_semicolon    go to state 37
+    compound_statement  go to state 38
+    statement           go to state 130
+
+
+State 103
+
+   50 expression: "(" expression expect_rparen •
+
+    $default  reduce using rule 50 (expression)
+
+
+State 104
+
+   57 expression: expression "-" error •
+
+    $default  reduce using rule 57 (expression)
+
+
+State 105
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   58           | expression "-" expression •
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "++"  shift, and go to state 83
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 58 (expression)
+
+
+State 106
+
+   55 expression: expression "+" error •
+
+    $default  reduce using rule 55 (expression)
+
+
+State 107
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   56           | expression "+" expression •
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "++"  shift, and go to state 83
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 56 (expression)
+
+
+State 108
+
+   69 expression: expression "||" error •
+
+    $default  reduce using rule 69 (expression)
+
+
+State 109
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   70           | expression "||" expression •
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 70 (expression)
+
+
+State 110
+
+   71 expression: expression "&&" error •
+
+    $default  reduce using rule 71 (expression)
+
+
+State 111
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   72           | expression "&&" expression •
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 72 (expression)
+
+
+State 112
+
+   75 expression: expression "!=" error •
+
+    $default  reduce using rule 75 (expression)
+
+
+State 113
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   76           | expression "!=" expression •
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 76 (expression)
+
+
+State 114
+
+   73 expression: expression "==" error •
+
+    $default  reduce using rule 73 (expression)
+
+
+State 115
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   74           | expression "==" expression •
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+
+    $default  reduce using rule 74 (expression)
+
+
+State 116
+
+   53 expression: expression "=" error •
+
+    $default  reduce using rule 53 (expression)
+
+
+State 117
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   54           | expression "=" expression •
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "||"  shift, and go to state 85
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "="   shift, and go to state 89
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+    "?"   shift, and go to state 92
+    "+="  shift, and go to state 93
+    "-="  shift, and go to state 94
+
+    $default  reduce using rule 54 (expression)
+
+
+State 118
+
+   37 args_delim: args_delim • "," expression
+   39 args_delim_opt: args_delim •
+
+    ","  shift, and go to state 131
+
+    $default  reduce using rule 39 (args_delim_opt)
+
+
+State 119
+
+   52 expression: expression "(" args_delim_opt • expect_rparen
+
+    error  shift, and go to state 96
+    ")"    shift, and go to state 98
+
+    expect_rparen  go to state 132
+
+
+State 120
+
+   36 args_delim: expression •
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "||"  shift, and go to state 85
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "="   shift, and go to state 89
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+    "?"   shift, and go to state 92
+    "+="  shift, and go to state 93
+    "-="  shift, and go to state 94
+
+    $default  reduce using rule 36 (args_delim)
+
+
+State 121
+
+   51 expression: expression • "[" expression expect_rbracket
+   51           | expression "[" expression • expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    error  shift, and go to state 133
+    "--"   shift, and go to state 81
+    "-"    shift, and go to state 82
+    "++"   shift, and go to state 83
+    "+"    shift, and go to state 84
+    "||"   shift, and go to state 85
+    "&&"   shift, and go to state 86
+    "!="   shift, and go to state 87
+    "=="   shift, and go to state 88
+    "="    shift, and go to state 89
+    "("    shift, and go to state 90
+    "["    shift, and go to state 91
+    "]"    shift, and go to state 134
+    "?"    shift, and go to state 92
+    "+="   shift, and go to state 93
+    "-="   shift, and go to state 94
+
+    expect_rbracket  go to state 135
+
+
+State 122
+
+   85 expression: expression "?" error •
+
+    $default  reduce using rule 85 (expression)
+
+
+State 123
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+   86           | expression "?" expression • ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "||"  shift, and go to state 85
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "="   shift, and go to state 89
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+    "?"   shift, and go to state 92
+    ":"   shift, and go to state 136
+    "+="  shift, and go to state 93
+    "-="  shift, and go to state 94
+
+
+State 124
+
+   59 expression: expression "+=" error •
+
+    $default  reduce using rule 59 (expression)
+
+
+State 125
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   60           | expression "+=" expression •
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "||"  shift, and go to state 85
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "="   shift, and go to state 89
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+    "?"   shift, and go to state 92
+    "+="  shift, and go to state 93
+    "-="  shift, and go to state 94
+
+    $default  reduce using rule 60 (expression)
+
+
+State 126
+
+   61 expression: expression "-=" error •
+
+    $default  reduce using rule 61 (expression)
+
+
+State 127
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   62           | expression "-=" expression •
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "||"  shift, and go to state 85
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "="   shift, and go to state 89
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+    "?"   shift, and go to state 92
+    "+="  shift, and go to state 93
+    "-="  shift, and go to state 94
+
+    $default  reduce using rule 62 (expression)
+
+
+State 128
+
+   15 arguments: arguments_opt "," complete_type •
+
+    $default  reduce using rule 15 (arguments)
+
+
+State 129
+
+   41 statement: "if" "(" expression expect_rparen statement • else_opt
+
+    "else"  shift, and go to state 137
+
+    "else"    [reduce using rule 34 (else_opt)]
+    $default  reduce using rule 34 (else_opt)
+
+    else_opt  go to state 138
+
+
+State 130
+
+   42 statement: "while" "(" expression expect_rparen statement •
+
+    $default  reduce using rule 42 (statement)
+
+
+State 131
+
+   37 args_delim: args_delim "," • expression
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 139
+
+
+State 132
+
+   52 expression: expression "(" args_delim_opt expect_rparen •
+
+    $default  reduce using rule 52 (expression)
+
+
+State 133
+
+   30 expect_rbracket: error •
+
+    $default  reduce using rule 30 (expect_rbracket)
+
+
+State 134
+
+   31 expect_rbracket: "]" •
+
+    $default  reduce using rule 31 (expect_rbracket)
+
+
+State 135
+
+   51 expression: expression "[" expression expect_rbracket •
+
+    $default  reduce using rule 51 (expression)
+
+
+State 136
+
+   86 expression: expression "?" expression ":" • expression
+
+    "--"           shift, and go to state 48
+    "-"            shift, and go to state 49
+    "++"           shift, and go to state 50
+    "+"            shift, and go to state 51
+    "*"            shift, and go to state 52
+    "&"            shift, and go to state 53
+    "("            shift, and go to state 54
+    T_NUMCONST     shift, and go to state 55
+    T_IDENTIFIER   shift, and go to state 56
+    T_STRINGCONST  shift, and go to state 57
+
+    expression  go to state 140
+
+
+State 137
+
+   35 else_opt: "else" • statement
+
+    error     shift, and go to state 29
+    ";"       shift, and go to state 30
+    "{"       shift, and go to state 20
+    "local"   shift, and go to state 31
+    "global"  shift, and go to state 7
+    "if"      shift, and go to state 32
+    "while"   shift, and go to state 33
+    "return"  shift, and go to state 34
+
+    local_declarator    go to state 35
+    global_declarator   go to state 36
+    expect_semicolon    go to state 37
+    compound_statement  go to state 38
+    statement           go to state 141
+
+
+State 138
+
+   41 statement: "if" "(" expression expect_rparen statement else_opt •
+
+    $default  reduce using rule 41 (statement)
+
+
+State 139
+
+   37 args_delim: args_delim "," expression •
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "||"  shift, and go to state 85
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "="   shift, and go to state 89
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+    "?"   shift, and go to state 92
+    "+="  shift, and go to state 93
+    "-="  shift, and go to state 94
+
+    $default  reduce using rule 37 (args_delim)
+
+
+State 140
+
+   51 expression: expression • "[" expression expect_rbracket
+   52           | expression • "(" args_delim_opt expect_rparen
+   53           | expression • "=" error
+   54           | expression • "=" expression
+   55           | expression • "+" error
+   56           | expression • "+" expression
+   57           | expression • "-" error
+   58           | expression • "-" expression
+   59           | expression • "+=" error
+   60           | expression • "+=" expression
+   61           | expression • "-=" error
+   62           | expression • "-=" expression
+   67           | expression • "++"
+   68           | expression • "--"
+   69           | expression • "||" error
+   70           | expression • "||" expression
+   71           | expression • "&&" error
+   72           | expression • "&&" expression
+   73           | expression • "==" error
+   74           | expression • "==" expression
+   75           | expression • "!=" error
+   76           | expression • "!=" expression
+   85           | expression • "?" error
+   86           | expression • "?" expression ":" expression
+   86           | expression "?" expression ":" expression •
+
+    "--"  shift, and go to state 81
+    "-"   shift, and go to state 82
+    "++"  shift, and go to state 83
+    "+"   shift, and go to state 84
+    "||"  shift, and go to state 85
+    "&&"  shift, and go to state 86
+    "!="  shift, and go to state 87
+    "=="  shift, and go to state 88
+    "="   shift, and go to state 89
+    "("   shift, and go to state 90
+    "["   shift, and go to state 91
+    "?"   shift, and go to state 92
+    "+="  shift, and go to state 93
+    "-="  shift, and go to state 94
+
+    $default  reduce using rule 86 (expression)
+
+
+State 141
+
+   35 else_opt: "else" statement •
+
+    $default  reduce using rule 35 (else_opt)
