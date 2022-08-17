@@ -12,6 +12,16 @@
 		B33126B228A4BF57001E52E6 /* parser.y in Sources */ = {isa = PBXBuildFile; fileRef = B33126AE28A4BF57001E52E6 /* parser.y */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		B357019628ACC8A8003ABA0D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B357019228ACC8A8003ABA0D /* codegenerator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CA60F05184BB97EF9209ADDD;
+			remoteInfo = "codegenerator-bin";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		B33775A127E8E2F9006CA5FA /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -29,8 +39,10 @@
 		B33126AC28A4BF57001E52E6 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
 		B33126AD28A4BF57001E52E6 /* utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utility.cpp; sourceTree = "<group>"; };
 		B33126AE28A4BF57001E52E6 /* parser.y */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; path = parser.y; sourceTree = "<group>"; };
-		B33126AF28A4BF57001E52E6 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		B33775A327E8E2F9006CA5FA /* compiler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = compiler; sourceTree = BUILT_PRODUCTS_DIR; };
+		B357019228ACC8A8003ABA0D /* codegenerator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = codegenerator.xcodeproj; path = codegenerator/codegenerator.xcodeproj; sourceTree = "<group>"; };
+		B357019A28ACCA4E003ABA0D /* main.rs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.rs; path = codegenerator/src/main.rs; sourceTree = "<group>"; };
+		B357019B28ACCC00003ABA0D /* codegen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = codegen.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +59,8 @@
 		B337759A27E8E2F9006CA5FA = {
 			isa = PBXGroup;
 			children = (
+				B357019928ACCA36003ABA0D /* backend */,
+				B357019228ACC8A8003ABA0D /* codegenerator.xcodeproj */,
 				B33775A527E8E2F9006CA5FA /* compiler */,
 				B33775A427E8E2F9006CA5FA /* Products */,
 			);
@@ -63,13 +77,29 @@
 		B33775A527E8E2F9006CA5FA /* compiler */ = {
 			isa = PBXGroup;
 			children = (
-				B33126AF28A4BF57001E52E6 /* common.h */,
 				B33126AB28A4BF57001E52E6 /* lexer.l */,
 				B33126AE28A4BF57001E52E6 /* parser.y */,
 				B33126AD28A4BF57001E52E6 /* utility.cpp */,
 				B33126AC28A4BF57001E52E6 /* utility.h */,
+				B357019B28ACCC00003ABA0D /* codegen.h */,
 			);
 			path = compiler;
+			sourceTree = "<group>";
+		};
+		B357019328ACC8A8003ABA0D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B357019728ACC8A8003ABA0D /* codegenerator */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B357019928ACCA36003ABA0D /* backend */ = {
+			isa = PBXGroup;
+			children = (
+				B357019A28ACCA4E003ABA0D /* main.rs */,
+			);
+			name = backend;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -99,7 +129,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1330;
+				LastUpgradeCheck = 1340;
 				TargetAttributes = {
 					B33775A227E8E2F9006CA5FA = {
 						CreatedOnToolsVersion = 13.3;
@@ -117,12 +147,28 @@
 			mainGroup = B337759A27E8E2F9006CA5FA;
 			productRefGroup = B33775A427E8E2F9006CA5FA /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = B357019328ACC8A8003ABA0D /* Products */;
+					ProjectRef = B357019228ACC8A8003ABA0D /* codegenerator.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				B33775A227E8E2F9006CA5FA /* compiler */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		B357019728ACC8A8003ABA0D /* codegenerator */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = codegenerator;
+			remoteRef = B357019628ACC8A8003ABA0D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B337759F27E8E2F9006CA5FA /* Sources */ = {
@@ -188,11 +234,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LEX = /opt/homebrew/opt/flex/bin/flex;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				YACC = /opt/homebrew/opt/bison/bin/bison;
 			};
 			name = Debug;
 		};
@@ -240,16 +288,19 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LEX = /opt/homebrew/opt/flex/bin/flex;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
+				YACC = /opt/homebrew/opt/bison/bin/bison;
 			};
 			name = Release;
 		};
 		B33775AB27E8E2F9006CA5FA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Q59J67R6R5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -260,6 +311,7 @@
 		B33775AC27E8E2F9006CA5FA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Q59J67R6R5;
 				ENABLE_HARDENED_RUNTIME = YES;

@@ -1,7 +1,7 @@
 #ifndef utility_h
 #define utility_h
 
-#include "common.h"
+#include <stdlib.h>
 
 
 

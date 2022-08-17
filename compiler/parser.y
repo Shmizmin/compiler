@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <assert.h>
 
-#include "common.h"
 #include "utility.h"
 
 #define YYDEBUG 1
@@ -37,7 +36,7 @@ void yyerror(const char* s);
 %left  "==" "!="
 %left  ">" ">=" "<" "<="
 %left  "|"
-%left  "&"
+//%left  "&"
 %left  "^"
 %left  "<<" ">>"
 %left  "+" "-"
@@ -69,7 +68,7 @@ definition
     ;
     
 type_specifier
-    : "byte"
+    : "byte" | "bool"
     | "word"
     | "void"
     ;

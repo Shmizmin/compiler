@@ -10,7 +10,6 @@
 #define YY_DECL int yylex()
 
 #include "y.tab.h"
-#include "common.h"
 #include "utility.h"
 
 //(\'(\\.|[^\\"])\')  { yylval.cval = capture(yytext, 1, 1); return T_CHAR; }
