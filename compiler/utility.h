@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 
-
 typedef unsigned int size;
 
 extern size line;

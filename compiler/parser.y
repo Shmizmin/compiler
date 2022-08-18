@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <assert.h>
 
+#include "codegen.h"
 #include "utility.h"
 
 #define YYDEBUG 1
@@ -24,9 +25,56 @@ void yyerror(const char* s);
 }
 
 %token T_END 0
-%token T_MINUSMINUS "--" T_MINUS "-" T_PLUSPLUS "++" T_PLUS "+" T_MULTIPLY "*" T_DIVIDE "/" T_PERCENT "%" T_LNOT "!" T_COMPL "~" T_LOR "||" T_BOR "|" T_LAND "&&" T_BAND "&" T_LXOR "^^" T_BXOR "^" T_LSHIFT "<<" T_RSHIFT ">>" T_LESSEQ "<=" T_GREATEREQ ">=" T_LESS "<" T_GREATER ">" T_NOTEQ "!=" T_EQEQ "==" T_SEMICOLON ";" T_COMMA "," T_EQ "=" T_LPAREN "(" T_RPAREN ")" T_LBRACE "{" T_RBRACE "}" T_LBRACKET "[" T_RBRACKET "]"
+%token T_MINUSMINUS "--"
+       T_MINUS "-"
+       T_PLUSPLUS "++"
+       T_PLUS "+"
+       T_MULTIPLY "*"
+       T_DIVIDE "/"
+       T_PERCENT "%"
+       T_LNOT "!"
+       T_COMPL "~"
+       T_LOR "||"
+       T_BOR "|"
+       T_LAND "&&"
+       T_BAND "&"
+       T_LXOR "^^"
+       T_BXOR "^"
+       T_LSHIFT "<<"
+       T_RSHIFT ">>"
+       T_LESSEQ "<="
+       T_GREATEREQ ">="
+       T_LESS "<"
+       T_GREATER ">"
+       T_NOTEQ "!="
+       T_EQEQ "=="
+       T_SEMICOLON ";"
+       T_COMMA ","
+       T_EQ "="
+       T_LPAREN "("
+       T_RPAREN ")"
+       T_LBRACE "{"
+       T_RBRACE "}"
+       T_LBRACKET "["
+       T_RBRACKET "]"
 
-%token T_FUNCTION "function" T_PROTO "proto" T_COPY "copy" T_PTR "ptr" T_VAL "val" T_VOID "void" T_BYTE "byte" T_WORD "word" T_LOCAL "local" T_GLOBAL "global" T_IF "if" T_ELSE "else" T_WHILE "while" T_FOR "for" T_RETURN "return" T_ADDROF "addrof" T_DEREF "deref"
+%token T_FUNCTION "function"
+       T_PROTO "proto"
+       T_COPY "copy"
+       T_PTR "ptr"
+       T_VAL "val"
+       T_VOID "void"
+       T_BYTE "byte"
+       T_WORD "word"
+       T_LOCAL "local"
+       T_GLOBAL "global"
+       T_IF "if"
+       T_ELSE "else"
+       T_WHILE "while"
+       T_FOR "for"
+       T_RETURN "return"
+       T_ADDROF "addrof"
+       T_DEREF "deref"
 
 
 %left  ","
@@ -36,12 +84,12 @@ void yyerror(const char* s);
 %left  "==" "!="
 %left  ">" ">=" "<" "<="
 %left  "|"
-//%left  "&"
+%left  "&"
 %left  "^"
 %left  "<<" ">>"
 %left  "+" "-"
-%left  "*"
-%right "&" "++" "--"
+%right "addrof" "deref"
+%right "++" "--"
 %left  "(" "["
 
 %token<ival> T_NUMCONST
@@ -98,7 +146,7 @@ arguments_opt
     ;
     
 function_declarator
-    : "proto" function_prototype
+    : "proto" function_prototype expect_semicolon
     | function_prototype statement
     ;
     
@@ -164,46 +212,50 @@ statement
     : "{" statements "}"
     | "if" "(" expression ")" statement else_opt
     | "while" "(" expression ")" statement
-    | "return" expression ";"
+    | "return" expression_opt ";"
     | expect_semicolon
     | local_declarator ";"
     | global_declarator ";"
     ;
 
+expression_opt
+    : %empty
+    | expression
+    ;
+    
+    
 expression
     : T_NUMCONST
     | T_STRINGCONST
     | T_IDENTIFIER
     | "(" expression ")"
-    | expression "["  expression "]"
-    | expression "("  args_delim_opt ")"
-    | expression "="  error{ EX } | expression "="  expression
-    | expression "+"  error{ EX } | expression "+"  expression
-    | expression "-"  error{ EX } | expression "-"  expression %prec "+"
-    | expression "+=" error{ EX } | expression "+=" expression
-    | expression "-=" error{ EX } | expression "-=" expression
-    | expression "<<" error{ EX } | expression "<<" expression
-    | expression ">>" error{ EX } | expression ">>" expression
-    | expression "^"  error{ EX } | expression "^"  expression
-    | expression "&"  error{ EX } | expression "&"  expression
-    | expression "|"  error{ EX } | expression "|"  expression
-    |            "++" error{ EX } |            "++" expression
-    |            "--" error{ EX } |            "--" expression %prec "++"
-    |                               expression "++"
-    |                               expression "--"            %prec "++"
-    | expression "||" error{ EX } | expression "||" expression
-    | expression "&&" error{ EX } | expression "&&" expression
-    | expression "==" error{ EX } | expression "==" expression
-    | expression "!=" error{ EX } | expression "!=" expression %prec "=="
-    |            "&"  error{ EX } |            "&"  expression
-    |            "*"  error{ EX } |            "*"  expression %prec "&"
-    |            "-"  error{ EX } |            "-"  expression %prec "&"
-    |            "+"  error{ EX } |            "+"  expression %prec "&"
-    | expression "?"  error{ EX } | expression "?"  expression ":" expression
-    | expression "<"  error{ EX } | expression "<"  expression
-    | expression ">"  error{ EX } | expression ">"  expression
-    | expression "<=" error{ EX } | expression "<=" expression
-    | expression ">=" error{ EX } | expression ">=" expression
+    | T_IDENTIFIER "["  expression expect_rbracket
+    | T_IDENTIFIER "("  args_delim_opt expect_rparen //function call
+    | expression "="  expression
+    | expression "+"  expression
+    | expression "-"  expression %prec "+"
+    | expression "+=" expression
+    | expression "-=" expression
+    | expression "<<" expression
+    | expression ">>" expression
+    | expression "^"  expression
+    | expression "&"  expression
+    | expression "|"  expression
+    | expression "++"
+    | expression "--"            %prec "++"
+    | expression "||" expression
+    | expression "&&" expression
+    | expression "==" expression
+    | expression "!=" expression %prec "=="
+    |        "addrof" expression
+    |         "deref" expression
+    |            "-"  expression %prec "-"
+    |            "+"  expression
+    | expression "?"  expression ":" expression
+    | expression "<"  expression
+    | expression ">"  expression
+    | expression "<=" expression
+    | expression ">=" expression
     ;
 
 %%

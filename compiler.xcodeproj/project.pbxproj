@@ -12,16 +12,6 @@
 		B33126B228A4BF57001E52E6 /* parser.y in Sources */ = {isa = PBXBuildFile; fileRef = B33126AE28A4BF57001E52E6 /* parser.y */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		B357019628ACC8A8003ABA0D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B357019228ACC8A8003ABA0D /* codegenerator.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CA60F05184BB97EF9209ADDD;
-			remoteInfo = "codegenerator-bin";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		B33775A127E8E2F9006CA5FA /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -40,8 +30,6 @@
 		B33126AD28A4BF57001E52E6 /* utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utility.cpp; sourceTree = "<group>"; };
 		B33126AE28A4BF57001E52E6 /* parser.y */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; path = parser.y; sourceTree = "<group>"; };
 		B33775A327E8E2F9006CA5FA /* compiler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = compiler; sourceTree = BUILT_PRODUCTS_DIR; };
-		B357019228ACC8A8003ABA0D /* codegenerator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = codegenerator.xcodeproj; path = codegenerator/codegenerator.xcodeproj; sourceTree = "<group>"; };
-		B357019A28ACCA4E003ABA0D /* main.rs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.rs; path = codegenerator/src/main.rs; sourceTree = "<group>"; };
 		B357019B28ACCC00003ABA0D /* codegen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = codegen.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,8 +47,6 @@
 		B337759A27E8E2F9006CA5FA = {
 			isa = PBXGroup;
 			children = (
-				B357019928ACCA36003ABA0D /* backend */,
-				B357019228ACC8A8003ABA0D /* codegenerator.xcodeproj */,
 				B33775A527E8E2F9006CA5FA /* compiler */,
 				B33775A427E8E2F9006CA5FA /* Products */,
 			);
@@ -84,22 +70,6 @@
 				B357019B28ACCC00003ABA0D /* codegen.h */,
 			);
 			path = compiler;
-			sourceTree = "<group>";
-		};
-		B357019328ACC8A8003ABA0D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B357019728ACC8A8003ABA0D /* codegenerator */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		B357019928ACCA36003ABA0D /* backend */ = {
-			isa = PBXGroup;
-			children = (
-				B357019A28ACCA4E003ABA0D /* main.rs */,
-			);
-			name = backend;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -147,28 +117,12 @@
 			mainGroup = B337759A27E8E2F9006CA5FA;
 			productRefGroup = B33775A427E8E2F9006CA5FA /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = B357019328ACC8A8003ABA0D /* Products */;
-					ProjectRef = B357019228ACC8A8003ABA0D /* codegenerator.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				B33775A227E8E2F9006CA5FA /* compiler */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		B357019728ACC8A8003ABA0D /* codegenerator */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = codegenerator;
-			remoteRef = B357019628ACC8A8003ABA0D /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B337759F27E8E2F9006CA5FA /* Sources */ = {
