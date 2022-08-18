@@ -3,8 +3,6 @@
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
-
-
 #[repr(C)]
 pub enum TypeVisibility
 {
@@ -276,6 +274,42 @@ fn convert_string(old: *const c_char) -> String
     return String::from_utf8_lossy(cstr.to_bytes()).to_string();
 }
 
+fn add_to_symbol_table(identifier: *const c_char)
+{
+    //growable vector logic
+    //check not in table already
+    //throw error if exists
+}
+
+
+
+
+
+fn generate_for_expression(expression: *const Expression)
+{
+
+}
+
+fn generate_for_statement(statement: *const Statement)
+{
+    match (*statement).statement_type
+    {
+        StatementType::BLOCK    => generate_block(),
+        StatementType::IF       => generate_if(),
+        StatementType::WHILE    => generate_while(),
+        StatementType::RETURN   => generate_return(),
+        StatementType::VARIABLE => generate_variable(),
+        StatementType::NIL      => println!("Null statement ';' encountered. Was this intentional?"),
+        _                       => println!("Invalid statement type");
+    }
+}
+
+fn generate_for_function(function: *const Function)
+{
+    add_to_symbol_table((*function).name);
+
+    generate_for_statement((*function).statement);
+}
 
 
 
@@ -286,6 +320,6 @@ pub extern "C" fn generate(program: *const Program)
 {
     for i in 0..(*program).num_functions
     {
-        
+        generate_for_function((*program).functions[i]);
     }
 }
