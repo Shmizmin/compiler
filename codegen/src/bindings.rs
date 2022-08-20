@@ -1,5 +1,9 @@
+#![allow(non_camel_case_types)]
+
 use std::ffi::CStr;
 use std::os::raw::c_char;
+use std::os::raw::c_uchar;
+use std::os::raw::c_ushort;
 
 #[repr(C)]
 pub enum TypeVisibility
@@ -110,7 +114,7 @@ pub struct Expression
 #[repr(C)]
 pub struct NumconstExpression
 {
-    pub value: u16,
+    pub value: c_ushort,
 }
 
 #[repr(C)]
@@ -161,7 +165,7 @@ pub struct Variable
 #[repr(C)]
 pub struct VariableStatement
 {
-    pub num_variables: u8,
+    pub num_variables: c_uchar,
     pub variables: *mut Variable,
 }
 
@@ -200,7 +204,7 @@ pub struct Statement
 #[repr(C)]
 pub struct BlockStatement
 {
-    pub num_statements: u8,
+    pub num_statements: c_uchar,
     pub statements: *mut Statement,
 }
 
@@ -241,7 +245,7 @@ pub struct Argument
 #[repr(C)]
 pub struct Arguments
 {
-    pub num_arguments: u8,
+    pub num_arguments: c_uchar,
     pub arguments: *mut Argument,
 }
 
@@ -258,6 +262,6 @@ pub struct Function
 #[repr(C)]
 pub struct Program
 {
-    pub num_functions: u8,
+    pub num_functions: c_uchar,
     pub functions: *mut Function,
 }
