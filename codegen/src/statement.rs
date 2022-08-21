@@ -81,12 +81,19 @@ pub fn generate_while(driver: &mut Driver, while_statement: *const WhileStatemen
 
 pub fn generate_return(driver: &mut Driver, return_statement: *const ReturnStatement, parent_function: *const Function)
 {
-
+    unsafe
+    {
+        generate_expression(driver, (*return_statement).value, parent_function, STACK);
+        driver.add_to_code(format!("jmp([{}])", convert_string((*parent_function).name)));
+    }
 }
 
 pub fn generate_variable(driver: &mut Driver, variable_statement: *const VariableStatement, parent_function: *const Function)
 {
-
+    unsafe
+    {
+        
+    }
 }
 
 pub fn generate_nil(driver: &mut Driver, nil_statement: *const NilStatement, parent_function: *const Function)

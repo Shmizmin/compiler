@@ -30,6 +30,7 @@ fn generate_function(driver: &mut Driver, function: *const Function)
             generate_statement(driver, (*function).body, function);
         }
 
+        driver.add_to_code(format!("@function_end_{}:", fname));
         driver.add_to_code("pop IP".to_string());
     }
 }

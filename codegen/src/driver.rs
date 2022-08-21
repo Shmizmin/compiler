@@ -101,8 +101,6 @@ pub fn location_to_string(location: Location) -> String
     }
 }
 
-
-
 pub const R0 : u8 = 1;
 pub const R1 : u8 = 2;
 pub const R2 : u8 = 4;

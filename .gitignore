@@ -2,3 +2,4 @@
 parser.output
 parser.output.save
 parser.tab.c
+codegen/target/
