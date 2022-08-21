@@ -2,7 +2,6 @@ use super::bindings::*;
 use super::driver::*;
 
 
-
 pub fn generate_numconst(driver: &mut Driver, numconst_expression: *const NumconstExpression, parent_function: *const Function, return_location: Location)
 {
 

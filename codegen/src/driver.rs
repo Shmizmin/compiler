@@ -1,10 +1,16 @@
+use super::bindings::*;
 use super::error::*;
+
 
 pub enum SymbolType
 {
+    VARIABLE
+    {
+        allocated_location: Location,
+    },
     FUNCTION,
-    VARIABLE,
 }
+
 
 pub struct Symbol
 {
@@ -13,12 +19,16 @@ pub struct Symbol
     pub symbol_type: SymbolType,
 }
 
+
+
 pub struct Driver
 {
     pub symbol_table: Vec<Symbol>,
     pub code_segment: String,
     pub available_registers: u8,
     pub counter: u32,
+    pub available_heap: [bool; 32768],
+    pub stack_pointer: u16,
 }
 
 impl Driver
@@ -87,6 +97,31 @@ impl Driver
         }
     }
 
+
+    pub fn push(&mut self, instruction: String, size: TypeSpecifier)
+    {
+        self.add_to_code(instruction);
+
+        let diff;
+        match size
+        {
+            BYTE => diff = 1,
+            WORD => diff = 2,
+            VOID => codegen_error("Cannot push type 'void' to stack".to_owned()),
+        }
+        self.stack_pointer -= diff;
+    }
+
+    pub fn allocate_heap(&mut self)
+    {
+
+    }
+
+    pub fn deallocate_heap(&mut self, location: u16)
+    {
+
+    }
+
 }
 
 pub fn location_to_string(location: Location) -> String
@@ -105,6 +140,8 @@ pub const R0 : u8 = 1;
 pub const R1 : u8 = 2;
 pub const R2 : u8 = 4;
 pub const R3 : u8 = 8;
+
+pub const HEAP: u8 = 64; //only used for variables
 pub const STACK : u8 = 128;
 
 pub type Location = u8;

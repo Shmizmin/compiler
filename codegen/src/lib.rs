@@ -12,8 +12,6 @@ use statement::*;
 use util::*;
 
 
-
-
 fn generate_function(driver: &mut Driver, function: *const Function)
 {
     unsafe
@@ -41,7 +39,7 @@ fn generate_function(driver: &mut Driver, function: *const Function)
 #[no_mangle]
 pub extern "C" fn generate(program: *const Program, parameters: *const Parameters)
 {
-    let mut driver = Driver{ symbol_table: vec![], code_segment: "".to_string(), available_registers: R0 | R1 | R2 | R3, counter: 0 };
+    let mut driver = Driver{ symbol_table: vec![], code_segment: "".to_string(), available_registers: R0 | R1 | R2 | R3, counter: 0, variable_ptr: 0, };
 
     driver.add_to_code(".begin\n".to_string());
     driver.add_to_code(".include \"def.s\"\n".to_string());

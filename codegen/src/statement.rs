@@ -92,7 +92,23 @@ pub fn generate_variable(driver: &mut Driver, variable_statement: *const Variabl
 {
     unsafe
     {
-        
+        for i in 0..(*variable_statement).num_variables
+        {
+            let variable = *((*variable_statement).variables.offset(i.into()));
+            let defined = !variable.value.is_null();
+            let name = convert_string(variable.name);
+
+            driver.add_to_symbol_table(
+                Symbol{ name, defined, symbol_type: SymbolType::VARIABLE{ allocated_location: driver.allocate_heap() }, });
+
+            if defined
+            {
+                if variable.complete_type.type_specifier == VOID
+                {
+                    codegen_error(format!("Variable {} illegally declared as type 'void'", name));
+                }
+            }
+        }
     }
 }
 

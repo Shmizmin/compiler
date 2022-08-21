@@ -36,8 +36,8 @@ pub enum TypeQualifier
 #[repr(C)]
 pub struct CompleteType
 {
-    type_specifier: TypeSpecifier,
-    type_qualifier: TypeQualifier,
+    pub type_specifier: TypeSpecifier,
+    pub type_qualifier: TypeQualifier,
 }
 
 #[repr(C)]
