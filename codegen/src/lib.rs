@@ -1,156 +1,49 @@
 mod bindings;
+mod driver;
 mod error;
+mod expression;
+mod statement;
 mod util;
 
 use bindings::*;
 use error::*;
+use driver::*;
+use statement::*;
 use util::*;
 
 
-struct Symbol
-{
-    name: String,
-    defined: bool,
-}
 
-struct Driver
-{
-    symbol_table: Vec<Symbol>,
-    code_segment: String,
-}
-
-
-
-
-
-fn add_to_symbol_table(driver: &mut Driver, name: String, defined: bool)
-{
-    driver.symbol_table.push(Symbol{ name, defined });
-}
-
-fn add_to_code(driver: &mut Driver, value: String)
-{
-    driver.code_segment.push_str(value.as_str());
-}
-
-
-
-fn generate_expression(expression: *const Expression)
-{
-
-}
-
-
-
-
-fn generate_block(driver: &mut Driver, block_statement: *const BlockStatement, parent_function: *const Function)
-{
-    unsafe
-    {
-        for i in 0..(*block_statement).num_statements
-        {
-            generate_statement(driver, (*block_statement).statement, parent_function);
-        }
-    }
-}
-
-fn generate_if(driver: &mut Driver, if_statement: *const IfStatement, parent_function: *const Function)
-{
-
-}
-
-fn generate_while(driver: &mut Driver, while_statement: *const WhileStatement, parent_function: *const Function)
-{
-    unsafe
-    {
-        let label = format!("@while_begin_{}_{}", (*parent_function).name, )
-
-        add_to_code(driver, label);
-
-        generate_statement(driver, (*while_statement).statement, parent_function);
-
-        generate_expression(driver, (*while_statement).condition, parent_function);
-    }
-}
-
-fn generate_return(driver: &mut Driver, return_statement: *const ReturnStatement, parent_function: *const Function)
-{
-
-}
-
-fn generate_variable(driver: &mut Driver, variable_statement: *const VariableStatement, parent_function: *const Function)
-{
-
-}
-
-fn generate_nil(driver: &mut Driver, nil_statement: *const NilStatement, parent_function: *const Function)
-{
-    codegen_warning("Null statement ';' encountered.");
-}
-
-fn generate_error(driver: &mut Driver, parent_function: *const Function)
-{
-    codegen_error("Invalid statement type encountered");
-}
-
-
-
-fn generate_statement(driver: &mut Driver, statement: *const Statement, parent_function: *const Function)
-{
-    unsafe
-    {
-        let stype = &((*statement).statement_type);
-        let svalue = &((*statement).statement_value);
-
-        match stype
-        {
-            BLOCK    => generate_block(driver, svalue.block_statement, parent_function),
-            IF       => generate_if(driver, svalue.if_statement, parent_function),
-            WHILE    => generate_while(driver, svalue.while_statement, parent_function),
-            RETURN   => generate_return(driver, svalue.return_statement, parent_function),
-            VARIABLE => generate_variable(driver, svalue.variable_statement, parent_function),
-            NIL      => generate_nil(driver, svalue.nil_statement, parent_function),
-            _                        => generate_error(driver, parent_function),
-        }
-    }
-}
 
 fn generate_function(driver: &mut Driver, function: *const Function)
 {
     unsafe
     {
         let fname = convert_string((*function).name);
-        let fdefined = !(*function).statement.is_null();
+        let fdefined = !(*function).body.is_null();
 
-        add_to_symbol_table(driver, fname, fdefined);
+        driver.add_to_symbol_table(Symbol{ name: fname, defined: fdefined, symbol_type: SymbolType::FUNCTION });
 
-        add_to_code(driver, format!("@function_start_{}:", name));
+        driver.add_to_code(format!("@function_start_{}:", fname));
 
-        if defined
+        if fdefined
         {
-            generate_statement(driver, (*function).statement, function);
+            generate_statement(driver, (*function).body, function);
         }
 
-        add_to_code(driver, "pop IP".to_string());
+        driver.add_to_code("pop IP".to_string());
     }
 }
 
 
-
-
 //will be called by the C frontend
+//basically main()
 #[no_mangle]
-pub extern "C" fn generate(program: *const Program)
+pub extern "C" fn generate(program: *const Program, parameters: *const Parameters)
 {
-    let mut driver = Driver
-    {
-        //symbol_table: {}.
-    };
+    let mut driver = Driver{ symbol_table: vec![], code_segment: "".to_string(), available_registers: R0 | R1 | R2 | R3, counter: 0 };
 
-    let mut driver: Driver{ (), "" };
-
-    add_to_code(driver, ".begin\n");
-    add_to_code(driver, ".include \"def.s\"");
+    driver.add_to_code(".begin\n".to_string());
+    driver.add_to_code(".include \"def.s\"\n".to_string());
 
 
     let found_main = false;
@@ -159,21 +52,24 @@ pub extern "C" fn generate(program: *const Program)
     {
         for i in 0..(*program).num_functions
         {
-            let fun = (*program).functions[i];
-            generate_function(driver, fun);
+            let fun = (*program).functions.offset(i.into());
 
-            if (*fun).name == "main"
+            generate_function(&mut driver, fun);
+
+            if convert_string((*fun).name) == "main"
             {
                 found_main = true;
             }
         }
     }
 
-    if (!found_main)
+
+
+    if !found_main
     {
-        codegen_error("No function 'main' was defined.");
+        codegen_error("No function 'main' was defined.".to_owned());
     }
 
-    add_to_code(driver, ".end");
+    driver.add_to_code(".end".to_string());
 }
 

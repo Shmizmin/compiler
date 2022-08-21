@@ -1,9 +1,14 @@
 #![allow(non_camel_case_types)]
 
-use std::ffi::CStr;
 use std::os::raw::c_char;
 use std::os::raw::c_uchar;
 use std::os::raw::c_ushort;
+
+#[repr(C)]
+pub struct Parameters
+{
+    silence_warnings: bool,
+}
 
 #[repr(C)]
 pub enum TypeVisibility
