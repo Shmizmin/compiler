@@ -20,26 +20,14 @@ pub fn generate_if(driver: &mut Driver, if_statement: *const IfStatement, parent
     unsafe
     {
         let label = format!("@if_end_{}_{}", convert_string((*parent_function).name), driver.counter);
-        let mut alloc_name = driver.allocate();
+        let alloc = driver.force_allocate();
 
-        if alloc_name == STACK
-        {
-            driver.add_to_code("push r0\n".to_string());
-            alloc_name = R0;
-        }
-
-        generate_expression(driver, (*if_statement).condition, parent_function, alloc_name);
+        generate_expression(driver, (*if_statement).condition, parent_function, alloc.0);
         driver.add_to_code("updateFlags()\n".to_string());
         driver.add_to_code(format!("jez [{}]", label));
 
-        if alloc_name == STACK
-        {
-            driver.add_to_code("pop r0\n".to_string());
-        }
-        else
-        {
-            driver.deallocate(alloc_name);
-        }
+        driver.force_deallocate(alloc);
+
 
         generate_statement(driver, (*if_statement).statement, parent_function);
 
@@ -52,27 +40,14 @@ pub fn generate_while(driver: &mut Driver, while_statement: *const WhileStatemen
     unsafe
     {
         let label = format!("@while_begin_{}_{}", convert_string((*parent_function).name), driver.counter);
-        let alloc_name = driver.allocate();
-
-        if alloc_name == STACK
-        {
-            driver.add_to_code("push r0\n".to_string());
-            alloc_name = R0;
-        }
+        let alloc = driver.force_allocate();
 
         driver.add_to_code(label);
 
         generate_statement(driver, (*while_statement).statement, parent_function);
-        generate_expression(driver, (*while_statement).condition, parent_function, alloc_name);
+        generate_expression(driver, (*while_statement).condition, parent_function, alloc.0);
 
-        if alloc_name == STACK
-        {
-            driver.add_to_code("pop r0\n".to_string());
-        }
-        else
-        {
-            driver.deallocate(alloc_name);
-        }
+        driver.force_deallocate(alloc);
 
         driver.add_to_code("updateFlags()".to_string());
         driver.add_to_code(format!("jnz([{}])", label));
@@ -83,7 +58,9 @@ pub fn generate_return(driver: &mut Driver, return_statement: *const ReturnState
 {
     unsafe
     {
+        //compute return value
         generate_expression(driver, (*return_statement).value, parent_function, STACK);
+        //jump back to caller
         driver.add_to_code(format!("jmp([{}])", convert_string((*parent_function).name)));
     }
 }
@@ -98,15 +75,38 @@ pub fn generate_variable(driver: &mut Driver, variable_statement: *const Variabl
             let defined = !variable.value.is_null();
             let name = convert_string(variable.name);
 
-            driver.add_to_symbol_table(
-                Symbol{ name, defined, symbol_type: SymbolType::VARIABLE{ allocated_location: driver.allocate_heap() }, });
+            if matches!(variable.complete_type.type_specifier, TypeSpecifier::VOID)
+            {
+                codegen_error(format!("Variable {} illegally declared as type 'void'", name));
+            }
+
+            let address = driver.allocate_heap(variable.complete_type);
+            let symbol = Symbol
+            { 
+                name, 
+                defined, 
+                symbol_type: SymbolType::VARIABLE
+                { 
+                    allocated_location: HEAP, 
+                    address,
+                    visibility: variable.visibility,
+                    parent_function,
+                }, 
+            };
+
+            driver.add_to_symbol_table(symbol);
 
             if defined
             {
-                if matches!(variable.complete_type.type_specifier, TypeSpecifier::VOID)
-                {
-                    codegen_error(format!("Variable {} illegally declared as type 'void'", name));
-                }
+                //this only support 1 byte values for now
+                //words will be supported later for variable & expression mathematics
+                let alloc = driver.force_allocate();
+
+                generate_expression(driver, variable.value, parent_function, alloc.0);
+
+                driver.add_to_code(format!("stb  %{}, {}", address, location_to_string(alloc.0)));
+
+                driver.force_deallocate(alloc);
             }
         }
     }

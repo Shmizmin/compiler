@@ -223,13 +223,12 @@ expression_opt
     | expression
     ;
     
-    
 expression
     : T_NUMCONST
     | T_STRINGCONST
     | T_IDENTIFIER
     | "(" expression ")"
-    | T_IDENTIFIER "["  expression expect_rbracket
+    | T_IDENTIFIER "["  expression expect_rbracket //array index
     | T_IDENTIFIER "("  args_delim_opt expect_rparen //function call
     | expression "="  expression
     | expression "+"  expression

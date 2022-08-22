@@ -7,6 +7,9 @@ pub enum SymbolType
     VARIABLE
     {
         allocated_location: Location,
+        address: u16,
+        visibility: TypeVisibility,
+        parent_function: *const Function,
     },
     FUNCTION,
 }
@@ -33,6 +36,21 @@ pub struct Driver
 
 impl Driver
 {
+    pub fn reset_driver(&mut self)
+    {
+        self.symbol_table = vec![];
+        self.code_segment = "".to_string();
+        self.available_registers = R0 | R1 | R2 | R3;
+        self.counter = 0;
+        
+        for i in 0..self.available_heap.len()
+        {
+            self.available_heap[i] = true;
+        }
+
+        self.stack_pointer = 0x7FFF;
+    }
+
     pub fn add_to_symbol_table(&mut self, symbol: Symbol)
     {
         //check that symbol name is undefined
@@ -40,7 +58,7 @@ impl Driver
         {
             if i.name == symbol.name
             {
-                codegen_error(format!("Duplicate identifier {} was used.", symbol.name));
+                codegen_error(format!("Duplicate identifier {} was used", symbol.name));
             }
         }
 
@@ -52,10 +70,42 @@ impl Driver
         self.code_segment.push_str(value.as_str());
     }
 
+    //will always return a register allocation
+    pub fn force_allocate(&mut self) -> (u8, bool)
+    {
+        let alloc_name = self.allocate();
+
+        //if no register available, make room
+        let was_forced = false;
+        if alloc_name == STACK
+        {
+            self.add_to_code("push r0\n".to_string());
+            alloc_name = R0;
+            was_forced = true;
+        }
+
+        return (alloc_name, was_forced);
+    }
+
+    //name is a misnomer--is just the complement of 'force_allocate'
+    pub fn force_deallocate(&mut self, allocation: (u8, bool))
+    {
+        //was forced
+        if allocation.1
+        {
+            self.add_to_code("pop r0\n".to_string());
+        }
+        else
+        {
+            self.deallocate(allocation.0);
+        }
+    }
+
+
 
     pub fn allocate(&mut self) -> Location
     {
-        //short circuit stack allocations--much more frequent
+        //short circuit stack allocations--usually more frequent
         if (self.available_registers & (R0 | R1 | R2 | R3)) == 0
         {
             return STACK;
@@ -163,24 +213,58 @@ impl Driver
         }
     }
 
-    pub fn allocate_heap(&mut self, complete_type: CompleteType)
+    pub fn allocate_heap(&mut self, complete_type: CompleteType) -> u16
     {
         let size = self.getsize(complete_type);
         let len = self.available_heap.len();
         for i in 0..len
         {
+            let cvt: u16 = i.try_into().unwrap();
+
             match size
             {
-                1 => if self.available_heap[i] { return i; },
-                2 => if i < len && self.available_heap[i] && self.available_heap[i + 1] { return i },
-                _ => codegen_error(format!("Heap allocations of size {} are not supported", size)),
+                1 => if self.available_heap[i] 
+                { 
+                    self.available_heap[i] = false;
+                    return cvt;
+                },
+                2 => if i < len && self.available_heap[i] && self.available_heap[i + 1] 
+                { 
+                    self.available_heap[i] = false;
+                    self.available_heap[i + 1] = false;
+                    return cvt; 
+                },
+                _ => codegen_error(format!("Heap allocations of size {} are unsupported", size)),
             }
         }
+        //went through heap--no slots or none large enough
+        codegen_error(format!("No contiguous region of heap large enough to allocate {} bytes", size));
     }
 
-    pub fn deallocate_heap(&mut self, location: u16)
+    pub fn deallocate_heap(&mut self, location: u16, complete_type: CompleteType)
     {
+        let len = self.available_heap.len();
 
+        if location < 0x4000 && location < len.try_into().unwrap()
+        {
+            let locc: usize = location.into();
+            let size = self.getsize(complete_type);
+
+            match size
+            {
+                1 => self.available_heap[locc] = true,
+                2 =>
+                {
+                    self.available_heap[locc] = true;
+                    self.available_heap[locc + 1] = true;
+                }
+                _ => codegen_error(format!("Heap deallocations of size {} are unsupported", size)), 
+            }
+        }
+        else
+        {
+            codegen_error(format!("Address {} is outside the heap region and cannot be deallocated", location));
+        }
     }
 
 }

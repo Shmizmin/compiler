@@ -1,4 +1,4 @@
-pub fn codegen_error(msg: String)
+pub fn codegen_error(msg: String) -> !
 {
     println!("[Error] {}\nExiting...\n", msg);
     panic!();
