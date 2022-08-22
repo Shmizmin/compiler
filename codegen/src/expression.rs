@@ -1,6 +1,6 @@
 use super::bindings::*;
 use super::driver::*;
-
+use super::error::*;
 
 pub fn generate_numconst(driver: &mut Driver, numconst_expression: *const NumconstExpression, parent_function: *const Function, return_location: Location)
 {
@@ -26,7 +26,14 @@ pub fn generate_binaryop(driver: &mut Driver, binary_expression: *const BinaryEx
 {
     unsafe
     {
+        let bop = (*binary_expression).op;
+        let bleft = (*binary_expression).left;
+        let bright = (*binary_expression).right;
+
+        let alloc_l = driver.force_allocate();
+        let alloc_r = driver.allocate();
         
+        generate_expression(driver, bleft, parent_function, alloc_l.0);
     }
 }
 
@@ -34,7 +41,7 @@ pub fn generate_unaryop(driver: &mut Driver, unary_expression: *const UnaryExpre
 {
     unsafe
     {
-        let uop = &(*unary_expression).op;
+        let uop = (*unary_expression).op;
         let uleft = (*unary_expression).left;
 
         let alloc = driver.force_allocate();
@@ -79,19 +86,27 @@ pub fn generate_expression(driver: &mut Driver, expression: *const Expression, p
         let etype = &(*expression).expression_type;
         let evalue = &(*expression).expression_value;
 
-        let alloc = driver.force_allocate();
+        let alloc = STACK; //pretend that register allocated failed to save registers for actual expressions
 
         use ExpressionType::*;
         match etype
         {
-            NUMCONST    => generate_numconst(driver, evalue.numconst_expression, parent_function, alloc.0),
-            STRINGCONST => generate_stringconst(driver, evalue.stringconst_expression, parent_function, alloc.0),
-            IDENTIFIER  => generate_identifier(driver, evalue.identifier_expression, parent_function, alloc.0),
-            TERNARYOP   => generate_ternaryop(driver, evalue.ternary_expression, parent_function, alloc.0),
-            BINARYOP    => generate_binaryop(driver, evalue.binary_expression, parent_function, alloc.0),
-            UNARYOP     => generate_unaryop(driver, evalue.unary_expression, parent_function, alloc.0),
+            NUMCONST    => generate_numconst(driver, evalue.numconst_expression, parent_function, alloc),
+            STRINGCONST => generate_stringconst(driver, evalue.stringconst_expression, parent_function, alloc),
+            IDENTIFIER  => generate_identifier(driver, evalue.identifier_expression, parent_function, alloc),
+            TERNARYOP   => generate_ternaryop(driver, evalue.ternary_expression, parent_function, alloc),
+            BINARYOP    => generate_binaryop(driver, evalue.binary_expression, parent_function, alloc),
+            UNARYOP     => generate_unaryop(driver, evalue.unary_expression, parent_function, alloc),
         }
 
-        driver.force_deallocate(alloc);
+        match return_location
+        {
+            R0 => driver.add_to_code("pop R0\n".to_string()),
+            R1 => driver.add_to_code("pop R1\n".to_string()),
+            R2 => driver.add_to_code("pop R2\n".to_string()),
+            R3 => driver.add_to_code("pop R3\n".to_string()),
+            STACK => (), //value is already on stack
+            _ => codegen_error("Invalid expression return location".to_string()),
+        }
     }
 }
