@@ -36,25 +36,23 @@ pub struct Driver
 
 impl Driver
 {
-    pub fn reset_driver(&mut self)
+    pub fn reset_driver() -> Driver
     {
-        self.symbol_table = vec![];
-        self.code_segment = "".to_string();
-        self.available_registers = R0 | R1 | R2 | R3;
-        self.counter = 0;
-        
-        for i in 0..self.available_heap.len()
+        return Driver
         {
-            self.available_heap[i] = true;
-        }
-
-        self.stack_pointer = 0x7FFF;
+            symbol_table: vec![],
+            code_segment: "".to_string(),
+            available_registers: (R0 | R1 | R2 | R3),
+            counter: 0,
+            available_heap: [true; 0x4000],
+            stack_pointer: 0x7FFF,
+        };
     }
 
     pub fn add_to_symbol_table(&mut self, symbol: Symbol)
     {
         //check that symbol name is undefined
-        for i in self.symbol_table
+        for i in &self.symbol_table
         {
             if i.name == symbol.name
             {
@@ -73,10 +71,10 @@ impl Driver
     //will always return a register allocation
     pub fn force_allocate(&mut self) -> (u8, bool)
     {
-        let alloc_name = self.allocate();
+        let mut alloc_name = self.allocate();
 
         //if no register available, make room
-        let was_forced = false;
+        let mut was_forced = false;
         if alloc_name == STACK
         {
             self.add_to_code("push r0\n".to_string());
@@ -144,6 +142,7 @@ impl Driver
             R1 => self.available_registers |= R1,
             R2 => self.available_registers |= R2,
             R3 => self.available_registers |= R3,
+            _      => codegen_error("Unrecognized location to deallocate".to_string()),
         }
     }
 
@@ -154,6 +153,7 @@ impl Driver
 
         let diff;
         //support 'val' only types for now
+        use TypeSpecifier::*;
         match size
         {
             BYTE => diff = 1,
@@ -278,6 +278,7 @@ pub fn location_to_string(location: Location) -> String
         R2    => return "r2".to_string(),
         R3    => return "r3".to_string(),
         STACK => return "stack".to_string(),
+        _         => codegen_error("Unknown location to convert to string".to_string()),
     }
 }
 

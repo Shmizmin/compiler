@@ -31,26 +31,39 @@ pub fn generate_unaryop(driver: &mut Driver, unary_expression: *const UnaryExpre
 {
     unsafe
     {
-        let uop = (*unary_expression).op;
+        let uop = &(*unary_expression).op;
         let uleft = (*unary_expression).left;
 
-        let unary_alloc = driver.allocate();
-        let alloc_name = location_to_string(unary_alloc);
+        let alloc = driver.force_allocate();
+        let reg = location_to_string(alloc.0);
+        //generates code for the expression operand
+        generate_expression(driver, uleft, parent_function, alloc.0);
 
+        use UnaryOp::*;
         match uop
         {
-            PLUS_PLUS =>
-            MINUS_MINUS =>
+            PLUS_PLUS => driver.add_to_code(format!("adc {}, #1\n", reg)),
+            MINUS_MINUS => driver.add_to_code(format!("sbb {}, #1\n", reg)),
 
-            ADDROF =>
-            DEREF =>
+            ADDROF => {}, //pointers are currently unsupported
+            DEREF => {}, //^
 
-            POSITIVE =>
-            NEGATIVE =>
+            POSITIVE => {()}, //is a no-op
+            NEGATIVE => {
+                driver.add_to_code(format!("not {}\n", reg));
+                driver.add_to_code(format!("adc {}, #1\n", reg));
+            },
         }
 
+        if return_location == R0
+        {
+            if alloc.0 == R0
+            {
 
-        driver.deallocate(unary_alloc);
+            }
+        }
+
+        driver.force_deallocate(alloc);
     }
 }
 
@@ -59,11 +72,12 @@ pub fn generate_expression(driver: &mut Driver, expression: *const Expression, p
 {
     unsafe
     {
-        let etype = (*expression).expression_type;
-        let evalue = (*expression).expression_value;
+        let etype = &(*expression).expression_type;
+        let evalue = &(*expression).expression_value;
 
         let alloc_loc = driver.allocate();
 
+        use ExpressionType::*;
         match etype
         {
             NUMCONST    => generate_numconst(driver, evalue.numconst_expression, parent_function, alloc_loc),
