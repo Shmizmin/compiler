@@ -10,7 +10,7 @@ pub fn generate_block(driver: &mut Driver, block_statement: *const BlockStatemen
     {
         for i in 0..(*block_statement).num_statements
         {
-            generate_statement(driver, (*block_statement).statements, parent_function);
+            generate_statement(driver, (*block_statement).statements.offset(i.into()), parent_function);
         }
     }
 }
@@ -42,7 +42,7 @@ pub fn generate_while(driver: &mut Driver, while_statement: *const WhileStatemen
         let label = format!("@while_begin_{}_{}", convert_string((*parent_function).name), driver.counter);
         let alloc = driver.force_allocate();
 
-        driver.add_to_code(label);
+        driver.add_to_code(label.clone());
 
         generate_statement(driver, (*while_statement).statement, parent_function);
         generate_expression(driver, (*while_statement).condition, parent_function, alloc.0);
@@ -50,7 +50,7 @@ pub fn generate_while(driver: &mut Driver, while_statement: *const WhileStatemen
         driver.force_deallocate(alloc);
 
         driver.add_to_code("updateFlags()".to_string());
-        driver.add_to_code(format!("jnz([{}])", label));
+        driver.add_to_code(format!("jnz([{}])", &label));
     }
 }
 
@@ -71,16 +71,16 @@ pub fn generate_variable(driver: &mut Driver, variable_statement: *const Variabl
     {
         for i in 0..(*variable_statement).num_variables
         {
-            let variable = *((*variable_statement).variables.offset(i.into()));
-            let defined = !variable.value.is_null();
-            let name = convert_string(variable.name);
+            let variable = (*variable_statement).variables.offset(i.into());
+            let defined = !(*variable).value.is_null();
+            let name = convert_string((*variable).name);
 
-            if matches!(variable.complete_type.type_specifier, TypeSpecifier::VOID)
+            if matches!((*variable).complete_type.type_specifier, TypeSpecifier::VOID)
             {
                 codegen_error(format!("Variable {} illegally declared as type 'void'", name));
             }
 
-            let address = driver.allocate_heap(variable.complete_type);
+            let address = driver.allocate_heap((*variable).complete_type);
             let symbol = Symbol
             { 
                 name, 
@@ -89,7 +89,7 @@ pub fn generate_variable(driver: &mut Driver, variable_statement: *const Variabl
                 { 
                     allocated_location: HEAP, 
                     address,
-                    visibility: variable.visibility,
+                    visibility: (*variable).visibility,
                     parent_function,
                 }, 
             };
@@ -102,7 +102,7 @@ pub fn generate_variable(driver: &mut Driver, variable_statement: *const Variabl
                 //words will be supported later for variable & expression mathematics
                 let alloc = driver.force_allocate();
 
-                generate_expression(driver, variable.value, parent_function, alloc.0);
+                generate_expression(driver, (*variable).value, parent_function, alloc.0);
 
                 driver.add_to_code(format!("stb  %{}, {}", address, location_to_string(alloc.0)));
 
@@ -112,7 +112,7 @@ pub fn generate_variable(driver: &mut Driver, variable_statement: *const Variabl
     }
 }
 
-pub fn generate_nil(driver: &mut Driver, nil_statement: *const NilStatement, parent_function: *const Function)
+pub fn generate_nil(_driver: &mut Driver, _nil_statement: *const NilStatement, _parent_function: *const Function)
 {
     codegen_warning("Null statement ';' encountered.".to_string());
 }
@@ -126,6 +126,7 @@ pub fn generate_statement(driver: &mut Driver, statement: *const Statement, pare
         let stype = &((*statement).statement_type);
         let svalue = &((*statement).statement_value);
 
+        use StatementType::*;
         match stype
         {
             BLOCK    => generate_block(driver, svalue.block_statement, parent_function),
@@ -134,7 +135,7 @@ pub fn generate_statement(driver: &mut Driver, statement: *const Statement, pare
             RETURN   => generate_return(driver, svalue.return_statement, parent_function),
             VARIABLE => generate_variable(driver, svalue.variable_statement, parent_function),
             NIL      => generate_nil(driver, svalue.nil_statement, parent_function),
-            _                        => codegen_error("Invalid statement type encountered.".to_string()),
+            _        => codegen_error("Invalid statement type encountered.".to_string()),
         }
     }
 }

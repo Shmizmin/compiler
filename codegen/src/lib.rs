@@ -20,16 +20,16 @@ fn generate_function(driver: &mut Driver, function: *const Function)
         let fdefined = !(*function).body.is_null();
 
 
-        driver.add_to_symbol_table(Symbol{ name: fname, defined: fdefined, symbol_type: SymbolType::FUNCTION });
+        driver.add_to_symbol_table(Symbol{ name: fname.clone(), defined: fdefined, symbol_type: SymbolType::FUNCTION });
 
-        driver.add_to_code(format!("@function_start_{}:", fname));
+        driver.add_to_code(format!("@function_start_{}:", &fname));
 
         if fdefined
         {
             generate_statement(driver, (*function).body, function);
         }
 
-        driver.add_to_code(format!("@function_end_{}:", fname));
+        driver.add_to_code(format!("@function_end_{}:", &fname));
         driver.add_to_code("pop IP".to_string());
     }
 }
