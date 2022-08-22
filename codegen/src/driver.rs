@@ -90,10 +90,10 @@ impl Driver
     {
         match location
         {
-            R0 => self.available_registers &= !R0,
-            R1 => self.available_registers &= !R1,
-            R2 => self.available_registers &= !R2,
-            R3 => self.available_registers &= !R3,
+            R0 => self.available_registers |= R0,
+            R1 => self.available_registers |= R1,
+            R2 => self.available_registers |= R2,
+            R3 => self.available_registers |= R3,
         }
     }
 

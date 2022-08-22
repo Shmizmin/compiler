@@ -44,7 +44,6 @@ pub extern "C" fn generate(program: *const Program, parameters: *const Parameter
     driver.add_to_code(".begin\n".to_string());
     driver.add_to_code(".include \"def.s\"\n".to_string());
 
-
     let found_main = false;
 
     unsafe
@@ -61,8 +60,6 @@ pub extern "C" fn generate(program: *const Program, parameters: *const Parameter
             }
         }
     }
-
-
 
     if !found_main
     {
