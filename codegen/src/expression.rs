@@ -24,7 +24,10 @@ pub fn generate_ternaryop(driver: &mut Driver, ternary_expression: *const Ternar
 
 pub fn generate_binaryop(driver: &mut Driver, binary_expression: *const BinaryExpression, parent_function: *const Function, return_location: Location)
 {
-
+    unsafe
+    {
+        
+    }
 }
 
 pub fn generate_unaryop(driver: &mut Driver, unary_expression: *const UnaryExpression, parent_function: *const Function, return_location: Location)
@@ -49,20 +52,21 @@ pub fn generate_unaryop(driver: &mut Driver, unary_expression: *const UnaryExpre
             DEREF => {}, //^
 
             POSITIVE => {()}, //is a no-op
-            NEGATIVE => {
+            NEGATIVE => //two's complement
+            {
                 driver.add_to_code(format!("not {}\n", reg));
                 driver.add_to_code(format!("adc {}, #1\n", reg));
             },
         }
 
-        if return_location == R0
+        //guaranteed to be a move from reg to reg
+        //parent caller 'force_allocate's
+        if alloc.0 != return_location 
         {
-            if alloc.0 == R0
-            {
-
-            }
+            driver.add_to_code(format!("mvb {}, {}", location_to_string(return_location), reg));
         }
-
+        
+        //might be a bug--unclear register ownership semantics for freeing
         driver.force_deallocate(alloc);
     }
 }
@@ -75,19 +79,19 @@ pub fn generate_expression(driver: &mut Driver, expression: *const Expression, p
         let etype = &(*expression).expression_type;
         let evalue = &(*expression).expression_value;
 
-        let alloc_loc = driver.allocate();
+        let alloc = driver.force_allocate();
 
         use ExpressionType::*;
         match etype
         {
-            NUMCONST    => generate_numconst(driver, evalue.numconst_expression, parent_function, alloc_loc),
-            STRINGCONST => generate_stringconst(driver, evalue.stringconst_expression, parent_function, alloc_loc),
-            IDENTIFIER  => generate_identifier(driver, evalue.identifier_expression, parent_function, alloc_loc),
-            TERNARYOP   => generate_ternaryop(driver, evalue.ternary_expression, parent_function, alloc_loc),
-            BINARYOP    => generate_binaryop(driver, evalue.binary_expression, parent_function, alloc_loc),
-            UNARYOP     => generate_unaryop(driver, evalue.unary_expression, parent_function, alloc_loc),
+            NUMCONST    => generate_numconst(driver, evalue.numconst_expression, parent_function, alloc.0),
+            STRINGCONST => generate_stringconst(driver, evalue.stringconst_expression, parent_function, alloc.0),
+            IDENTIFIER  => generate_identifier(driver, evalue.identifier_expression, parent_function, alloc.0),
+            TERNARYOP   => generate_ternaryop(driver, evalue.ternary_expression, parent_function, alloc.0),
+            BINARYOP    => generate_binaryop(driver, evalue.binary_expression, parent_function, alloc.0),
+            UNARYOP     => generate_unaryop(driver, evalue.unary_expression, parent_function, alloc.0),
         }
 
-        driver.deallocate(alloc_loc);
+        driver.force_deallocate(alloc);
     }
 }
