@@ -224,10 +224,10 @@ expression_opt
     ;
     
 expression
-    : T_NUMCONST
-    | T_STRINGCONST
-    | T_IDENTIFIER
-    | "(" expression ")"
+    : T_NUMCONST { generate_numconst_expression($1); }
+    | T_STRINGCONST { generate_stringconst_expression($1); }
+    | T_IDENTIFIER { generate_identifier_expression($1); }
+    | "(" expression ")" { generate_expression($2); }
     | T_IDENTIFIER "["  expression expect_rbracket //array index
     | T_IDENTIFIER "("  args_delim_opt expect_rparen //function call
     | expression "="  expression
