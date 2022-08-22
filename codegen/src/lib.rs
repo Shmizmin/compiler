@@ -11,6 +11,7 @@ use driver::*;
 use statement::*;
 use util::*;
 
+use std::{fs::*, io::Write};
 
 fn generate_function(driver: &mut Driver, function: *const Function)
 {
@@ -68,5 +69,8 @@ pub extern "C" fn generate(program: *const Program, parameters: *const Parameter
     }
 
     driver.add_to_code(".end".to_string());
+
+    let mut file = File::create("test.ti.o").expect("unable to create file"); //quick and easy, but error prone file opening
+    file.write_all(driver.code_segment.as_bytes()).expect("unable to write data");
 }
 

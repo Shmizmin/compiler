@@ -282,6 +282,20 @@ pub fn location_to_string(location: Location) -> String
     }
 }
 
+pub fn expression_type_to_string(expression_type: ExpressionType) -> String
+{
+    use ExpressionType::*;
+    match expression_type
+    {
+        NUMCONST => return "numeric constant".to_string(),
+        STRINGCONST => return "string constant".to_string(),
+        IDENTIFIER => return "identifier".to_string(),
+        TERNARYOP => return "ternary operator".to_string(),
+        BINARYOP => return "binary operator".to_string(),
+        UNARYOP => return "unary operator".to_string(),
+    }
+}
+
 pub const R0 : u8 = 1;
 pub const R1 : u8 = 2;
 pub const R2 : u8 = 4;

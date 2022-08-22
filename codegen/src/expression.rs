@@ -31,9 +31,56 @@ pub fn generate_binaryop(driver: &mut Driver, binary_expression: *const BinaryEx
         let bright = (*binary_expression).right;
 
         let alloc_l = driver.force_allocate();
-        let alloc_r = driver.allocate();
+        let alloc_r = driver.force_allocate();
         
         generate_expression(driver, bleft, parent_function, alloc_l.0);
+        generate_expression(driver, bright, parent_function, alloc_r.0);
+
+        use BinaryOp::*;
+        match bop
+        {
+            INDEX => (),
+            FCALL => (),
+
+            EQUALS =>
+            {
+                let l_expression_type = (*bleft).expression_type;
+                if !matches!(l_expression_type, ExpressionType::IDENTIFIER)
+                {
+                    codegen_error(format!(
+                        "A {} is not a valid L-value for assignment", 
+                            expression_type_to_string(l_expression_type)));
+                    //this is where I am at
+                    //check all matches! invokations to make sure that they have a ! if need before them
+                }
+
+                driver.add_to_code(format!("mvb {}, {}", location_to_string(alloc_l.0), location_to_string(alloc_r.0)));
+            },
+
+            PLUS => (),
+            MINUS => (),
+
+            PLUS_EQUALS => (),
+            MINUS_EQUALS => (),
+
+            LEFT_SHIFT => (),
+            RIGHT_SHIFT => (),
+
+            BIT_XOR => (),
+            BIT_AND => (),
+            BIT_OR => (),
+
+            LOG_AND => (),
+            LOG_OR => (),
+
+            EQUALS_EQUALS => (),
+            NOT_EQUALS => (),
+
+            LESS => (),
+            GREATER => (),
+            LESS_EQUALS => (),
+            GREATER_EQUALS => (),
+        }
     }
 }
 
