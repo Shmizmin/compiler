@@ -103,7 +103,7 @@ pub fn generate_variable(driver: &mut Driver, variable_statement: *const Variabl
 
             if defined
             {
-                if variable.complete_type.type_specifier == VOID
+                if matches!(variable.complete_type.type_specifier, TypeSpecifier::VOID)
                 {
                     codegen_error(format!("Variable {} illegally declared as type 'void'", name));
                 }

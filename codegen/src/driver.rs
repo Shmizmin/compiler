@@ -27,7 +27,7 @@ pub struct Driver
     pub code_segment: String,
     pub available_registers: u8,
     pub counter: u32,
-    pub available_heap: [bool; 32768],
+    pub available_heap: [bool; 0x4000],
     pub stack_pointer: u16,
 }
 
@@ -98,23 +98,84 @@ impl Driver
     }
 
 
-    pub fn push(&mut self, instruction: String, size: TypeSpecifier)
+    fn modify(&mut self, instruction: String, size: TypeSpecifier, df1: String, df2: String) -> u16
     {
         self.add_to_code(instruction);
 
         let diff;
+        //support 'val' only types for now
         match size
         {
             BYTE => diff = 1,
             WORD => diff = 2,
-            VOID => codegen_error("Cannot push type 'void' to stack".to_owned()),
+            VOID => codegen_error(format!("Cannot {} type 'void' {} the stack", df1, df2)),
         }
-        self.stack_pointer -= diff;
+        return diff;
     }
 
-    pub fn allocate_heap(&mut self)
+    pub fn push(&mut self, instruction: String, size: TypeSpecifier)
     {
+        let diff = self.modify(instruction, size, "push".to_string(), "to".to_string());
+        let staged = self.stack_pointer - diff;
 
+        if staged < 0x3FFF
+        {
+            codegen_error(format!(
+                "Stack was requested to grow to {} bytes from {} bytes, but cannot grow beyond 16,384 bytes", 
+                    0x7FFF - staged, 0x7FFF - self.stack_pointer))
+        }
+        
+        self.stack_pointer = staged;
+        
+    }
+
+    pub fn pop(&mut self, instruction: String, size: TypeSpecifier)
+    {
+        let diff = self.modify(instruction, size, "pop".to_string(), "off of".to_string());
+        let staged = self.stack_pointer + diff;
+        
+        if staged > 0x3FFF
+        {
+            codegen_error(format!(
+                "Stack was requested to shrink to {} bytes from {} bytes, but cannot shrink beyond 0 bytes", 
+                    0x7FFF - staged, 0x7FFF - self.stack_pointer));
+        }
+
+        self.stack_pointer = staged;
+    }
+
+
+    pub fn getsize(&mut self, complete_type: CompleteType) -> i32
+    {
+        if matches!(complete_type.type_qualifier, TypeQualifier::PTR)
+        {
+            return 2;
+        }
+        else 
+        {
+            use TypeSpecifier::*;
+            match complete_type.type_specifier
+            {
+                BYTE => return 1,
+                WORD => return 2,
+                VOID => codegen_error("Type 'void' is unsized".to_string()),
+            }
+        }
+    }
+
+    pub fn allocate_heap(&mut self, complete_type: CompleteType)
+    {
+        let size = self.getsize(complete_type);
+        let len = self.available_heap.len();
+        for i in 0..len
+        {
+            match size
+            {
+                1 => if self.available_heap[i] { return i; },
+                2 => if i < len && self.available_heap[i] && self.available_heap[i + 1] { return i },
+                _ => codegen_error(format!("Heap allocations of size {} are not supported", size)),
+            }
+        }
     }
 
     pub fn deallocate_heap(&mut self, location: u16)
