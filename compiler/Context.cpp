@@ -5,12 +5,10 @@
 
 void ti::Context::add_to_symbol_table(const ti::Symbol& symbol) noexcept
 {
-    const auto result = std::find_if(symbol_table.begin(), symbol_table.end(), [&](Symbol s)
-    {
-        return (s.name == symbol.name);
-    });
-    
-    if (result != std::end(symbol_table))
+    if (std::find_if(symbol_table.begin(), symbol_table.end(), [&](Symbol s)
+        {
+            return (s.name == symbol.name);
+        }) != std::end(symbol_table))
     {
         //duplicate symbol name
         ti::throw_error("Duplicate identifier %s", symbol.name.c_str());

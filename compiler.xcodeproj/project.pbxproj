@@ -11,6 +11,7 @@
 		B30556BA28B40FC800BEAB4D /* Context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556B828B40FC800BEAB4D /* Context.cpp */; };
 		B30556C028B4201A00BEAB4D /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556BE28B4201A00BEAB4D /* Function.cpp */; };
 		B30556C328B433A200BEAB4D /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556C228B433A200BEAB4D /* Error.cpp */; };
+		B30556CA28B44CCC00BEAB4D /* Driver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556C828B44CCC00BEAB4D /* Driver.cpp */; };
 		B33126B028A4BF57001E52E6 /* lexer.l in Sources */ = {isa = PBXBuildFile; fileRef = B33126AB28A4BF57001E52E6 /* lexer.l */; };
 		B33126B128A4BF57001E52E6 /* utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B33126AD28A4BF57001E52E6 /* utility.cpp */; };
 		B33126B228A4BF57001E52E6 /* parser.y in Sources */ = {isa = PBXBuildFile; fileRef = B33126AE28A4BF57001E52E6 /* parser.y */; };
@@ -39,6 +40,8 @@
 		B30556BF28B4201A00BEAB4D /* Function.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Function.hpp; sourceTree = "<group>"; };
 		B30556C228B433A200BEAB4D /* Error.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Error.cpp; sourceTree = "<group>"; };
 		B30556C428B44BBA00BEAB4D /* Error.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Error.hpp; sourceTree = "<group>"; };
+		B30556C828B44CCC00BEAB4D /* Driver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Driver.cpp; sourceTree = "<group>"; };
+		B30556C928B44CCC00BEAB4D /* Driver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Driver.hpp; sourceTree = "<group>"; };
 		B33126AB28A4BF57001E52E6 /* lexer.l */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.lex; path = lexer.l; sourceTree = "<group>"; };
 		B33126AC28A4BF57001E52E6 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
 		B33126AD28A4BF57001E52E6 /* utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utility.cpp; sourceTree = "<group>"; };
@@ -79,6 +82,8 @@
 		B33775A527E8E2F9006CA5FA /* compiler */ = {
 			isa = PBXGroup;
 			children = (
+				B30556C828B44CCC00BEAB4D /* Driver.cpp */,
+				B30556C928B44CCC00BEAB4D /* Driver.hpp */,
 				B30556C428B44BBA00BEAB4D /* Error.hpp */,
 				B30556C228B433A200BEAB4D /* Error.cpp */,
 				B30556BE28B4201A00BEAB4D /* Function.cpp */,
@@ -156,6 +161,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B30556CA28B44CCC00BEAB4D /* Driver.cpp in Sources */,
 				B33126B228A4BF57001E52E6 /* parser.y in Sources */,
 				B33126B128A4BF57001E52E6 /* utility.cpp in Sources */,
 				B30556B728B408EA00BEAB4D /* Statement.cpp in Sources */,
