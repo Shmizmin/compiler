@@ -5,9 +5,14 @@
 
 #include "Expression.hpp"
 #include "Types.hpp"
+#include "Context.hpp"
 
 namespace ti
 {
+    //avoid circular dependency
+    struct Context;
+    struct Function;
+    
     
     struct Variable
     {
@@ -31,39 +36,57 @@ namespace ti
     struct Statement
     {
         StatementType type;
+        
+        virtual void generate(Context&, Function&) noexcept = 0;
     };
     
-    struct BlockStatement : public Statement
+    struct BlockStatement final : public Statement
     {
         std::vector<Statement*> statements;
+        
+        void generate(Context&, Function&) noexcept override;
     };
     
-    struct IfStatement : public Statement
+    struct IfStatement final : public Statement
     {
         Expression* condition;
         Statement* statement;
+        
+        void generate(Context&, Function&) noexcept override;
     };
     
-    struct WhileStatement : public Statement
+    struct WhileStatement final : public Statement
     {
         Expression* condition;
         Statement* statement;
+        
+        void generate(Context&, Function&) noexcept override;
     };
     
-    struct ReturnStatement : public Statement
+    struct ReturnStatement final : public Statement
     {
         Expression* value;
+        
+        void generate(Context&, Function&) noexcept override;
     };
     
-    struct NilStatement : public Statement
+    struct NilStatement final : public Statement
     {
         //null
+        
+        void generate(Context&, Function&) noexcept override;
     };
     
-    struct VariableStatemnet : public Statement
+    struct VariableStatemnet final : public Statement
     {
         std::vector<Variable> variables;
+        
+        void generate(Context&, Function&) noexcept override;
     };
+    
+    
+    
+    
 }
 
 #endif /* Statement_hpp */

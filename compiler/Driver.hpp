@@ -6,7 +6,7 @@
 #include "Statement.hpp"
 #include "Expression.hpp"
 
-#include <string_view>
+#include <string>
 
 namespace ti
 {
@@ -15,10 +15,13 @@ namespace ti
         std::string file_name;
     };
     
-    void generate_program(Program&, Paramters&) noexcept;
+    void generate_program(Program&, Parameters&) noexcept;
     void generate_function(Context&, Function&) noexcept;
-    void generate_statement(Context&, Statement&) noexcept;
-    void generate_expression(Context&, Expression&) noexcept;
+    void generate_statement(Context&, Function&, Statement*) noexcept;
+    void generate_expression(Context&, Function&, Expression*) noexcept;
+    
+    template<typename... Args>
+    std::string format(const std::string& format, Args&&... args);
 }
 
 #endif /* Driver_hpp */

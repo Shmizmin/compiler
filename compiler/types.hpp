@@ -26,13 +26,7 @@ namespace ti
     {
         TypeSpecifier specifier;
         TypeQualifier qualifier;
-    }
-}
-
-
-enum class TypeVisibility
-{
-    
+    };
 }
 
 #endif /* types_h */

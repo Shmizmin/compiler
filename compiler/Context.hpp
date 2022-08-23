@@ -26,7 +26,6 @@ namespace ti
     
     struct VariableSymbol : public Symbol
     {
-        
         std::uint16_t address;
     };
     
@@ -75,11 +74,11 @@ namespace ti
         void add_to_symbol_table(const Symbol&) noexcept;
         void add_to_code(const std::string&) noexcept;
         
-        ForcedAllocation force_allocate(void) noexcept;
-        void force_deallocate(ForcedAllocation&) noexcept;
+        const ForcedAllocation force_allocate(void) noexcept;
+        void force_deallocate(const ForcedAllocation&) noexcept;
         
-        Location allocate(void) noexcept;
-        void deallocate(Location&) noexcept;
+        const Location allocate(void) noexcept;
+        void deallocate(const Location&) noexcept;
         
         std::uint16_t allocate_heap(CompleteType&) noexcept;
         void deallocate_heap(std::uint16_t, CompleteType&) noexcept;

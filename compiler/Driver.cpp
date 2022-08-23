@@ -2,8 +2,15 @@
 #include "Error.hpp"
 
 #include <fstream>
-#include <format>
+#include <cstdio>
+#include <cstdarg>
 #include <algorithm>
+
+namespace
+{
+    
+}
+
 
 void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noexcept
 {
@@ -43,14 +50,51 @@ void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noex
 
 void ti::generate_function(ti::Context& context, ti::Function& function) noexcept
 {
+    const auto name = function.name;
+    const auto defined = (function.body != nullptr);
+    
     context.add_to_symbol_table(ti::Symbol
     {
         .type = SymbolType::FUNCTION,
-        .name = function.name,
-        .defined = (function.body != nullptr),
+        .name = name,
+        .defined = defined,
     });
+
+    context.add_to_code(ti::format("@function_start_%s:\n", function.name.c_str()));
     
-    context.add_to_code(std::format("@function_start_{}:", function.name));
+    //if function is defined
+    if (defined)
+    {
+        function.body->generate(context, function);
+    }
     
+    context.add_to_code(ti::format("@function_end_%s:\n", name.c_str()));
     
+    //issue function return
+    context.add_to_code("pop IP");
+}
+
+void ti::generate_statement(ti::Context& context, ti::Function& function, ti::Statement* statement) noexcept
+{
+    statement->generate(context, function);
+}
+
+//reformatted from https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
+template<typename... Args>
+std::string ti::format(const std::string& format, Args&&... args)
+{
+    int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1; // Extra space for '\0'
+    
+    if (size_s <= 0 )
+    {
+        throw std::runtime_error("Error during formatting.");
+    }
+    
+    auto size = static_cast<size_t>(size_s);
+    
+    std::unique_ptr<char[]> buf(new char[size]);
+    
+    std::snprintf(buf.get(), size, format.c_str(), args...);
+    
+    return std::string( buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
 }

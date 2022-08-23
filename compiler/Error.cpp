@@ -1,30 +1,40 @@
 #include "Error.hpp"
 
 #include <cstdio>
-#include <cstdlib>
 #include <cstdarg>
+#include <cstdlib>
 
-void ti::throw_error(const char* msg, ...) noexcept
+namespace
 {
-    std::va_list args;
-    va_start(args, msg);
-    
-    std::fprintf(stderr, "[Error]");
-    std::vfprintf(stderr, msg, args);
-    std::fprintf(stderr, "\nExiting...\n");
-    
-    std::exit(EXIT_FAILURE);
-    
-    va_end(args);
+    void log_internal(const char* head, const char* tail, const char* msg, ...) noexcept
+    {
+        std::va_list args;
+        va_start(args, msg);
+        
+        std::fprintf(stderr, "%s", head);
+        std::vfprintf(stderr, msg, args);
+        std::fprintf(stderr, "%s", tail);
+        
+        va_end(args);
+    }
 }
 
-void ti::throw_warning(const char* msg, ...) noexcept
+template<typename... T>
+[[noreturn]] void ti::throw_error(const char* msg, T&&... t) noexcept
 {
-    std::va_list args;
-    va_start(args, msg);
+    ::log_internal("[Error]", "\nExiting...\n", msg, t...);
     
-    std::vfprintf(stderr, msg, args);
     std::exit(EXIT_FAILURE);
-    
-    va_end(args);
+}
+
+template<typename... T>
+void ti::throw_warning(const char* msg, T&&... t) noexcept
+{
+    ::log_internal("[Warning]", "", msg, t...);
+}
+
+template<typename... T>
+void write_log(const char* msg, T&&... t) noexcept
+{
+    ::log_internal("[Log]", "", msg, t...);
 }

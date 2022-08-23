@@ -22,7 +22,7 @@ void ti::Context::add_to_code(const std::string& code) noexcept
     code_segment.append(code);
 }
 
-ti::ForcedAllocation ti::Context::force_allocate(void) noexcept
+const ti::ForcedAllocation ti::Context::force_allocate(void) noexcept
 {
     auto alloc = allocate();
     auto was_forced = false;
@@ -38,7 +38,7 @@ ti::ForcedAllocation ti::Context::force_allocate(void) noexcept
     return { alloc, was_forced };
 }
 
-void ti::Context::force_deallocate(ti::ForcedAllocation& alloc) noexcept
+void ti::Context::force_deallocate(const ti::ForcedAllocation& alloc) noexcept
 {
     if (alloc.was_forced)
     {
@@ -50,7 +50,7 @@ void ti::Context::force_deallocate(ti::ForcedAllocation& alloc) noexcept
     }
 }
 
-ti::Location ti::Context::allocate(void) noexcept
+const ti::Location ti::Context::allocate(void) noexcept
 {
     if (available_registers[0])
     {
@@ -76,7 +76,7 @@ ti::Location ti::Context::allocate(void) noexcept
         return STACK;
 }
 
-void ti::Context::deallocate(ti::Location& location) noexcept
+void ti::Context::deallocate(const ti::Location& location) noexcept
 {
     switch (location)
     {
@@ -148,11 +148,9 @@ void ti::Context::deallocate_heap(std::uint16_t location, ti::CompleteType& type
     }
     else
     {
-        ti::throw_error("Address %u is outsid the heap region and cannot be deallocated", location);
+        ti::throw_error("Address %u is outside the heap region and cannot be deallocated", location);
     }
 }
-
-
 
 
 std::uint8_t ti::get_type_size(ti::CompleteType& type) noexcept

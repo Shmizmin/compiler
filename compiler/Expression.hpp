@@ -8,6 +8,10 @@
 
 namespace ti
 {
+    struct Context;
+    struct Function;
+    struct ForcedAllocation;
+    
     enum class ExpressionType
     {
         NUMCONST,
@@ -65,39 +69,56 @@ namespace ti
     struct Expression
     {
         ExpressionType type;
+        
+        virtual void generate(Context&, Function&, const ForcedAllocation&) noexcept = 0;
     };
     
     struct NumconstExpression : public Expression
     {
         CompleteType complete_type;
         std::variant<std::uint8_t, std::uint16_t> value;
+        
+        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
     };
     
     struct StringconstExpression : public Expression
     {
         std::string value;
+        
+        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
     };
     
     struct IdentifierExpression : public Expression
     {
         std::string identifier;
+        
+        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
     };
     
     struct TernaryExpression : public Expression
     {
-        Expression* left, center, right;
+        Expression* left;
+        Expression* center;
+        Expression* right;
+        
+        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
     };
     
     struct BinaryExpression : public Expression
     {
-        Expression* left, right;
+        Expression* left;
+        Expression* right;
         BinaryOp op;
+        
+        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
     };
     
     struct UnaryExpression : public Expression
     {
         Expression* center;
         UnaryOp op;
+        
+        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
     };
 }
 
