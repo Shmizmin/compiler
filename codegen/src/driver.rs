@@ -34,10 +34,13 @@ pub struct Driver
     pub stack_pointer: u16,
 }
 
+
 impl Driver
 {
+    //essentially a constructor for this struct
     pub fn reset_driver() -> Driver
     {
+
         return Driver
         {
             symbol_table: vec![],
@@ -49,8 +52,12 @@ impl Driver
         };
     }
 
+
+    //verifies that a symbol of the same name doesn't exist
+    //this means that functions and variables cannot share the same name
     pub fn add_to_symbol_table(&mut self, symbol: Symbol)
     {
+
         //check that symbol name is undefined
         for i in &self.symbol_table
         {
@@ -63,14 +70,20 @@ impl Driver
         self.symbol_table.push(symbol);
     }
 
+
+    //implement better error handling for potentially invalid characters in the string 
+    //(may come from C and potentially be corrupted)
     pub fn add_to_code(&mut self, value: String)
     {
         self.code_segment.push_str(value.as_str());
     }
 
+
     //will always return a register allocation
+    //saves an old allocation if needbe
     pub fn force_allocate(&mut self) -> (u8, bool)
     {
+
         let mut alloc_name = self.allocate();
 
         //if no register available, make room
@@ -85,7 +98,9 @@ impl Driver
         return (alloc_name, was_forced);
     }
 
+
     //name is a misnomer--is just the complement of 'force_allocate'
+    //determine if needed to clean up a complete expression generation
     pub fn force_deallocate(&mut self, allocation: (u8, bool))
     {
         //was forced
@@ -101,6 +116,10 @@ impl Driver
 
 
 
+    //returns a valid register or tells to allocate on the stack
+    //not often used externally
+    //many operations require registers in order to directly access the ALU
+    //improve the allocation algorithm so high importance variables are always in registers
     pub fn allocate(&mut self) -> Location
     {
         //short circuit stack allocations--usually more frequent
@@ -134,6 +153,8 @@ impl Driver
         }
     }
 
+
+    //reverse of above
     pub fn deallocate(&mut self, location: Location)
     {
         match location
@@ -147,8 +168,10 @@ impl Driver
     }
 
 
+    //internal helper function
     fn modify(&mut self, instruction: String, size: TypeSpecifier, df1: String, df2: String) -> u16
     {
+
         self.add_to_code(instruction);
 
         let diff;
@@ -163,8 +186,11 @@ impl Driver
         return diff;
     }
 
+
+    //allocate space on the stack for a value of a designed size to pushed onto
     pub fn push(&mut self, instruction: String, size: TypeSpecifier)
     {
+
         let diff = self.modify(instruction, size, "push".to_string(), "to".to_string());
         let staged = self.stack_pointer - diff;
 
@@ -179,8 +205,11 @@ impl Driver
         
     }
 
+
+    //deallocate space on the stack for a value of a designed size to be popped off from
     pub fn pop(&mut self, instruction: String, size: TypeSpecifier)
     {
+
         let diff = self.modify(instruction, size, "pop".to_string(), "off of".to_string());
         let staged = self.stack_pointer + diff;
         
@@ -195,6 +224,8 @@ impl Driver
     }
 
 
+    //simply returns the size in bytes of the various types that Titanium supports
+    //pointers aren't yet implemented despite being correctly sized
     pub fn getsize(&mut self, complete_type: CompleteType) -> i32
     {
         if matches!(complete_type.type_qualifier, TypeQualifier::PTR)
@@ -213,8 +244,18 @@ impl Driver
         }
     }
 
+
+    //smart allocate heap memory virtually
+    //searches heap to find earliest spot to slot new variables into
+    //because of the small allocation sizes, it's unlikely that
+    //A: the heap runs out of capacity (unlike the stack due to recursive functions)
+    //B: the fragmentation beceomes a significant problem
+    //currently not easily accessible by the programmer in Titanium
+    //many variables will automatically be put on the heap for register optimization reasons
+    //addrof/deref will basically just return address/object of a variable
     pub fn allocate_heap(&mut self, complete_type: CompleteType) -> u16
     {
+
         let size = self.getsize(complete_type);
         let len = self.available_heap.len();
         for i in 0..len
@@ -240,6 +281,8 @@ impl Driver
         //went through heap--no slots or none large enough
         codegen_error(format!("No contiguous region of heap large enough to allocate {} bytes", size));
     }
+
+
 
     pub fn deallocate_heap(&mut self, location: u16, complete_type: CompleteType)
     {
@@ -269,6 +312,8 @@ impl Driver
 
 }
 
+
+//useful for generic functions when register allocations aren't guaranteed to be in the same place each time
 pub fn location_to_string(location: Location) -> String
 {
     match location
@@ -282,6 +327,8 @@ pub fn location_to_string(location: Location) -> String
     }
 }
 
+//useful for error handling to generically print messages for each type of expression
+//for instance: Expected a string constant, not an identifier
 pub fn expression_type_to_string(expression_type: ExpressionType) -> String
 {
     use ExpressionType::*;
@@ -296,6 +343,12 @@ pub fn expression_type_to_string(expression_type: ExpressionType) -> String
     }
 }
 
+//should really be in an enum
+//this Rust implementation is mangled by the required C interoperability
+//an easy to use interface for a standard container to wrap the register allocation/deallocation
+//process simply wasn't in the cards for this version
+//ideally a vec4<bool> would represent the registers, but the kludginess to get 'r0-3' indexing working isn't
+//really worth the small savings in readability for this project
 pub const R0 : u8 = 1;
 pub const R1 : u8 = 2;
 pub const R2 : u8 = 4;

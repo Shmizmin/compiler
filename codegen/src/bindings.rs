@@ -4,12 +4,14 @@ use std::os::raw::c_char;
 use std::os::raw::c_uchar;
 use std::os::raw::c_ushort;
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Parameters
 {
     silence_warnings: bool,
 }
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -18,6 +20,7 @@ pub enum TypeVisibility
     LOCAL,
     GLOBAL,
 } 
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -28,6 +31,7 @@ pub enum TypeSpecifier
     VOID,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub enum TypeQualifier
@@ -37,6 +41,7 @@ pub enum TypeQualifier
     VAL,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct CompleteType
@@ -44,6 +49,7 @@ pub struct CompleteType
     pub type_specifier: TypeSpecifier,
     pub type_qualifier: TypeQualifier,
 }
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -58,6 +64,7 @@ pub enum UnaryOp
     POSITIVE,
     NEGATIVE,
 }
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -93,6 +100,7 @@ pub enum BinaryOp
     GREATER_EQUALS,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub enum ExpressionType
@@ -104,6 +112,7 @@ pub enum ExpressionType
     BINARYOP,
     UNARYOP,
 }
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -117,6 +126,7 @@ pub union ExpressionValue
     pub unary_expression: *mut UnaryExpression,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Expression
@@ -126,12 +136,14 @@ pub struct Expression
 }
 
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct NumconstExpression
 {
     pub value: c_ushort,
 }
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -140,12 +152,14 @@ pub struct StringconstExpression
     pub value: *const c_char,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct IdentifierExpression
 {
     pub name: *const c_char,
 }
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -156,6 +170,7 @@ pub struct TernaryExpression
     pub right: *mut Expression,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct BinaryExpression
@@ -165,6 +180,7 @@ pub struct BinaryExpression
     pub right: *mut Expression,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct UnaryExpression
@@ -172,6 +188,7 @@ pub struct UnaryExpression
     pub op: UnaryOp,
     pub left: *mut Expression,
 }
+
 
 
 #[repr(C)]
@@ -184,6 +201,7 @@ pub struct Variable
     pub value: *mut Expression, //null if value undefined
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct VariableStatement
@@ -191,6 +209,7 @@ pub struct VariableStatement
     pub num_variables: c_uchar,
     pub variables: *mut Variable,
 }
+
 
 
 #[repr(C)]
@@ -205,6 +224,7 @@ pub enum StatementType
     VARIABLE,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union StatementValue
@@ -217,6 +237,7 @@ pub union StatementValue
     pub variable_statement: *mut VariableStatement,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Statement
@@ -224,6 +245,7 @@ pub struct Statement
     pub statement_type: StatementType,
     pub statement_value: StatementValue,
 }
+
 
 
 #[repr(C)]
@@ -234,6 +256,7 @@ pub struct BlockStatement
     pub statements: *mut Statement,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct IfStatement
@@ -241,6 +264,7 @@ pub struct IfStatement
     pub condition: *mut Expression,
     pub statement: *mut Statement,
 }
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -250,6 +274,7 @@ pub struct WhileStatement
     pub statement: *mut Statement,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ReturnStatement
@@ -257,12 +282,14 @@ pub struct ReturnStatement
     pub value: *mut Expression,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct NilStatement
 {
     //null
 }
+
 
 
 #[repr(C)]
@@ -273,6 +300,7 @@ pub struct Argument
     pub complete_type: CompleteType,
 }
 
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Arguments
@@ -280,6 +308,7 @@ pub struct Arguments
     pub num_arguments: c_uchar,
     pub arguments: *mut Argument,
 }
+
 
 
 #[repr(C)]
@@ -291,6 +320,7 @@ pub struct Function
     pub arguments: Arguments,
     pub body: *mut Statement, //null if function body undefined
 }
+
 
 #[repr(C)]
 #[derive(Copy, Clone)]

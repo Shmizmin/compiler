@@ -4,8 +4,10 @@ use super::expression::*;
 use super::util::*;
 use super::error::*;
 
+
 pub fn generate_block(driver: &mut Driver, block_statement: *const BlockStatement, parent_function: *const Function)
 {
+
     unsafe
     {
         for i in 0..(*block_statement).num_statements
@@ -15,8 +17,10 @@ pub fn generate_block(driver: &mut Driver, block_statement: *const BlockStatemen
     }
 }
 
+
 pub fn generate_if(driver: &mut Driver, if_statement: *const IfStatement, parent_function: *const Function)
 {
+
     unsafe
     {
         let label = format!("@if_end_{}_{}", convert_string((*parent_function).name), driver.counter);
@@ -35,8 +39,10 @@ pub fn generate_if(driver: &mut Driver, if_statement: *const IfStatement, parent
     }
 }
 
+
 pub fn generate_while(driver: &mut Driver, while_statement: *const WhileStatement, parent_function: *const Function)
 {
+
     unsafe
     {
         let label = format!("@while_begin_{}_{}", convert_string((*parent_function).name), driver.counter);
@@ -54,8 +60,10 @@ pub fn generate_while(driver: &mut Driver, while_statement: *const WhileStatemen
     }
 }
 
+
 pub fn generate_return(driver: &mut Driver, return_statement: *const ReturnStatement, parent_function: *const Function)
 {
+
     unsafe
     {
         //compute return value
@@ -65,12 +73,16 @@ pub fn generate_return(driver: &mut Driver, return_statement: *const ReturnState
     }
 }
 
+
 pub fn generate_variable(driver: &mut Driver, variable_statement: *const VariableStatement, parent_function: *const Function)
 {
+
     unsafe
     {
+
         for i in 0..(*variable_statement).num_variables
         {
+
             let variable = (*variable_statement).variables.offset(i.into());
             let defined = !(*variable).value.is_null();
             let name = convert_string((*variable).name);
@@ -112,6 +124,7 @@ pub fn generate_variable(driver: &mut Driver, variable_statement: *const Variabl
     }
 }
 
+
 pub fn generate_nil(_driver: &mut Driver, _nil_statement: *const NilStatement, _parent_function: *const Function)
 {
     codegen_warning("Null statement ';' encountered.".to_string());
@@ -121,8 +134,10 @@ pub fn generate_nil(_driver: &mut Driver, _nil_statement: *const NilStatement, _
 
 pub fn generate_statement(driver: &mut Driver, statement: *const Statement, parent_function: *const Function)
 {
+
     unsafe
     {
+        
         let stype = &((*statement).statement_type);
         let svalue = &((*statement).statement_value);
 
