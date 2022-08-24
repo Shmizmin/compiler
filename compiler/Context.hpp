@@ -27,6 +27,8 @@ namespace ti
     struct VariableSymbol : public Symbol
     {
         std::uint16_t address;
+        TypeVisibility visibility;
+        Function& function; //parent function
     };
     
     struct FunctionSymbol : public Symbol
@@ -54,7 +56,7 @@ namespace ti
     
     struct Context
     {
-        std::vector<const Symbol* const> symbol_table;
+        std::vector<Symbol*> symbol_table;
         std::string code_segment;
         std::array<bool, 4> available_registers;
         std::array<bool, 0x4000> available_heap;
@@ -70,8 +72,8 @@ namespace ti
             counter = 0u;
             stack_pointer = 0x7FFF;
         }
-        
-        void add_to_symbol_table(const Symbol* const) noexcept;
+
+        void add_to_symbol_table(Symbol*) noexcept;
         
         void add_to_code(const std::string&) noexcept;
         

@@ -69,7 +69,7 @@ void ti::VariableStatemnet::generate(ti::Context& context, ti::Function& functio
 {
     ti::write_log("Generating code for variable statement");
     
-    std::for_each(variables.begin(), variables.end(), [](Variable& variable)
+    std::for_each(variables.begin(), variables.end(), [&](Variable& variable)
     {
         const auto& name = variable.name;
         const auto  defined = (variable.value != nullptr);
@@ -79,6 +79,35 @@ void ti::VariableStatemnet::generate(ti::Context& context, ti::Function& functio
             ti::throw_error("Variable %s was illegally declared as type \'void\'", name);
         }
         
+        const auto address = context.allocate_heap(variable.type);
+              auto* symbol = new ti::VariableSymbol
+        {
+            {
+                .type = ti::SymbolType::VARIABLE,
+                .name = name,
+                .defined = defined,
+            },
+            
+            address,
+            variable.visibility,
+            function,
+        };
+    
+        context.add_to_symbol_table(symbol);
         
+        //only supports 1 byte values for now
+        //should the variable expression be code generated
+#warning ONLY ONE BYTE VALUES ARE SUPPORTED FOR VARIABLES
+        if (defined)
+        {
+            const auto alloc = context.allocate_forced();
+            
+            variable.value->generate(context, function, alloc);
+            
+            context.add_to_code(ti::format("stb %%%s, %s\n", address, alloc.location));
+                                
+            context.deallocate_forced(alloc);
+        }
+    
     });
 }

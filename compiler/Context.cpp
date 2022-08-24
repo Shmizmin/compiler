@@ -4,11 +4,11 @@
 #include <algorithm>
 
 
-void ti::Context::add_to_symbol_table(const ti::Symbol* const symbol) noexcept
+void ti::Context::add_to_symbol_table(ti::Symbol* symbol) noexcept
 {
-    if (std::find_if(symbol_table.begin(), symbol_table.end(), [&](ti::Symbol& s)
+    if (std::find_if(symbol_table.begin(), symbol_table.end(), [&](ti::Symbol* s)
         {
-            return (s.name == symbol->name);
+            return (s->name == symbol->name);
         }) != std::end(symbol_table))
     {
         //duplicate symbol name
