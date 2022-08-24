@@ -50,8 +50,8 @@ void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noex
 
 void ti::generate_function(ti::Context& context, ti::Function& function) noexcept
 {
-    const auto name = function.name;
-    const auto defined = (function.body != nullptr);
+    const auto& name = function.name;
+    const auto  defined = (function.body != nullptr);
     
     context.add_to_symbol_table(ti::Symbol
     {

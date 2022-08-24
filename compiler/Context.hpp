@@ -54,7 +54,7 @@ namespace ti
     
     struct Context
     {
-        std::vector<Symbol> symbol_table;
+        std::vector<const Symbol* const> symbol_table;
         std::string code_segment;
         std::array<bool, 4> available_registers;
         std::array<bool, 0x4000> available_heap;
@@ -71,11 +71,12 @@ namespace ti
             stack_pointer = 0x7FFF;
         }
         
-        void add_to_symbol_table(const Symbol&) noexcept;
+        void add_to_symbol_table(const Symbol* const) noexcept;
+        
         void add_to_code(const std::string&) noexcept;
         
-        const ForcedAllocation force_allocate(void) noexcept;
-        void force_deallocate(const ForcedAllocation&) noexcept;
+        const ForcedAllocation allocate_forced(void) noexcept;
+        void deallocate_forced(const ForcedAllocation&) noexcept;
         
         const Location allocate(void) noexcept;
         void deallocate(const Location&) noexcept;

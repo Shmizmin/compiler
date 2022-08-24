@@ -3,26 +3,28 @@
 
 #include <algorithm>
 
-void ti::Context::add_to_symbol_table(const ti::Symbol& symbol) noexcept
+
+void ti::Context::add_to_symbol_table(const ti::Symbol* const symbol) noexcept
 {
-    if (std::find_if(symbol_table.begin(), symbol_table.end(), [&](Symbol s)
+    if (std::find_if(symbol_table.begin(), symbol_table.end(), [&](ti::Symbol& s)
         {
-            return (s.name == symbol.name);
+            return (s.name == symbol->name);
         }) != std::end(symbol_table))
     {
         //duplicate symbol name
-        ti::throw_error("Duplicate identifier %s", symbol.name.c_str());
+        ti::throw_error("Duplicate identifier %s", symbol->name.c_str());
     }
     
     symbol_table.emplace_back(symbol);
 }
+
 
 void ti::Context::add_to_code(const std::string& code) noexcept
 {
     code_segment.append(code);
 }
 
-const ti::ForcedAllocation ti::Context::force_allocate(void) noexcept
+const ti::ForcedAllocation ti::Context::allocate_forced(void) noexcept
 {
     auto alloc = allocate();
     auto was_forced = false;
@@ -38,7 +40,7 @@ const ti::ForcedAllocation ti::Context::force_allocate(void) noexcept
     return { alloc, was_forced };
 }
 
-void ti::Context::force_deallocate(const ti::ForcedAllocation& alloc) noexcept
+void ti::Context::deallocate_forced(const ti::ForcedAllocation& alloc) noexcept
 {
     if (alloc.was_forced)
     {
