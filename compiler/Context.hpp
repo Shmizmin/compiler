@@ -84,8 +84,8 @@ namespace ti
         const Location allocate(void) noexcept;
         void deallocate(const Location&) noexcept;
         
-        std::uint16_t allocate_heap(CompleteType&) noexcept;
-        void deallocate_heap(std::uint16_t, CompleteType&) noexcept;
+        std::uint16_t allocate_heap(std::uint16_t) noexcept;
+        void deallocate_heap(std::uint16_t, std::uint16_t) noexcept;
         
     };
     

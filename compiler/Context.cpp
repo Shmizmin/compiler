@@ -115,62 +115,46 @@ void ti::Context::deallocate(const ti::Location& location) noexcept
     }
 }
 
-std::uint16_t ti::Context::allocate_heap(ti::CompleteType& type) noexcept
+std::uint16_t ti::Context::allocate_heap(std::uint16_t bytes) noexcept
 {
-    const auto size = ti::get_type_size(type);
+    const auto size = bytes;
     const auto length = available_heap.size();
     
+    std::uint16_t cvt;
+    auto avail = true;
     for (auto i = 0; i < length; ++i)
     {
-        const auto cvt = static_cast<std::uint16_t>(i);
+        //potential heap address
+        cvt = static_cast<std::uint16_t>(i);
         
-        auto& h1 = available_heap[i];
-        
-        
-        switch (size)
+        for (auto j = 0; j < size; ++j)
         {
-            case 1: if (h1)
+            if (!available_heap[j])
             {
-                h1 = false;
-                return cvt;
-            } break;
-                
-            case 2: if (i < length)
-            {
-                auto& h2 = available_heap[i + 1u];
-                
-                if (h1 && h2)
-                {
-                    h1 = false;
-                    h2 = false;
-                    return cvt;
-                }
-            } break;
-                
-            default: ti::throw_error("Heap allocations of size %u are unsupported", size); break;
+                avail = false;
+                continue;
+            }
         }
     }
     
-    //no successful allocation was made
-    ti::throw_error("No contiguous heap region large enough allocate %u bytes", size);
+    if (avail)
+    {
+        return cvt;
+    }
+    else
+    {
+        //no successful allocation was made
+        ti::throw_error("No contiguous heap region large enough allocate %u bytes", size);
+    }
 }
 
-void ti::Context::deallocate_heap(std::uint16_t location, ti::CompleteType& type) noexcept
+void ti::Context::deallocate_heap(std::uint16_t location, std::uint16_t bytes) noexcept
 {
-    const auto length = available_heap.size();
-    
-    if (location < 0x4000 && location < length)
+    if (location < 0x4000 && location < available_heap.size())
     {
-        const auto size = ti::get_type_size(type);
-        
-        switch (size)
+        for (auto i = location; i < location + bytes; ++i)
         {
-            case 1: available_heap[location] = true; break;
-                
-            case 2: available_heap[location]     = true;
-                    available_heap[location + 1] = true; break;
-                
-            default: ti::throw_error("Heap deallocations of size %u are unsupported", size); break;
+            available_heap[i] = true;
         }
     }
     else

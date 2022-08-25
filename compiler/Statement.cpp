@@ -78,8 +78,8 @@ void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) 
         {
             ti::throw_error("Variable %s was illegally declared as type \'void\'", name.c_str());
         }
-        
-        const auto address = context.allocate_heap(variable.type);
+
+        const auto address = context.allocate_heap(ti::get_type_size(variable.type));
               auto* symbol = new ti::VariableSymbol
         {
             {
