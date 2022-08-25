@@ -1,5 +1,6 @@
 #include "Context.hpp"
 #include "Error.hpp"
+#include "Driver.hpp"
 
 #include <algorithm>
 
@@ -34,6 +35,30 @@ const ti::ForcedAllocation ti::Context::allocate_forced(void) noexcept
         //no free registers
         add_to_code("push r0\n");
         alloc = R0;
+        was_forced = true;
+    }
+    
+    return { alloc, was_forced };
+}
+
+//parameter allocation is location to exclude allocating
+const ti::ForcedAllocation ti::Context::allocate_forced(const ti::ForcedAllocation& allocation) noexcept
+{
+    auto alloc = allocate();
+    auto was_forced = false;
+    
+    if (alloc == STACK)
+    {
+        switch (allocation.location)
+        {
+            case R0: alloc = R1; break;
+            case R1: alloc = R2; break;
+            case R2: alloc = R3; break;
+            case R3: alloc = R0; break;
+            default: ti::throw_error("Allocation exclusion had an illegal allocation location"); break;
+        }
+        
+        add_to_code(ti::format("push %s\n", ti::location_to_string(alloc).c_str()));
         was_forced = true;
     }
     

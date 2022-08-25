@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-void ti::BlockStatement::generate(ti::Context& context, ti::Function& function) noexcept
+void ti::stmt::Block::generate(ti::Context& context, ti::Function& function) noexcept
 {
     ti::write_log("Generating code for block statement");
 
@@ -17,7 +17,7 @@ void ti::BlockStatement::generate(ti::Context& context, ti::Function& function) 
     });
 }
 
-void ti::IfStatement::generate(ti::Context& context, ti::Function& function) noexcept
+void ti::stmt::If::generate(ti::Context& context, ti::Function& function) noexcept
 {
     ti::write_log("Generating code for if statement");
     
@@ -27,7 +27,7 @@ void ti::IfStatement::generate(ti::Context& context, ti::Function& function) noe
     condition->generate(context, function, alloc);
     
     context.add_to_code("updateFlags()\n");
-    context.add_to_code(ti::format("jez [%s]", label));
+    context.add_to_code(ti::format("jez [%s]", label.c_str()));
     
     context.deallocate_forced(alloc);
     
@@ -36,7 +36,7 @@ void ti::IfStatement::generate(ti::Context& context, ti::Function& function) noe
     context.add_to_code(label);
 }
 
-void ti::WhileStatement::generate(ti::Context& context, ti::Function& function) noexcept
+void ti::stmt::While::generate(ti::Context& context, ti::Function& function) noexcept
 {
     ti::write_log("Generating code for while statement");
     
@@ -52,7 +52,7 @@ void ti::WhileStatement::generate(ti::Context& context, ti::Function& function) 
     context.add_to_code(ti::format("jnz([%s])\n", label.c_str()));
 }
 
-void ti::ReturnStatement::generate(ti::Context& context, ti::Function& function) noexcept
+void ti::stmt::Return::generate(ti::Context& context, ti::Function& function) noexcept
 {
     ti::write_log("Generating code for return statement");
 
@@ -60,23 +60,23 @@ void ti::ReturnStatement::generate(ti::Context& context, ti::Function& function)
     context.add_to_code(ti::format("jmp([%s_end])\n", function.name.c_str()));
 }
 
-void ti::NilStatement::generate(ti::Context& context, ti::Function& function) noexcept
+void ti::stmt::Null::generate(ti::Context& context, ti::Function& function) noexcept
 {
     ti::write_log("Generating code for null statement");
 }
 
-void ti::VariableStatemnet::generate(ti::Context& context, ti::Function& function) noexcept
+void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) noexcept
 {
     ti::write_log("Generating code for variable statement");
-    
-    std::for_each(variables.begin(), variables.end(), [&](Variable& variable)
+
+    std::for_each(variables.begin(), variables.end(), [&](ti::Variable& variable)
     {
         const auto& name = variable.name;
         const auto  defined = (variable.value != nullptr);
         
         if (variable.type.specifier == ti::TypeSpecifier::VOID)
         {
-            ti::throw_error("Variable %s was illegally declared as type \'void\'", name);
+            ti::throw_error("Variable %s was illegally declared as type \'void\'", name.c_str());
         }
         
         const auto address = context.allocate_heap(variable.type);

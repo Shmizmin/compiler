@@ -40,53 +40,52 @@ namespace ti
         virtual void generate(Context&, Function&) noexcept = 0;
     };
     
-    struct BlockStatement final : public Statement
+    namespace stmt
     {
-        std::vector<Statement*> statements;
+        struct Block final : public Statement
+        {
+            std::vector<Statement*> statements;
+            
+            void generate(Context&, Function&) noexcept override;
+        };
         
-        void generate(Context&, Function&) noexcept override;
-    };
-    
-    struct IfStatement final : public Statement
-    {
-        Expression* condition;
-        Statement* statement;
+        struct If final : public Statement
+        {
+            Expression* condition;
+            Statement* statement;
+            
+            void generate(Context&, Function&) noexcept override;
+        };
         
-        void generate(Context&, Function&) noexcept override;
-    };
-    
-    struct WhileStatement final : public Statement
-    {
-        Expression* condition;
-        Statement* statement;
+        struct While final : public Statement
+        {
+            Expression* condition;
+            Statement* statement;
+            
+            void generate(Context&, Function&) noexcept override;
+        };
         
-        void generate(Context&, Function&) noexcept override;
-    };
-    
-    struct ReturnStatement final : public Statement
-    {
-        Expression* value;
+        struct Return final : public Statement
+        {
+            Expression* value;
+            
+            void generate(Context&, Function&) noexcept override;
+        };
         
-        void generate(Context&, Function&) noexcept override;
-    };
-    
-    struct NilStatement final : public Statement
-    {
-        //null
+        struct Null final : public Statement
+        {
+            //null
+            
+            void generate(Context&, Function&) noexcept override;
+        };
         
-        void generate(Context&, Function&) noexcept override;
-    };
-    
-    struct VariableStatemnet final : public Statement
-    {
-        std::vector<Variable> variables;
-        
-        void generate(Context&, Function&) noexcept override;
-    };
-    
-    
-    
-    
+        struct Variable final : public Statement
+        {
+            std::vector<ti::Variable> variables;
+            
+            void generate(Context&, Function&) noexcept override;
+        };
+    }
 }
 
 #endif /* Statement_hpp */

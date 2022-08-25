@@ -73,53 +73,93 @@ namespace ti
         virtual void generate(Context&, Function&, const ForcedAllocation&) noexcept = 0;
     };
     
-    struct NumconstExpression : public Expression
+    namespace expr
     {
-        CompleteType complete_type;
-        std::variant<std::uint8_t, std::uint16_t> value;
+        struct Numconst : public Expression
+        {
+            CompleteType complete_type;
+            std::variant<std::uint8_t, std::uint16_t> value;
+            
+            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+        };
         
-        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-    };
-    
-    struct StringconstExpression : public Expression
-    {
-        std::string value;
+        struct Stringconst : public Expression
+        {
+            std::string value;
+            
+            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+        };
         
-        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-    };
-    
-    struct IdentifierExpression : public Expression
-    {
-        std::string identifier;
+        struct Identifier : public Expression
+        {
+            std::string identifier;
+            
+            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+        };
         
-        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-    };
-    
-    struct TernaryExpression : public Expression
-    {
-        Expression* left;
-        Expression* center;
-        Expression* right;
+        struct Ternary : public Expression
+        {
+            Expression* left;
+            Expression* center;
+            Expression* right;
+            
+            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+        };
         
-        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-    };
-    
-    struct BinaryExpression : public Expression
-    {
-        Expression* left;
-        Expression* right;
-        BinaryOp op;
+        struct Binary : public Expression
+        {
+            Expression* left;
+            Expression* right;
+            BinaryOp op;
+            
+            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+        };
         
-        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-    };
-    
-    struct UnaryExpression : public Expression
-    {
-        Expression* center;
-        UnaryOp op;
+        namespace binary
+        {
+            
+        }
         
-        void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-    };
+        
+        
+        
+        
+        
+        struct Unary : public Expression
+        {
+            Expression* center;
+            
+            //void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+        };
+        
+        namespace unary
+        {
+            struct PlusPlus : public Unary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            };
+            struct MinusMinus : public Unary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            };
+            struct Addrof : public Unary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            };
+            struct Deref : public Unary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            };
+            struct Positive : public Unary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            };
+            struct Negative : public Unary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            };
+        }
+    }
 }
 
 #endif /* Expression_hpp */

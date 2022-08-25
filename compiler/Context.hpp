@@ -78,6 +78,7 @@ namespace ti
         void add_to_code(const std::string&) noexcept;
         
         const ForcedAllocation allocate_forced(void) noexcept;
+        const ForcedAllocation allocate_forced(const ForcedAllocation&) noexcept;
         void deallocate_forced(const ForcedAllocation&) noexcept;
         
         const Location allocate(void) noexcept;
