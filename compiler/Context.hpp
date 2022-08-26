@@ -34,6 +34,7 @@ namespace ti
     struct FunctionSymbol : public Symbol
     {
         //null
+        std::string label;
     };
     
     

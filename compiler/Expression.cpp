@@ -8,6 +8,19 @@
 #include <stdexcept>
 #include <exception>
 
+namespace
+{
+    bool funcs_equal(ti::Function& f1, ti::Function& f2)
+    {
+        return (f1.name                  == f2.name)                  &&
+               (f1.arguments             == f2.arguments)             &&
+               (f1.body                  == f2.body)                  &&
+               (f1.return_type.specifier == f2.return_type.specifier) &&
+               (f1.return_type.qualifier == f2.return_type.qualifier);
+    }
+}
+
+
 
 
 void ti::expr::Stringconst::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
@@ -17,12 +30,67 @@ void ti::expr::Stringconst::generate(ti::Context& context, ti::Function& functio
 
 void ti::expr::Identifier::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
+    const auto loc = std::find_if(context.symbol_table.begin(), context.symbol_table.end(), [&](Symbol* s)
+    {
+        return (name == s->name);
+    });
     
+    if (loc == std::end(context.symbol_table))
+    {
+        ti::throw_error("Identifier %s is previously undefined", name.c_str());
+    }
+    if (!((*loc)->defined))
+    {
+        ti::throw_error("Identifier %s was not previously assigned a valid value", name.c_str());
+    }
+    if ((*loc)->type == ti::SymbolType::FUNCTION)
+    {
+        ti::throw_error("Identifier %s was previously defined as a function", name.c_str());
+    }
+    else
+    {
+        //symbol seems valid and of type variable
+        auto nsym = static_cast<ti::VariableSymbol*>(*loc);
+        
+        if (nsym->visibility == ti::TypeVisibility::LOCAL                          &&
+           (nsym->function.name                  != function.name                  ||
+            nsym->function.arguments             != function.arguments             ||
+            nsym->function.body                  != function.body                  ||
+            nsym->function.return_type.specifier != function.return_type.specifier ||
+            nsym->function.return_type.qualifier != function.return_type.qualifier))
+        {
+            //variable is local to a different function
+            ti::throw_error("Identifier %s is inaccessible from function %s", name.c_str(), function.name.c_str());
+        }
+        
+        //variable is good to query and load
+        context.add_to_code(ti::format("ldb %s, %%%u\n", ti::location_to_string(allocation.location).c_str(), nsym->address));
+    }
 }
 
 void ti::expr::Ternary::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
+    left->generate(context, function, allocation);
     
+    context.add_to_code("updateFlags()\n");
+    
+    const auto label_template = "ternary_%s_%s_%u";
+    
+    
+    const auto end_label = ti::format(label_template, "end", function.name.c_str(), context.counter);
+    context.add_to_code(ti::format("jez [%s]\n", end_label.c_str()).c_str());
+    
+    context.add_to_code(ti::format("@%s:\n", ti::format(label_template, "first", function.name.c_str(), context.counter).c_str()));
+    
+    center->generate(context, function, allocation);
+    context.add_to_code(ti::format("jmp([%s])\n", end_label.c_str()).c_str());
+    
+    context.add_to_code(ti::format("@%s:\n", ti::format(label_template, "second", function.name.c_str(), context.counter).c_str()));
+    
+    right->generate(context, function, allocation);
+    context.add_to_code(ti::format("jmp([%s])\n", end_label.c_str()).c_str());
+    
+    context.add_to_code(ti::format("@%s:\n", end_label.c_str()).c_str());
 }
 
 
@@ -34,11 +102,8 @@ void ti::expr::Ternary::generate(ti::Context& context, ti::Function& function, c
 void ti::expr::num::Numconst8::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for 8-bit numeric constant expression");
-}
-
-void ti::expr::num::Numconst16::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for 16-bit numeric constant expression");
+    
+    context.add_to_code(ti::format("ldb %s, #%u\n", ti::location_to_string(allocation.location).c_str(), value));
 }
 
 
@@ -57,9 +122,55 @@ void ti::expr::binary::FCall::generate(ti::Context& context, ti::Function& funct
     ti::write_log("Generating code for function call expression");
 }
 
+
 void ti::expr::binary::Equals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary assignment expression");
+    
+    if (left->type != ti::ExpressionType::IDENTIFIER)
+    {
+        ti::throw_error("Left side of assignment is not an identifier");
+    }
+    
+    auto* ident = static_cast<ti::expr::Identifier*>(left);
+    
+    const auto loc = std::find_if(context.symbol_table.begin(), context.symbol_table.end(), [&](Symbol* s)
+    {
+        return (ident->name == s->name);
+    });
+    
+    
+    if (loc == std::end(context.symbol_table))
+    {
+        ti::throw_error("Identifier %s is previously undefined", ident->name.c_str());
+    }
+    if (!((*loc)->defined))
+    {
+        ti::throw_error("Identifier %s was not previously assigned a valid value", ident->name.c_str());
+    }
+    if ((*loc)->type == ti::SymbolType::FUNCTION)
+    {
+        ti::throw_error("Identifier %s was previously defined as a function", ident->name.c_str());
+    }
+    else
+    {
+        //symbol seems valid and of type variable
+        auto nsym = static_cast<ti::VariableSymbol*>(*loc);
+        
+        if (nsym->visibility == ti::TypeVisibility::LOCAL                          &&
+           (nsym->function.name                  != function.name                  ||
+            nsym->function.arguments             != function.arguments             ||
+            nsym->function.body                  != function.body                  ||
+            nsym->function.return_type.specifier != function.return_type.specifier ||
+            nsym->function.return_type.qualifier != function.return_type.qualifier))
+        {
+            //variable is local to a different function
+            ti::throw_error("Identifier %s is inaccessible from function %s", ident->name.c_str(), function.name.c_str());
+        }
+        
+        right->generate(context, function, allocation);
+        context.add_to_code("stb %%%u, %s\n", nsym->address, )
+    }
 }
 
 void ti::expr::binary::Plus::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept

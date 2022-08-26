@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <compare>
 
 #include "Statement.hpp"
 #include "Types.hpp"

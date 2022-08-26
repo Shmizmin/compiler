@@ -48,14 +48,17 @@ void ti::generate_function(ti::Context& context, ti::Function& function) noexcep
     const auto& name = function.name;
     const auto  defined = (function.body != nullptr);
     
+    const auto label = ti::format("function_start_%s", function.name.c_str());
+    
     context.add_to_symbol_table(new ti::FunctionSymbol
     {
         SymbolType::FUNCTION,
         name,
         defined,
+        label
     });
 
-    context.add_to_code(ti::format("@function_start_%s:\n", function.name.c_str()));
+    context.add_to_code(ti::format("@%s:\n", label.c_str()));
     
     //if function is defined
     if (defined)

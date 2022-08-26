@@ -22,6 +22,7 @@ void ti::Context::add_to_symbol_table(ti::Symbol* symbol) noexcept
 
 void ti::Context::add_to_code(const std::string& code) noexcept
 {
+    counter++;
     code_segment.append(code);
 }
 

@@ -91,13 +91,6 @@ namespace ti
                 
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
-            
-            struct Numconst16 : public Numconst
-            {
-                std::uint16_t value;
-                
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
         }
         
         struct Stringconst : public Expression
@@ -109,7 +102,7 @@ namespace ti
         
         struct Identifier : public Expression
         {
-            std::string identifier;
+            std::string name;
             
             void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
         };
