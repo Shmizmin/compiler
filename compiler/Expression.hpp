@@ -72,20 +72,10 @@ namespace ti
         struct Numconst : public Expression
         {
             CompleteType complete_type;
-            //std::variant<std::uint8_t, std::uint16_t> value;
+            std::uint8_t value;
             
-            //void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
         };
-        
-        namespace num
-        {
-            struct Numconst8 : public Numconst
-            {
-                std::uint8_t value;
-                
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-        }
         
         struct Stringconst : public Expression
         {
@@ -114,8 +104,6 @@ namespace ti
         {
             Expression* left;
             Expression* right;
-            
-            //void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
         };
         
         namespace binary
@@ -189,14 +177,12 @@ namespace ti
             };
         }
         
-        
+
         struct Unary : public Expression
         {
-            //Expression* center;
-            
-            //void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            Expression* center;
         };
-        
+       
         namespace unary
         {
             struct PlusPlus : public Unary
@@ -209,8 +195,6 @@ namespace ti
             };
             struct Addrof : public Unary
             {
-                Expression*
-                
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
             struct Deref : public Unary

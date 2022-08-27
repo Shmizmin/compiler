@@ -103,7 +103,7 @@ void ti::expr::Ternary::generate(ti::Context& context, ti::Function& function, c
  | NUMCONST EXPRESSION GENERATION |
  *--------------------------------*/
 
-void ti::expr::num::Numconst8::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
+void ti::expr::Numconst::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for 8-bit numeric constant expression");
     
@@ -115,12 +115,6 @@ void ti::expr::num::Numconst8::generate(ti::Context& context, ti::Function& func
 /*------------------------------*
  | BINARY EXPRESSION GENERATION |
  *------------------------------*/
-
-void ti::expr::binary::Index::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for array index expression");
-#warning UNIMPLEMENTED FUNCTION
-}
 
 void ti::expr::binary::FCall::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
@@ -202,17 +196,6 @@ void ti::expr::binary::Minus::generate(ti::Context& context, ti::Function& funct
     context.deallocate_forced(alloc);
 }
 
-void ti::expr::binary::PlusEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for binary assignment-addition expression");
-#warning UNIMPLEMENTED FUNCTION
-}
-
-void ti::expr::binary::MinusEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for binary assignment-subtraction expression");
-#warning UNIMPLEMENTED FUNCTION
-}
 
 void ti::expr::binary::LeftShift::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
@@ -224,6 +207,8 @@ void ti::expr::binary::LeftShift::generate(ti::Context& context, ti::Function& f
     right->generate(context, function, alloc);
     
     context.add_to_code(ti::format("rol %s, #%u", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+#error this doesnt't work yet
+#error rol needs
     
     context.deallocate_forced(alloc);
 }
@@ -232,6 +217,7 @@ void ti::expr::binary::RightShift::generate(ti::Context& context, ti::Function& 
 {
     ti::write_log("Generating code for binary right shift expression");
 }
+
 
 void ti::expr::binary::BitXor::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
@@ -248,6 +234,7 @@ void ti::expr::binary::BitOr::generate(ti::Context& context, ti::Function& funct
     ti::write_log("Generating code for binary bitwise or expression");
 }
 
+
 void ti::expr::binary::LogAnd::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary logical and expression");
@@ -257,6 +244,7 @@ void ti::expr::binary::LogOr::generate(ti::Context& context, ti::Function& funct
 {
     ti::write_log("Generating code for binary logical or expression");
 }
+
 
 void ti::expr::binary::EqualsEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
@@ -273,19 +261,9 @@ void ti::expr::binary::Less::generate(ti::Context& context, ti::Function& functi
     ti::write_log("Generating code for binary less expression");
 }
 
-void ti::expr::binary::LessEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for binary less-equals expression");
-}
-
 void ti::expr::binary::Greater::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary greater expression");
-}
-
-void ti::expr::binary::GreaterEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for binary greater-equals expression");
 }
 
 

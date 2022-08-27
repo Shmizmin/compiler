@@ -40,8 +40,8 @@ void yyerror(const char* s);
        T_LSHIFT "<<"
        T_RSHIFT ">>"
 
-       T_LESS      "<"
-       T_GREATER   ">"
+       T_LESS    "<"
+       T_GREATER ">"
 
        T_NOTEQ "!="
        T_EQEQ  "=="
@@ -217,7 +217,7 @@ expression
     | T_IDENTIFIER {  }
     | "(" expression ")" {  }
     | T_IDENTIFIER "("  args_delim_opt expect_rparen //function call
-    | expression "="  expression
+    | expression "=" expression
     | expression "+"  expression
     | expression "-"  expression %prec "+"
     | expression "<<" expression
@@ -238,8 +238,6 @@ expression
     | expression "?"  expression ":" expression
     | expression "<"  expression
     | expression ">"  expression
-    | expression "<=" expression
-    | expression ">=" expression
     ;
 
 %%

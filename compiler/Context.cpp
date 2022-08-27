@@ -179,7 +179,6 @@ std::uint8_t ti::get_type_size(ti::CompleteType& type) noexcept
         switch (type.specifier)
         {
             case BYTE: return 1; break;
-            case WORD: return 2; break;
             case VOID: ti::throw_error("Type 'void' is unsized");            break;
             default:   ti::throw_error("Unknown type to query the size of"); break;
         }
