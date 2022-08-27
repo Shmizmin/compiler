@@ -71,7 +71,7 @@ namespace ti
     {
         struct Numconst : public Expression
         {
-            CompleteType complete_type;
+            //CompleteType complete_type;
             std::uint8_t value;
             
             void generate(Context&, Function&, const ForcedAllocation&) noexcept override;

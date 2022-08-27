@@ -1,10 +1,10 @@
 %{
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
 
-#include "codegen.h"
 #include "utility.h"
 
 #define YYDEBUG 1
@@ -20,7 +20,7 @@ void yyerror(const char* s);
 
 %union
 {
-    int ival;
+    uint8_t ival;
     char* cval;
 }
 
@@ -30,7 +30,6 @@ void yyerror(const char* s);
        T_PLUSPLUS   "++"
        T_PLUS       "+"
        T_LNOT       "!"
-       T_COMPL      "~"
        T_LOR        "||"
        T_BOR        "|"
        T_LAND       "&&"
@@ -53,7 +52,6 @@ void yyerror(const char* s);
        T_RPAREN    ")"
        T_LBRACE    "{"
        T_RBRACE    "}"
-       T_TILDE     "~"
 
 
 %token T_FUNCTION "function"
@@ -214,10 +212,10 @@ expression_opt
     ;
     
 expression
-    : T_NUMCONST { }
-    | T_STRINGCONST {  }
-    | T_IDENTIFIER {  }
-    | "(" expression ")" {  }
+    : T_NUMCONST
+    | T_STRINGCONST
+    | T_IDENTIFIER
+    | "(" expression ")"
     | T_IDENTIFIER "("  args_delim_opt expect_rparen //function call
     | expression "=" expression
     | expression "+"  expression
@@ -252,6 +250,10 @@ int main(int argc, char** argv)
     yydebug = 1;
     
     
+    create_ast();
+    generate_ast();
+    
+    /*
     assert(argc > 1);
     yyin = fopen(argv[1], "r");
     assert(yyin != NULL);
@@ -259,7 +261,7 @@ int main(int argc, char** argv)
     do
     {
         yyparse();
-    } while(!feof(yyin));
+    } while(!feof(yyin));*/
 
     return 0;
 }

@@ -12,11 +12,28 @@ namespace
 {
     bool funcs_equal(ti::Function& f1, ti::Function& f2)
     {
+        bool args_same = f1.arguments.size() == f2.arguments.size();
+        if (args_same)
+        {
+            for (auto i = 0; i < f1.arguments.size(); ++i)
+            {
+                const auto& arg1 = f1.arguments[i];
+                const auto& arg2 = f2.arguments[i];
+                
+                if ((arg1.type.specifier != arg2.type.specifier) ||
+                    (arg1.type.qualifier != arg2.type.qualifier) ||
+                    (arg1.name !=  arg2.name))
+                {
+                    args_same = false;
+                }
+            }
+        }
+        
         return (f1.name                  == f2.name)                  &&
-               (f1.arguments             == f2.arguments)             &&
                (f1.body                  == f2.body)                  &&
                (f1.return_type.specifier == f2.return_type.specifier) &&
-               (f1.return_type.qualifier == f2.return_type.qualifier);
+               (f1.return_type.qualifier == f2.return_type.qualifier) &&
+                args_same;
     }
 }
 
@@ -439,8 +456,7 @@ void ti::expr::unary::Negative::generate(ti::Context& context, ti::Function& fun
     center->generate(context, function, allocation);
     
     const auto loc = ti::location_to_string(allocation.location);
-    const auto reg = loc.c_str();
     
-    context.add_to_code(ti::format("not %s\n", reg));
-    context.add_to_code(ti::format("adc %s, #1\n", reg));
+    context.add_to_code(ti::format("not %s\n", loc.c_str()));
+    context.add_to_code(ti::format("adc %s, #1\n", loc.c_str()));
 }

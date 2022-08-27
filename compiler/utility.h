@@ -14,6 +14,8 @@ extern "C"
 #endif
     
 char* capture(char* in, size n, size m);
+void create_ast(void);
+void generate_ast(void);
 
 #ifdef __cplusplus
 }

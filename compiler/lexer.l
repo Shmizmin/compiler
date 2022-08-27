@@ -25,7 +25,6 @@
 "++"       { return T_PLUSPLUS;   }
 "+"        { return T_PLUS;       }
 "!"        { return T_LNOT;       }
-"~"        { return T_COMPL;      }
 "||"       { return T_LOR;        }
 "|"        { return T_BOR;        }
 "&&"       { return T_LAND;       }
@@ -47,7 +46,6 @@
 ")"        { return T_RPAREN;     }
 "{"        { return T_LBRACE;     }
 "}"        { return T_RBRACE;     }
-"~"        { return T_TILDE;      }
 
 "function" { return T_FUNCTION;   }
 "proto"    { return T_PROTO;      }

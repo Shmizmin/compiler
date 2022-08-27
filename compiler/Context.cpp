@@ -121,7 +121,7 @@ std::uint16_t ti::Context::allocate_heap(std::uint16_t bytes) noexcept
     const auto size = bytes;
     const auto length = available_heap.size();
     
-    std::uint16_t cvt;
+    std::uint16_t cvt = 0;
     auto avail = true;
     for (auto i = 0; i < length; ++i)
     {

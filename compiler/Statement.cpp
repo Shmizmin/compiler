@@ -56,8 +56,12 @@ void ti::stmt::Return::generate(ti::Context& context, ti::Function& function) no
 {
     ti::write_log("Generating code for return statement");
 
-    value->generate(context, function, { ti::Location::STACK, false });
+    const auto alloc = context.allocate_forced();
+    
+    value->generate(context, function, alloc);
     context.add_to_code(ti::format("jmp([%s_end])\n", function.name.c_str()));
+    
+    context.deallocate_forced(alloc);
 }
 
 void ti::stmt::Null::generate(ti::Context& context, ti::Function& function) noexcept
@@ -104,7 +108,7 @@ void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) 
             
             variable.value->generate(context, function, alloc);
             
-            context.add_to_code(ti::format("stb %%%s, %s\n", address, alloc.location));
+            context.add_to_code(ti::format("stb %%%u, %s\n", address, ti::location_to_string(alloc.location).c_str()));
                                 
             context.deallocate_forced(alloc);
         }
