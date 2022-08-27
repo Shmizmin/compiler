@@ -24,16 +24,12 @@ namespace ti
     
     enum class BinaryOp
     {
-        INDEX,
         FCALL,
         
         EQUALS,
 
         PLUS,
         MINUS,
-
-        PLUS_EQUALS,
-        MINUS_EQUALS,
 
         LEFT_SHIFT,
         RIGHT_SHIFT,
@@ -50,8 +46,6 @@ namespace ti
 
         LESS,
         GREATER,
-        LESS_EQUALS,
-        GREATER_EQUALS,
     };
     
     enum class UnaryOp
@@ -126,18 +120,16 @@ namespace ti
         
         namespace binary
         {
-            struct Index : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
             struct FCall : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
+            
             struct Equals : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
+            
             struct Plus : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
@@ -146,14 +138,7 @@ namespace ti
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
-            struct PlusEquals : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            struct MinusEquals : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
+            
             struct LeftShift : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
@@ -162,6 +147,7 @@ namespace ti
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
+            
             struct BitXor : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
@@ -174,6 +160,7 @@ namespace ti
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
+            
             struct LogAnd : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
@@ -182,6 +169,7 @@ namespace ti
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
+            
             struct EqualsEquals : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
@@ -190,19 +178,12 @@ namespace ti
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
+            
             struct Less : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
-            struct LessEquals : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
             struct Greater : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            struct GreaterEquals : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
@@ -211,7 +192,7 @@ namespace ti
         
         struct Unary : public Expression
         {
-            Expression* center;
+            //Expression* center;
             
             //void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
         };
@@ -228,6 +209,8 @@ namespace ti
             };
             struct Addrof : public Unary
             {
+                Expression*
+                
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
             struct Deref : public Unary

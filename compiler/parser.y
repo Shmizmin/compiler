@@ -26,59 +26,54 @@ void yyerror(const char* s);
 
 %token T_END 0
 %token T_MINUSMINUS "--"
-       T_MINUS "-"
-       T_PLUSPLUS "++"
-       T_PLUS "+"
-       T_MULTIPLY "*"
-       T_DIVIDE "/"
-       T_PERCENT "%"
-       T_LNOT "!"
-       T_COMPL "~"
-       T_LOR "||"
-       T_BOR "|"
-       T_LAND "&&"
-       T_BAND "&"
-       T_LXOR "^^"
-       T_BXOR "^"
+       T_MINUS      "-"
+       T_PLUSPLUS   "++"
+       T_PLUS       "+"
+       T_LNOT       "!"
+       T_COMPL      "~"
+       T_LOR        "||"
+       T_BOR        "|"
+       T_LAND       "&&"
+       T_BAND       "&"
+       T_BXOR       "^"
+
        T_LSHIFT "<<"
        T_RSHIFT ">>"
-       T_LESSEQ "<="
-       T_GREATEREQ ">="
-       T_LESS "<"
-       T_GREATER ">"
+
+       T_LESS      "<"
+       T_GREATER   ">"
+
        T_NOTEQ "!="
-       T_EQEQ "=="
+       T_EQEQ  "=="
+
        T_SEMICOLON ";"
-       T_COMMA ","
-       T_EQ "="
-       T_LPAREN "("
-       T_RPAREN ")"
-       T_LBRACE "{"
-       T_RBRACE "}"
-       T_LBRACKET "["
-       T_RBRACKET "]"
+       T_COMMA     ","
+       T_EQ        "="
+       T_LPAREN    "("
+       T_RPAREN    ")"
+       T_LBRACE    "{"
+       T_RBRACE    "}"
+
 
 %token T_FUNCTION "function"
-       T_PROTO "proto"
-       T_COPY "copy"
-       T_PTR "ptr"
-       T_VAL "val"
-       T_VOID "void"
-       T_BYTE "byte"
-       T_WORD "word"
-       T_LOCAL "local"
-       T_GLOBAL "global"
-       T_IF "if"
-       T_ELSE "else"
-       T_WHILE "while"
-       T_FOR "for"
-       T_RETURN "return"
-       T_ADDROF "addrof"
-       T_DEREF "deref"
+       T_PROTO    "proto"
+       T_PTR      "ptr"
+       T_VAL      "val"
+       T_VOID     "void"
+       T_BYTE     "byte"
+       T_LOCAL    "local"
+       T_GLOBAL   "global"
+       T_IF       "if"
+       T_ELSE     "else"
+       T_WHILE    "while"
+       T_FOR      "for"
+       T_RETURN   "return"
+       T_ADDROF   "addrof"
+       T_DEREF    "deref"
 
 
 %left  ","
-%right "?" ":" "=" "+=" "-="
+%right "?" ":" "="
 %left  "||"
 %left  "&&"
 %left  "==" "!="
@@ -90,7 +85,7 @@ void yyerror(const char* s);
 %left  "+" "-"
 %right "addrof" "deref"
 %right "++" "--"
-%left  "(" "["
+%left  "("
 
 %token<ival> T_NUMCONST
 %token<cval> T_IDENTIFIER T_STRINGCONST
@@ -116,14 +111,12 @@ definition
     ;
     
 type_specifier
-    : "byte" | "bool"
-    | "word"
+    : "byte"
     | "void"
     ;
     
 type_qualifier
-    : "copy"
-    | "ptr"
+    : "ptr"
     | "val"
     ;
     
@@ -183,11 +176,6 @@ expect_rbrace
     | "}"
     ;
     
-expect_rbracket
-    : error { yyerror("expected \']\'"); }
-    | "]"
-    ;
-    
 else_opt
     : %empty
     | "else" statement
@@ -228,20 +216,17 @@ expression
     | T_STRINGCONST {  }
     | T_IDENTIFIER {  }
     | "(" expression ")" {  }
-    | T_IDENTIFIER "["  expression expect_rbracket //array index
     | T_IDENTIFIER "("  args_delim_opt expect_rparen //function call
     | expression "="  expression
     | expression "+"  expression
     | expression "-"  expression %prec "+"
-    | expression "+=" expression
-    | expression "-=" expression
     | expression "<<" expression
     | expression ">>" expression
     | expression "^"  expression
     | expression "&"  expression
     | expression "|"  expression
-    | expression "++"
-    | expression "--"            %prec "++"
+    | T_IDENTIFIER "++"
+    | T_IDENTIFIER "--"          %prec "++"
     | expression "||" expression
     | expression "&&" expression
     | expression "==" expression

@@ -12,7 +12,6 @@ namespace ti
     enum class TypeSpecifier
     {
         BYTE,
-        WORD,
         VOID,
     };
     

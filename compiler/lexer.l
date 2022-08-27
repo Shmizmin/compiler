@@ -24,22 +24,16 @@
 "-"        { return T_MINUS;      }
 "++"       { return T_PLUSPLUS;   }
 "+"        { return T_PLUS;       }
-"*"        { return T_MULTIPLY;   }
-"/"        { return T_DIVIDE;     }
-"%"        { return T_PERCENT;    }
 "!"        { return T_LNOT;       }
 "~"        { return T_COMPL;      }
 "||"       { return T_LOR;        }
 "|"        { return T_BOR;        }
 "&&"       { return T_LAND;       }
 "&"        { return T_BAND;       }
-"^^"       { return T_LXOR;       }
 "^"        { return T_BXOR;       }
 "<<"       { return T_LSHIFT;     }
 ">>"       { return T_RSHIFT;     }
 
-"<="       { return T_LESSEQ;     }
-">="       { return T_GREATEREQ;  }
 "<"        { return T_LESS;       }
 ">"        { return T_GREATER;    }
 
@@ -53,18 +47,15 @@
 ")"        { return T_RPAREN;     }
 "{"        { return T_LBRACE;     }
 "}"        { return T_RBRACE;     }
-"["        { return T_LBRACKET;   }
-"]"        { return T_RBRACKET;   }
 
 "function" { return T_FUNCTION;   }
 "proto"    { return T_PROTO;      }
-"copy"     { return T_COPY;       }
+"copy"     { return T_VAL;        }
 "ptr"      { return T_PTR;        }
 "val"      { return T_VAL;        }
 "void"     { return T_VOID;       }
 "byte"     { return T_BYTE;       }
 "bool"     { return T_BYTE;       }
-"word"     { return T_WORD;       }
 "local"    { return T_LOCAL;      }
 "global"   { return T_GLOBAL;     }
 "if"       { return T_IF;         }
