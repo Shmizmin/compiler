@@ -53,6 +53,7 @@ void yyerror(const char* s);
        T_RPAREN    ")"
        T_LBRACE    "{"
        T_RBRACE    "}"
+       T_TILDE     "~"
 
 
 %token T_FUNCTION "function"
@@ -84,6 +85,7 @@ void yyerror(const char* s);
 %left  "<<" ">>"
 %left  "+" "-"
 %right "addrof" "deref"
+%right "~"
 %right "++" "--"
 %left  "("
 
@@ -221,7 +223,7 @@ expression
     | expression "+"  expression
     | expression "-"  expression %prec "+"
     | expression "<<" expression
-    | expression ">>" expression
+    | expression ">>" expression %prec "<<"
     | expression "^"  expression
     | expression "&"  expression
     | expression "|"  expression

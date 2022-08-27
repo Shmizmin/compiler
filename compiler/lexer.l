@@ -47,6 +47,7 @@
 ")"        { return T_RPAREN;     }
 "{"        { return T_LBRACE;     }
 "}"        { return T_RBRACE;     }
+"~"        { return T_TILDE;      }
 
 "function" { return T_FUNCTION;   }
 "proto"    { return T_PROTO;      }

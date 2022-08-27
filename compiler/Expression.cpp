@@ -174,10 +174,10 @@ void ti::expr::binary::Plus::generate(ti::Context& context, ti::Function& functi
     
     left->generate(context, function, allocation);
     
-    const auto alloc = context.allocate_forced();
+    const auto alloc = context.allocate_forced(allocation);
     right->generate(context, function, alloc);
     
-    context.add_to_code(ti::format("adc %s, %s", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    context.add_to_code(ti::format("adc %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
     
     context.deallocate_forced(alloc);
 }
@@ -188,10 +188,10 @@ void ti::expr::binary::Minus::generate(ti::Context& context, ti::Function& funct
     
     left->generate(context, function, allocation);
     
-    const auto alloc = context.allocate_forced();
+    const auto alloc = context.allocate_forced(allocation);
     right->generate(context, function, alloc);
     
-    context.add_to_code(ti::format("sbb %s, %s", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    context.add_to_code(ti::format("sbb %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
     
     context.deallocate_forced(alloc);
 }
@@ -211,7 +211,7 @@ void ti::expr::binary::LeftShift::generate(ti::Context& context, ti::Function& f
     
     auto* nsym = static_cast<ti::expr::Numconst*>(right);
     
-    context.add_to_code(ti::format("rol %s, #%u", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
+    context.add_to_code(ti::format("rol %s, #%u\n", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
 }
 
 void ti::expr::binary::RightShift::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
@@ -228,23 +228,52 @@ void ti::expr::binary::RightShift::generate(ti::Context& context, ti::Function& 
     
     auto* nsym = static_cast<ti::expr::Numconst*>(right);
     
-    context.add_to_code(ti::format("ror %s, #%u", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
+    context.add_to_code(ti::format("ror %s, #%u\n", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
 }
 
 
 void ti::expr::binary::BitXor::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary bitwise xor expression");
+    
+    left->generate(context, function, allocation);
+    
+    const auto alloc = context.allocate_forced(allocation);
+    right->generate(context, function, alloc);
+    
+#warning add ast optimizations for this so constexpr right hand side can use xorImm()
+    context.add_to_code(ti::format("xorR(%s, %s)\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    
+    context.deallocate_forced(alloc);
+    
 }
 
 void ti::expr::binary::BitAnd::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary bitwise and expression");
+    
+    left->generate(context, function, allocation);
+    
+    const auto alloc = context.allocate_forced(allocation);
+    right->generate(context, function, alloc);
+    
+    context.add_to_code(ti::format("and %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    
+    context.deallocate_forced(alloc);
 }
 
 void ti::expr::binary::BitOr::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary bitwise or expression");
+    
+    left->generate(context, function, allocation);
+    
+    const auto alloc = context.allocate_forced(allocation);
+    right->generate(context, function, alloc);
+    
+    context.add_to_code(ti::format("or %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    
+    context.deallocate_forced(alloc);
 }
 
 
@@ -262,21 +291,98 @@ void ti::expr::binary::LogOr::generate(ti::Context& context, ti::Function& funct
 void ti::expr::binary::EqualsEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary equals-equals expression");
+    
+    left->generate(context, function, allocation);
+    
+    const auto alloc = context.allocate_forced(allocation);
+    right->generate(context, function, alloc);
+    
+    //zero flag will be set if equal
+    context.add_to_code(ti::format("sbb %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
 }
 
 void ti::expr::binary::NotEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary not-equals expression");
+    
+    left->generate(context, function, allocation);
+    
+    const auto alloc = context.allocate_forced(allocation);
+    right->generate(context, function, alloc);
+    
+    //zero flag will be set if not equal
+    const auto loc1 = ti::location_to_string(allocation.location);
+    const auto loc2 = ti::location_to_string(alloc.location);
+    const auto zero_template = ti::format("zero_%s_%u", function.name.c_str(), context.counter);
+    
+    context.add_to_code(ti::format("sbb %s, %s\n", loc1.c_str(), loc2.c_str()));
+    context.add_to_code(ti::format("jez [%s]\n", zero_template.c_str()));
+    context.add_to_code(ti::format("ldb %s, #0\n", loc1.c_str()));
+    
+    const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
+    context.add_to_code(ti::format("jmp([%s])\n", end_template.c_str()));
+    
+    context.add_to_code(ti::format("@%s:\n", zero_template.c_str()).c_str());
+    
+    context.add_to_code(ti::format("ldb %s, #1\n", loc1.c_str()));
+    
+    context.add_to_code(ti::format("@%s:\n", end_template.c_str()).c_str());
+    
 }
 
 void ti::expr::binary::Less::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary less expression");
+    
+    left->generate(context, function, allocation);
+    
+    const auto alloc = context.allocate_forced(allocation);
+    right->generate(context, function, alloc);
+    
+    const auto loc1 = ti::location_to_string(allocation.location);
+    const auto loc2 = ti::location_to_string(alloc.location);
+    const auto less_template = ti::format("less_%s_%u", function.name.c_str(), context.counter);
+    
+    context.add_to_code(ti::format("sbb %s, %s\n", loc1.c_str(), loc2.c_str()));
+    context.add_to_code(ti::format("jcc([%s])\n", less_template.c_str()));
+    context.add_to_code(ti::format("ldb %s, #0\n", loc1.c_str()));
+    
+    const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
+    context.add_to_code(ti::format("jmp([%s])\n", end_template.c_str()));
+    
+    context.add_to_code(ti::format("@%s:\n", less_template.c_str()).c_str());
+    
+    context.add_to_code(ti::format("ldb %s, #1\n", loc1.c_str()));
+    
+    context.add_to_code(ti::format("@%s:\n", end_template.c_str()).c_str());
+    
 }
 
 void ti::expr::binary::Greater::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary greater expression");
+    
+    left->generate(context, function, allocation);
+    
+    const auto alloc = context.allocate_forced(allocation);
+    right->generate(context, function, alloc);
+    
+    const auto loc1 = ti::location_to_string(allocation.location);
+    const auto loc2 = ti::location_to_string(alloc.location);
+    const auto greater_template = ti::format("greater_%s_%u", function.name.c_str(), context.counter);
+    
+    context.add_to_code(ti::format("sbb %s, %s\n", loc1.c_str(), loc2.c_str()));
+    context.add_to_code(ti::format("jcc([%s])\n", greater_template.c_str()));
+    context.add_to_code(ti::format("ldb %s, #0\n", loc1.c_str()));
+    
+    const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
+    context.add_to_code(ti::format("jmp([%s])\n", end_template.c_str()));
+    
+    context.add_to_code(ti::format("@%s:\n", greater_template.c_str()).c_str());
+    
+    context.add_to_code(ti::format("ldb %s, #1\n", loc1.c_str()));
+    
+    context.add_to_code(ti::format("@%s:\n", end_template.c_str()).c_str());
 }
 
 
@@ -298,7 +404,6 @@ void ti::expr::unary::MinusMinus::generate(ti::Context& context, ti::Function& f
 {
     ti::write_log("Generating code for decrement unary expression");
     
-    //return value allocation is free for use
     center->generate(context, function, allocation);
     
     context.add_to_code(ti::format("sbb %s, #1\n", ti::location_to_string(allocation.location).c_str()));
@@ -322,7 +427,7 @@ void ti::expr::unary::Deref::generate(ti::Context& context, ti::Function& functi
 
 void ti::expr::unary::Positive::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
-    ti::write_log("Generating code for nop (+) unary expression");
+    ti::write_log("Generating code for positive unary expression");
     
     center->generate(context, function, allocation);
 }

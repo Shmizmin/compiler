@@ -70,7 +70,7 @@ void ti::Context::deallocate_forced(const ti::ForcedAllocation& alloc) noexcept
 {
     if (alloc.was_forced)
     {
-        add_to_code("pop r0\n");
+        add_to_code(ti::format("pop %s\n", ti::location_to_string(alloc.location).c_str()));
     }
     else
     {
