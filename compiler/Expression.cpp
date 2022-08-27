@@ -203,19 +203,32 @@ void ti::expr::binary::LeftShift::generate(ti::Context& context, ti::Function& f
     
     left->generate(context, function, allocation);
     
-    const auto alloc = context.allocate_forced();
-    right->generate(context, function, alloc);
+#warning add constant expressions with [x] syntax for this; change comparison to ti::ExpressionType::CONSTANT
+    if (right->type != ti::ExpressionType::NUMCONST)
+    {
+        ti::throw_error("Right hand side of a bit shift expression must be a constant expression");
+    }
     
-    context.add_to_code(ti::format("rol %s, #%u", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
-#error this doesnt't work yet
-#error rol needs
+    auto* nsym = static_cast<ti::expr::Numconst*>(right);
     
-    context.deallocate_forced(alloc);
+    context.add_to_code(ti::format("rol %s, #%u", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
 }
 
 void ti::expr::binary::RightShift::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary right shift expression");
+    
+    left->generate(context, function, allocation);
+    
+#warning add constant expressions with [x] syntax for this; change comparison to ti::ExpressionType::CONSTANT
+    if (right->type != ti::ExpressionType::NUMCONST)
+    {
+        ti::throw_error("Right hand side of a bit shift expression must be a constant expression");
+    }
+    
+    auto* nsym = static_cast<ti::expr::Numconst*>(right);
+    
+    context.add_to_code(ti::format("ror %s, #%u", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
 }
 
 
