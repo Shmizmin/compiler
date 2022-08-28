@@ -80,7 +80,7 @@ void ti::expr::Identifier::generate(ti::Context& context, ti::Function& function
         }
         
         //variable is good to query and load
-        context.add_to_code(ti::format("ldb %s, %%%u\n", ti::location_to_string(allocation.location).c_str(), nsym->address));
+        context.add_to_code(ti::format("\tldb %s, %%%u\n", ti::location_to_string(allocation.location).c_str(), nsym->address));
     }
 }
 
@@ -90,21 +90,21 @@ void ti::expr::Ternary::generate(ti::Context& context, ti::Function& function, c
     
     left->generate(context, function, allocation);
     
-    context.add_to_code("updateFlags()\n");
+    context.add_to_code("\tupdateFlags()\n");
     
     const auto label_template = "ternary_%s_%s_%u";
     
 
     //go to correct condition label
     const auto second_label = ti::format(label_template, "false", function.name.c_str(), context.counter);
-    context.add_to_code(ti::format("jez [%s]\n", second_label.c_str()).c_str());
+    context.add_to_code(ti::format("\tjez [%s]\n", second_label.c_str()).c_str());
     
     const auto end_label = ti::format(label_template, "end", function.name.c_str(), context.counter);
     
     //true label
     context.add_to_code(ti::format("@%s:\n", ti::format(label_template, "true", function.name.c_str(), context.counter).c_str()));
     center->generate(context, function, allocation);
-    context.add_to_code(ti::format("jmp([%s])\n", end_label.c_str()).c_str());
+    context.add_to_code(ti::format("\tjmp([%s])\n", end_label.c_str()).c_str());
     
     //false label
     context.add_to_code(ti::format("@%s:\n", second_label.c_str()));
@@ -124,7 +124,7 @@ void ti::expr::Numconst::generate(ti::Context& context, ti::Function& function, 
 {
     ti::write_log("Generating code for 8-bit numeric constant expression");
     
-    context.add_to_code(ti::format("ldb %s, #%u\n", ti::location_to_string(allocation.location).c_str(), value));
+    context.add_to_code(ti::format("\tldb %s, #%u\n", ti::location_to_string(allocation.location).c_str(), value));
 }
 
 
@@ -181,7 +181,7 @@ void ti::expr::binary::Equals::generate(ti::Context& context, ti::Function& func
         }
         
         right->generate(context, function, allocation);
-        context.add_to_code(ti::format("stb %%%u, %s\n", nsym->address, ti::location_to_string(allocation.location).c_str()).c_str());
+        context.add_to_code(ti::format("\tstb %%%u, %s\n", nsym->address, ti::location_to_string(allocation.location).c_str()).c_str());
     }
 }
 
@@ -194,7 +194,7 @@ void ti::expr::binary::Plus::generate(ti::Context& context, ti::Function& functi
     const auto alloc = context.allocate_forced(allocation);
     right->generate(context, function, alloc);
     
-    context.add_to_code(ti::format("adc %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    context.add_to_code(ti::format("\tadc %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
     
     context.deallocate_forced(alloc);
 }
@@ -208,7 +208,7 @@ void ti::expr::binary::Minus::generate(ti::Context& context, ti::Function& funct
     const auto alloc = context.allocate_forced(allocation);
     right->generate(context, function, alloc);
     
-    context.add_to_code(ti::format("sbb %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    context.add_to_code(ti::format("\tsbb %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
     
     context.deallocate_forced(alloc);
 }
@@ -228,7 +228,7 @@ void ti::expr::binary::LeftShift::generate(ti::Context& context, ti::Function& f
     
     auto* nsym = static_cast<ti::expr::Numconst*>(right);
     
-    context.add_to_code(ti::format("rol %s, #%u\n", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
+    context.add_to_code(ti::format("\trol %s, #%u\n", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
 }
 
 void ti::expr::binary::RightShift::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
@@ -245,7 +245,7 @@ void ti::expr::binary::RightShift::generate(ti::Context& context, ti::Function& 
     
     auto* nsym = static_cast<ti::expr::Numconst*>(right);
     
-    context.add_to_code(ti::format("ror %s, #%u\n", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
+    context.add_to_code(ti::format("\tror %s, #%u\n", ti::location_to_string(allocation.location).c_str(), nsym->value).c_str());
 }
 
 
@@ -259,7 +259,7 @@ void ti::expr::binary::BitXor::generate(ti::Context& context, ti::Function& func
     right->generate(context, function, alloc);
     
 #warning add ast optimizations for this so constexpr right hand side can use xorImm()
-    context.add_to_code(ti::format("xorR(%s, %s)\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    context.add_to_code(ti::format("\txorR(%s, %s)\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
     
     context.deallocate_forced(alloc);
     
@@ -274,7 +274,7 @@ void ti::expr::binary::BitAnd::generate(ti::Context& context, ti::Function& func
     const auto alloc = context.allocate_forced(allocation);
     right->generate(context, function, alloc);
     
-    context.add_to_code(ti::format("and %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    context.add_to_code(ti::format("\tand %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
     
     context.deallocate_forced(alloc);
 }
@@ -288,7 +288,7 @@ void ti::expr::binary::BitOr::generate(ti::Context& context, ti::Function& funct
     const auto alloc = context.allocate_forced(allocation);
     right->generate(context, function, alloc);
     
-    context.add_to_code(ti::format("or %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    context.add_to_code(ti::format("\tor %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
     
     context.deallocate_forced(alloc);
 }
@@ -315,7 +315,7 @@ void ti::expr::binary::EqualsEquals::generate(ti::Context& context, ti::Function
     right->generate(context, function, alloc);
     
     //zero flag will be set if equal
-    context.add_to_code(ti::format("sbb %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
+    context.add_to_code(ti::format("\tsbb %s, %s\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
 }
 
 void ti::expr::binary::NotEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
@@ -332,16 +332,16 @@ void ti::expr::binary::NotEquals::generate(ti::Context& context, ti::Function& f
     const auto loc2 = ti::location_to_string(alloc.location);
     const auto zero_template = ti::format("zero_%s_%u", function.name.c_str(), context.counter);
     
-    context.add_to_code(ti::format("sbb %s, %s\n", loc1.c_str(), loc2.c_str()));
-    context.add_to_code(ti::format("jez [%s]\n", zero_template.c_str()));
-    context.add_to_code(ti::format("ldb %s, #0\n", loc1.c_str()));
+    context.add_to_code(ti::format("\tsbb %s, %s\n", loc1.c_str(), loc2.c_str()));
+    context.add_to_code(ti::format("\tjez [%s]\n", zero_template.c_str()));
+    context.add_to_code(ti::format("\tldb %s, #0\n", loc1.c_str()));
     
     const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
-    context.add_to_code(ti::format("jmp([%s])\n", end_template.c_str()));
+    context.add_to_code(ti::format("\tjmp([%s])\n", end_template.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", zero_template.c_str()).c_str());
     
-    context.add_to_code(ti::format("ldb %s, #1\n", loc1.c_str()));
+    context.add_to_code(ti::format("\tldb %s, #1\n", loc1.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", end_template.c_str()).c_str());
     
@@ -360,16 +360,16 @@ void ti::expr::binary::Less::generate(ti::Context& context, ti::Function& functi
     const auto loc2 = ti::location_to_string(alloc.location);
     const auto less_template = ti::format("less_%s_%u", function.name.c_str(), context.counter);
     
-    context.add_to_code(ti::format("sbb %s, %s\n", loc1.c_str(), loc2.c_str()));
-    context.add_to_code(ti::format("jcc([%s])\n", less_template.c_str()));
-    context.add_to_code(ti::format("ldb %s, #0\n", loc1.c_str()));
+    context.add_to_code(ti::format("\tsbb %s, %s\n", loc1.c_str(), loc2.c_str()));
+    context.add_to_code(ti::format("\tjcc([%s])\n", less_template.c_str()));
+    context.add_to_code(ti::format("\tldb %s, #0\n", loc1.c_str()));
     
     const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
-    context.add_to_code(ti::format("jmp([%s])\n", end_template.c_str()));
+    context.add_to_code(ti::format("\tjmp([%s])\n", end_template.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", less_template.c_str()).c_str());
     
-    context.add_to_code(ti::format("ldb %s, #1\n", loc1.c_str()));
+    context.add_to_code(ti::format("\tldb %s, #1\n", loc1.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", end_template.c_str()).c_str());
     
@@ -388,16 +388,16 @@ void ti::expr::binary::Greater::generate(ti::Context& context, ti::Function& fun
     const auto loc2 = ti::location_to_string(alloc.location);
     const auto greater_template = ti::format("greater_%s_%u", function.name.c_str(), context.counter);
     
-    context.add_to_code(ti::format("sbb %s, %s\n", loc1.c_str(), loc2.c_str()));
-    context.add_to_code(ti::format("jcc([%s])\n", greater_template.c_str()));
-    context.add_to_code(ti::format("ldb %s, #0\n", loc1.c_str()));
+    context.add_to_code(ti::format("\tsbb %s, %s\n", loc1.c_str(), loc2.c_str()));
+    context.add_to_code(ti::format("\tjcc([%s])\n", greater_template.c_str()));
+    context.add_to_code(ti::format("\tldb %s, #0\n", loc1.c_str()));
     
     const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
-    context.add_to_code(ti::format("jmp([%s])\n", end_template.c_str()));
+    context.add_to_code(ti::format("\tjmp([%s])\n", end_template.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", greater_template.c_str()).c_str());
     
-    context.add_to_code(ti::format("ldb %s, #1\n", loc1.c_str()));
+    context.add_to_code(ti::format("\tldb %s, #1\n", loc1.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", end_template.c_str()).c_str());
 }
@@ -414,7 +414,7 @@ void ti::expr::unary::PlusPlus::generate(ti::Context& context, ti::Function& fun
     
     center->generate(context, function, allocation);
     
-    context.add_to_code(ti::format("adc %s, #1\n", ti::location_to_string(allocation.location).c_str()));
+    context.add_to_code(ti::format("\tadc %s, #1\n", ti::location_to_string(allocation.location).c_str()));
 }
 
 void ti::expr::unary::MinusMinus::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
@@ -423,7 +423,7 @@ void ti::expr::unary::MinusMinus::generate(ti::Context& context, ti::Function& f
     
     center->generate(context, function, allocation);
     
-    context.add_to_code(ti::format("sbb %s, #1\n", ti::location_to_string(allocation.location).c_str()));
+    context.add_to_code(ti::format("\tsbb %s, #1\n", ti::location_to_string(allocation.location).c_str()));
 }
 
 void ti::expr::unary::Addrof::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
@@ -457,6 +457,6 @@ void ti::expr::unary::Negative::generate(ti::Context& context, ti::Function& fun
     
     const auto loc = ti::location_to_string(allocation.location);
     
-    context.add_to_code(ti::format("not %s\n", loc.c_str()));
-    context.add_to_code(ti::format("adc %s, #1\n", loc.c_str()));
+    context.add_to_code(ti::format("\tnot %s\n", loc.c_str()));
+    context.add_to_code(ti::format("\tadc %s, #1\n", loc.c_str()));
 }

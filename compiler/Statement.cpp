@@ -21,19 +21,19 @@ void ti::stmt::If::generate(ti::Context& context, ti::Function& function) noexce
 {
     ti::write_log("Generating code for if statement");
     
-    const auto label = ti::format("@if_end_%s_%s:\n", function.name.c_str(), context.counter);
+    const auto label = ti::format("if_end_%s_%s", function.name.c_str(), context.counter);
     const auto alloc = context.allocate_forced();
     
     condition->generate(context, function, alloc);
     
-    context.add_to_code("updateFlags()\n");
-    context.add_to_code(ti::format("jez [%s]", label.c_str()));
+    context.add_to_code("\tupdateFlags()\n");
+    context.add_to_code(ti::format("\tjez [%s]", label.c_str()));
     
     context.deallocate_forced(alloc);
     
     statement->generate(context, function);
     
-    context.add_to_code(label);
+    context.add_to_code(ti::format("@%s:\n", label.c_str()));
 }
 
 void ti::stmt::While::generate(ti::Context& context, ti::Function& function) noexcept
@@ -48,8 +48,8 @@ void ti::stmt::While::generate(ti::Context& context, ti::Function& function) noe
     
     context.deallocate_forced(alloc);
     
-    context.add_to_code("updateFlags()\n");
-    context.add_to_code(ti::format("jnz([%s])\n", label.c_str()));
+    context.add_to_code("\tupdateFlags()\n");
+    context.add_to_code(ti::format("\tjnz([%s])\n", label.c_str()));
 }
 
 void ti::stmt::Return::generate(ti::Context& context, ti::Function& function) noexcept
@@ -59,7 +59,7 @@ void ti::stmt::Return::generate(ti::Context& context, ti::Function& function) no
     const auto alloc = context.allocate_forced();
     
     value->generate(context, function, alloc);
-    context.add_to_code(ti::format("jmp([%s_end])\n", function.name.c_str()));
+    context.add_to_code(ti::format("\tjmp([function_end_%s])\n", function.name.c_str()));
     
     context.deallocate_forced(alloc);
 }
@@ -108,7 +108,7 @@ void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) 
             
             variable.value->generate(context, function, alloc);
             
-            context.add_to_code(ti::format("stb %%%u, %s\n", address, ti::location_to_string(alloc.location).c_str()));
+            context.add_to_code(ti::format("\tstb %%%u, %s\n", address, ti::location_to_string(alloc.location).c_str()));
                                 
             context.deallocate_forced(alloc);
         }

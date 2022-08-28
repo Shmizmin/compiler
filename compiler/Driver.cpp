@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <algorithm>
+#include <iostream>
 
 
 void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noexcept
@@ -32,14 +33,12 @@ void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noex
     context.add_to_code(".end\n");
     
     const auto path = parameters.file_name + ".s";
-    std::ofstream file(path);
     
-    if (!file.good())
-    {
-        ti::throw_error("Could not open file %s for writing", path.c_str());
-    }
+    auto file = std::fopen(path.c_str(), "w");
     
-    file << context.code_segment;
+    
+    std::cout << std::fwrite(context.code_segment.data(), sizeof(context.code_segment[0]), context.code_segment.size(), file);
+    
 }
 
 
@@ -69,7 +68,7 @@ void ti::generate_function(ti::Context& context, ti::Function& function) noexcep
     context.add_to_code(ti::format("@function_end_%s:\n", name.c_str()));
     
     //issue function return
-    context.add_to_code("pop IP");
+    context.add_to_code("\tpop IP\n");
 }
 
 void ti::generate_statement(ti::Context& context, ti::Function& function, ti::Statement* statement) noexcept

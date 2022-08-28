@@ -34,7 +34,7 @@ const ti::ForcedAllocation ti::Context::allocate_forced(void) noexcept
     if (alloc == STACK)
     {
         //no free registers
-        add_to_code("push r0\n");
+        add_to_code("\tpush r0\n");
         alloc = R0;
         was_forced = true;
     }
@@ -59,7 +59,7 @@ const ti::ForcedAllocation ti::Context::allocate_forced(const ti::ForcedAllocati
             default: ti::throw_error("Allocation exclusion had an illegal allocation location"); break;
         }
         
-        add_to_code(ti::format("push %s\n", ti::location_to_string(alloc).c_str()));
+        add_to_code(ti::format("\tpush %s\n", ti::location_to_string(alloc).c_str()));
         was_forced = true;
     }
     
@@ -70,7 +70,7 @@ void ti::Context::deallocate_forced(const ti::ForcedAllocation& alloc) noexcept
 {
     if (alloc.was_forced)
     {
-        add_to_code(ti::format("pop %s\n", ti::location_to_string(alloc.location).c_str()));
+        add_to_code(ti::format("\tpop %s\n", ti::location_to_string(alloc.location).c_str()));
     }
     else
     {
