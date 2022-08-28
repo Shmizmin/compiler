@@ -26,6 +26,11 @@ void ti::Context::add_to_code(const std::string& code) noexcept
     code_segment.append(code);
 }
 
+void ti::Context::add_to_end(const std::string& code) noexcept
+{
+    end_segment.append(code);
+}
+
 const ti::ForcedAllocation ti::Context::allocate_forced(void) noexcept
 {
     auto alloc = allocate();

@@ -99,9 +99,6 @@ void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) 
     
         context.add_to_symbol_table(symbol);
         
-        //only supports 1 byte values for now
-        //should the variable expression be code generated
-#warning ONLY ONE BYTE VALUES ARE SUPPORTED FOR VARIABLES
         if (defined)
         {
             const auto alloc = context.allocate_forced();

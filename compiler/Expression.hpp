@@ -52,9 +52,6 @@ namespace ti
     {
         PLUS_PLUS,
         MINUS_MINUS,
-        
-        ADDROF,
-        DEREF,
 
         POSITIVE,
         NEGATIVE,
@@ -190,14 +187,6 @@ namespace ti
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
             struct MinusMinus : public Unary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            struct Addrof : public Unary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            struct Deref : public Unary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };

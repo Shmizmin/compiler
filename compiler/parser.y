@@ -231,8 +231,6 @@ expression
     | expression "&&" expression
     | expression "==" expression
     | expression "!=" expression %prec "=="
-    |        "addrof" expression
-    |         "deref" expression
     |            "-"  expression %prec "-"
     |            "+"  expression
     | expression "?"  expression ":" expression

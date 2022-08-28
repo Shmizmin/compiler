@@ -17,7 +17,6 @@ namespace ti
     
     enum class TypeQualifier
     {
-        PTR,
         VAL,
     };
     

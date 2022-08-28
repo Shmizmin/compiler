@@ -38,13 +38,17 @@ namespace
 }
 
 
-
-
 void ti::expr::Stringconst::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for string constant expression");
-#warning UNIMPLEMENTED FUNCTION
     
+    const auto ptr = context.allocate_heap(value.size());
+    
+    context.add_to_end(ti::format(".org %u", ptr));
+    context.add_to_end(ti::format(".ascii \"%s\"", value.c_str()));
+    
+    context.add_to_code(ti::format("\tpush #%u\n", ptr & 0x00FF));
+    context.add_to_code(ti::format("\tpush #%u\n", ptr & 0xFF00));
 }
 
 void ti::expr::Identifier::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
@@ -136,7 +140,13 @@ void ti::expr::Numconst::generate(ti::Context& context, ti::Function& function, 
 void ti::expr::binary::FCall::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for function call expression");
-#warning UNIMPLEMENTED FUNCTION
+    
+    //auto* l = static_cast<ti::expr::Identifier*>();
+    
+    const auto loc = std::find_if(context.symbol_table.begin(), context.symbol_table.end(), [&](Symbol* s)
+    {
+        return (ident->name == s->name);
+    });
 }
 
 
@@ -220,7 +230,7 @@ void ti::expr::binary::LeftShift::generate(ti::Context& context, ti::Function& f
     
     left->generate(context, function, allocation);
     
-#warning add constant expressions with [x] syntax for this; change comparison to ti::ExpressionType::CONSTANT
+    //optimize by adding constant expressions to right hand side which can be more than just a number, ie [5 + 1 << 3]
     if (right->type != ti::ExpressionType::NUMCONST)
     {
         ti::throw_error("Right hand side of a bit shift expression must be a constant expression");
@@ -237,7 +247,7 @@ void ti::expr::binary::RightShift::generate(ti::Context& context, ti::Function& 
     
     left->generate(context, function, allocation);
     
-#warning add constant expressions with [x] syntax for this; change comparison to ti::ExpressionType::CONSTANT
+    //optimize by adding constant expressions to right hand side which can be more than just a number, ie [5 + 1 << 3]
     if (right->type != ti::ExpressionType::NUMCONST)
     {
         ti::throw_error("Right hand side of a bit shift expression must be a constant expression");
@@ -258,7 +268,7 @@ void ti::expr::binary::BitXor::generate(ti::Context& context, ti::Function& func
     const auto alloc = context.allocate_forced(allocation);
     right->generate(context, function, alloc);
     
-#warning add ast optimizations for this so constexpr right hand side can use xorImm()
+    //could add ast optimizations to be able to use xorImm() instead
     context.add_to_code(ti::format("\txorR(%s, %s)\n", ti::location_to_string(allocation.location).c_str(), ti::location_to_string(alloc.location).c_str()).c_str());
     
     context.deallocate_forced(alloc);
@@ -424,22 +434,6 @@ void ti::expr::unary::MinusMinus::generate(ti::Context& context, ti::Function& f
     center->generate(context, function, allocation);
     
     context.add_to_code(ti::format("\tsbb %s, #1\n", ti::location_to_string(allocation.location).c_str()));
-}
-
-void ti::expr::unary::Addrof::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for address-of unary expression");
-    
-    ti::throw_error("Unary addressof is unsupported currently");
-#warning UNIMPLEMENTED FUNCTION
-}
-
-void ti::expr::unary::Deref::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for dereference unary expression");
-    
-    ti::throw_error("Unary dereferencing is unsupported currently");
-#warning UNIMPLEMENTED FUNCTION
 }
 
 void ti::expr::unary::Positive::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept

@@ -62,8 +62,6 @@
 "for"      { return T_FOR;        }
 "while"    { return T_WHILE;      }
 "return"   { return T_RETURN;     }
-"addrof"   { return T_ADDROF;     }
-"deref"    { return T_DEREF;      }
   
 [0-9]+           { yylval.cval = capture(yytext, 0, 0); return T_NUMCONST; }
 (0b[0-1]+)       { yylval.cval = capture(yytext, 2, 0); return T_NUMCONST; }

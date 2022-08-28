@@ -30,15 +30,15 @@ void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noex
         ti::generate_function(context, f);
     });
     
+    context.add_to_code(context.end_segment);
+    
     context.add_to_code(".end\n");
     
     const auto path = parameters.file_name + ".s";
     
     auto file = std::fopen(path.c_str(), "w");
     
-    
-    std::cout << std::fwrite(context.code_segment.data(), sizeof(context.code_segment[0]), context.code_segment.size(), file);
-    
+    std::fwrite(context.code_segment.data(), sizeof(context.code_segment[0]), context.code_segment.size(), file);
 }
 
 

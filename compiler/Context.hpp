@@ -59,6 +59,7 @@ namespace ti
     {
         std::vector<Symbol*> symbol_table;
         std::string code_segment;
+        std::string end_segment;
         std::array<bool, 4> available_registers;
         std::array<bool, 0x4000> available_heap;
         std::uint32_t counter;
@@ -77,6 +78,7 @@ namespace ti
         void add_to_symbol_table(Symbol*) noexcept;
         
         void add_to_code(const std::string&) noexcept;
+        void add_to_end(const std::string&) noexcept;
         
         const ForcedAllocation allocate_forced(void) noexcept;
         const ForcedAllocation allocate_forced(const ForcedAllocation&) noexcept;
