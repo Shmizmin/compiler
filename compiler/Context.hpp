@@ -11,6 +11,8 @@
 
 namespace ti
 {
+    struct Argument;
+    
     enum class SymbolType
     {
         VARIABLE,
@@ -34,7 +36,7 @@ namespace ti
     struct FunctionSymbol : public Symbol
     {
         //null
-        std::string label;
+        std::vector<Argument> arguments;
     };
     
     

@@ -172,21 +172,13 @@ void ti::Context::deallocate_heap(std::uint16_t location, std::uint16_t bytes) n
 
 std::uint8_t ti::get_type_size(ti::CompleteType& type) noexcept
 {
-    using enum ti::TypeQualifier;
     using enum ti::TypeSpecifier;
     
-    if (type.qualifier == PTR)
+    switch (type.specifier)
     {
-        return 2;
-    }
-    else
-    {
-        switch (type.specifier)
-        {
-            case BYTE: return 1; break;
-            case VOID: ti::throw_error("Type 'void' is unsized");            break;
-            default:   ti::throw_error("Unknown type to query the size of"); break;
-        }
+        case BYTE: return 1; break;
+        case VOID: ti::throw_error("Type 'void' is unsized");            break;
+        default:   ti::throw_error("Unknown type to query the size of"); break;
     }
 }
 

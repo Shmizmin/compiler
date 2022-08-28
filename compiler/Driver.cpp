@@ -54,7 +54,7 @@ void ti::generate_function(ti::Context& context, ti::Function& function) noexcep
         SymbolType::FUNCTION,
         name,
         defined,
-        label
+        {}
     });
 
     context.add_to_code(ti::format("@%s:\n", label.c_str()));

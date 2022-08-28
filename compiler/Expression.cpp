@@ -141,12 +141,34 @@ void ti::expr::binary::FCall::generate(ti::Context& context, ti::Function& funct
 {
     ti::write_log("Generating code for function call expression");
     
-    //auto* l = static_cast<ti::expr::Identifier*>();
+    auto* l = static_cast<ti::expr::Identifier*>(this->left);
     
     const auto loc = std::find_if(context.symbol_table.begin(), context.symbol_table.end(), [&](Symbol* s)
     {
-        return (ident->name == s->name);
+        return (l->name == s->name);
     });
+    
+    if (loc == std::end(context.symbol_table))
+    {
+        ti::throw_error("Identifier %s is previously undefined", l->name.c_str());
+    }
+    
+    const auto res = *loc;
+    
+    if (res->type != ti::SymbolType::FUNCTION)
+    {
+        ti::throw_error("Identifier %s was previously defined as a variable", l->name.c_str());
+    }
+    if (!res->defined)
+    {
+        ti::throw_error("Identifier %s was not previously defined with a valid function body", l->name.c_str());
+    }
+    else
+    {
+        auto* nsym = static_cast<ti::FunctionSymbol*>(res);
+        
+#error this is where I was at
+    }
 }
 
 
