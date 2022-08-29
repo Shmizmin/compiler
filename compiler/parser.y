@@ -92,40 +92,39 @@ void yyerror(const char* s);
 %%
 
 program
-    : definitions_opt T_END { begin_program(); }
+    : definitions_opt T_END { begin_compiler(); }
     ;
     
 definitions_opt
-    : %empty
-    | definitions_opt definition
+    : %empty { $$ = Definition{}; }
+    | definitions_opt definition { $$ = create_definition}
     ;
     
 definition
-    : function_declarator
-    | global_declarator
+    : function_declarator { $$ = $1; }
     ;
     
 type_specifier
-    : "byte"
-    | "void"
+    : "byte" { $$ = BYTE; }
+    | "void" { $$ = VOID; }
     ;
     
 type_qualifier
-    : "ptr"
-    | "val"
+    : "ptr" { $$ = PTR; }
+    | "val" { $$ = VAL; }
     ;
     
 complete_type
-    : type_specifier type_qualifier T_IDENTIFIER
+    : type_specifier type_qualifier T_IDENTIFIER { $$ = make_complete_type($1, $2, $3); }
     ;
     
 function_prototype
-    : "function" complete_type "=" "(" arguments_opt expect_rparen
+    : "function" complete_type "=" "(" arguments_opt expect_rparen { $$ = create_function_proto($2, $5); }
     ;
     
 arguments
-    : complete_type
-    | arguments_opt "," complete_type
+    : complete_type                   { $$ = create_first_arg_decl($1); }
+    | arguments_opt "," complete_type { $$ = create_later_arg_decl($3); }
     ;
     
 arguments_opt
@@ -134,26 +133,27 @@ arguments_opt
     ;
     
 function_declarator
-    : "proto" function_prototype expect_semicolon
-    | function_prototype statement
+    : "proto" function_prototype expect_semicolon  { $$ = create_function_undef($2); }
+    | function_prototype statement                 { $$ = create_function_def($1, $2); }
     ;
     
 variable_declarator
-    : type_specifier type_qualifier variable_declarator_i
-    | variable_declarator "," variable_declarator_i
+    : type_specifier type_qualifier variable_declarator_i { $$ = create_first_variable_decl($1, $2, $3); }
+    | variable_declarator "," variable_declarator_i       { $$ = create_later_variable_decl($3); }
     ;
 
 variable_declarator_i
-    : T_IDENTIFIER "=" expression
-    | T_IDENTIFIER
+    : T_IDENTIFIER "=" expression { $$ = create_variable_def($1, $3); }
+    | T_IDENTIFIER                { $$ = create_variable_undef($1); }
     ;
     
 local_declarator
-    : "local" variable_declarator { $$ = $2; }
+    : "local" variable_declarator { $$ = create_local_variable_decl($2); }
+    |         variable_declarator { $$ = create_local_variable_decl($1); } //no visibility specifier is local
     ;
     
 global_declarator
-    : "global" variable_declarator { $$ = $2; }
+    : "global" variable_declarator { $$ = create_global_variable_decl($2); }
     ;
     
 expect_semicolon
@@ -183,7 +183,7 @@ args_delim_opt
     
 statements
     : statements statement { $$ = $2; }
-    | %empty { $$ = EmptyStatement; }
+    | %empty               { $$ = EmptyStatement; }
     ;
     
 statement
