@@ -61,7 +61,6 @@ void yyerror(const char* s);
        T_LOCAL    "local"
        T_GLOBAL   "global"
        T_IF       "if"
-       T_ELSE     "else"
        T_WHILE    "while"
        T_FOR      "for"
        T_RETURN   "return"
@@ -93,7 +92,7 @@ void yyerror(const char* s);
 %%
 
 program
-    : definitions_opt T_END
+    : definitions_opt T_END { begin_program(); }
     ;
     
 definitions_opt
@@ -172,11 +171,6 @@ expect_rbrace
     | "}"
     ;
     
-else_opt
-    : %empty
-    | "else" statement
-    ;
-    
 args_delim
     : expression
     | args_delim "," expression
@@ -188,48 +182,48 @@ args_delim_opt
     ;
     
 statements
-    : statements statement
-    | %empty
+    : statements statement { $$ = $2; }
+    | %empty { $$ = EmptyStatement; }
     ;
     
 statement
-    : "{" statements "}"
-    | "if" "(" expression ")" statement else_opt
-    | "while" "(" expression ")" statement
-    | "return" expression_opt ";"                   { create_stmt_return($2); }
-    | expect_semicolon                              { create_stmt_null(); }
-    | local_declarator ";"                          { create_stmt_localvar($1); }
-    | global_declarator ";"                         { create_stmt_globalvar($1); }
+    : "{" statements "}"                   { $$ = create_stmt_block($2); }
+    | "if" "(" expression ")" statement    { $$ = create_stmt_if($3, $5, $6); }
+    | "while" "(" expression ")" statement { $$ = create_stmt_while($3, $5); }
+    | "return" expression_opt ";"          { $$ = create_stmt_return($2); }
+    | expect_semicolon                     { $$ = create_stmt_null(); }
+    | local_declarator ";"                 { $$ = create_stmt_localvar($1); }
+    | global_declarator ";"                { $$ = create_stmt_globalvar($1); }
     ;
 
 expression_opt
-    : %empty { $$ = Expression{}; }
-    | expression { }
+: %empty         { $$ = EmptyExpression; }
+    | expression { $$ = $1; }
     ;
     
 expression
-    : T_NUMCONST                                     { create_expr_numconst($1); }
-    | T_STRINGCONST                                  { create_expr_stringconst($1); }
-    | T_IDENTIFIER                                   { create_expr_identifier($1); }
-    | "(" expression ")"                             { create_expr_paren($2); }
-    | T_IDENTIFIER "("  args_delim_opt expect_rparen { create_expr_fcall($1, $3); }//function call
-    | T_IDENTIFIER "=" expression                    { create_expr_equals($1, $3); }
-    | expression "+"  expression                     { create_expr_plus($1, $3); }
-    | expression "-"  expression %prec "+"           { create_expr_minus($1, $3); }
-    | expression "<<" expression                     { create_expr_lshift($1, $3); }
-    | expression ">>" expression %prec "<<"          { create_expr_rshift($1, $3); }
-    | expression "^"  expression                     { create_expr_xor($1, $3); }
-    | expression "&"  expression                     { create_expr_and($1, $3); }
-    | expression "|"  expression                     { create_expr_or($1, $3); }
-    | T_IDENTIFIER "++"                              { create_expr_inc($1); }
-    | T_IDENTIFIER "--"          %prec "++"          { create_expr_dec($1); }
-    | expression "==" expression                     { create_expr_isequal($1, $3); }
-    | expression "!=" expression %prec "=="          { create_expr_isnotequal($1, $3); }
-    |            "+"  expression                     { create_expr_positive($2); }
-    |            "-"  expression %prec "-"           { create_expr_negative($2); }
-    | expression "?"  expression ":" expression      { create_expr_ternary($1, $3, $5); }
-    | expression "<"  expression                     { create_expr_less($1, $3); }
-    | expression ">"  expression                     { create_expr_greater($1, $3); }
+    : T_NUMCONST                                     { $$ = create_expr_numconst($1); }
+    | T_STRINGCONST                                  { $$ = create_expr_stringconst($1); }
+    | T_IDENTIFIER                                   { $$ = create_expr_identifier($1); }
+    | "(" expression ")"                             { $$ = $2; }
+    | T_IDENTIFIER "("  args_delim_opt expect_rparen { $$ = create_expr_fcall($1, $3); }//function call
+    | T_IDENTIFIER "=" expression                    { $$ = create_expr_equals($1, $3); }
+    | expression "+"  expression                     { $$ = create_expr_plus($1, $3); }
+    | expression "-"  expression %prec "+"           { $$ = create_expr_minus($1, $3); }
+    | expression "<<" expression                     { $$ = create_expr_lshift($1, $3); }
+    | expression ">>" expression %prec "<<"          { $$ = create_expr_rshift($1, $3); }
+    | expression "^"  expression                     { $$ = create_expr_xor($1, $3); }
+    | expression "&"  expression                     { $$ = create_expr_and($1, $3); }
+    | expression "|"  expression                     { $$ = create_expr_or($1, $3); }
+    | T_IDENTIFIER "++"                              { $$ = create_expr_inc($1); }
+    | T_IDENTIFIER "--"          %prec "++"          { $$ = create_expr_dec($1); }
+    | expression "==" expression                     { $$ = create_expr_isequal($1, $3); }
+    | expression "!=" expression %prec "=="          { $$ = create_expr_isnotequal($1, $3); }
+    |            "+"  expression                     { $$ = create_expr_positive($2); }
+    |            "-"  expression %prec "-"           { $$ = create_expr_negative($2); }
+    | expression "?"  expression ":" expression      { $$ = create_expr_ternary($1, $3, $5); }
+    | expression "<"  expression                     { $$ = create_expr_less($1, $3); }
+    | expression ">"  expression                     { $$ = create_expr_greater($1, $3); }
     ;
 
 %%

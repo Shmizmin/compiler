@@ -56,7 +56,6 @@
 "local"    { return T_LOCAL;      }
 "global"   { return T_GLOBAL;     }
 "if"       { return T_IF;         }
-"else"     { return T_ELSE;       }
 "for"      { return T_FOR;        }
 "while"    { return T_WHILE;      }
 "return"   { return T_RETURN;     }
