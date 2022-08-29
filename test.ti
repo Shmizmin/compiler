@@ -1,0 +1,5 @@
+function byte val main = ()
+{
+	local byte val res = (1 + 2);
+	return -res;
+}
