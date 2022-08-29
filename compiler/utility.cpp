@@ -27,6 +27,35 @@ void create_ast(void)
     fn1.name = "main";
     fn1.arguments = {};
     
+    ti::Function fn2;
+    fn2.name = "second";
+    fn2.arguments = {};
+    
+    ti::CompleteType rt2{};
+    rt2.specifier = ti::TypeSpecifier::BYTE;
+    rt2.qualifier = ti::TypeQualifier::VAL;
+    
+    fn2.return_type = rt2;
+    
+    auto* body = new ti::stmt::Block();
+    body->type = ti::StatementType::BLOCK;
+    
+    auto* rx = new ti::stmt::Return();
+    rx->type = ti::StatementType::RETURN;
+    
+    auto* rvx = new ti::expr::Numconst();
+    rvx->type = ti::ExpressionType::NUMCONST;
+    rvx->value = 1;
+    
+    rx->value = rvx;
+    
+    
+    body->statements.emplace_back(rx);
+    fn2.body = body;
+    
+    
+    
+    
     ti::CompleteType rt{};
     rt.specifier = ti::TypeSpecifier::VOID;
     rt.qualifier = ti::TypeQualifier::VAL;
@@ -39,12 +68,12 @@ void create_ast(void)
     auto* vars = new ti::stmt::Variable();
     vars->type = ti::StatementType::VARIABLE;
     
-    ti::Variable var{};
-    var.type.qualifier = ti::TypeQualifier::VAL;
-    var.type.specifier = ti::TypeSpecifier::BYTE;
+    auto* var = new ti::Variable();
+    var->type.qualifier = ti::TypeQualifier::VAL;
+    var->type.specifier = ti::TypeSpecifier::BYTE;
     
-    var.name = "res";
-    var.visibility = ti::TypeVisibility::LOCAL;
+    var->name = "res";
+    var->visibility = ti::TypeVisibility::LOCAL;
     
     auto* bine = new ti::expr::binary::Plus();
     bine->type = ti::ExpressionType::BINARYOP;
@@ -53,14 +82,21 @@ void create_ast(void)
     bl->type = ti::ExpressionType::NUMCONST;
     bl->value = 1;
     
-    auto* br = new ti::expr::Numconst();
-    br->type = ti::ExpressionType::NUMCONST;
-    br->value = 2;
+    
+    auto* br2 = new ti::expr::FCall();
+    br2->type = ti::ExpressionType::BINARYOP;
+    
+    auto* ident = new ti::expr::Identifier();
+    ident->type = ti::ExpressionType::IDENTIFIER;
+    ident->name = "second";
+    
+    br2->left = ident;
+    br2->args = {};
     
     bine->left = bl;
-    bine->right = br;
+    bine->right = br2;
     
-    var.value = bine;
+    var->value = bine;
     
     vars->variables.emplace_back(var);
     
@@ -88,6 +124,7 @@ void create_ast(void)
     
     fn1.body = stmt;
                                   
+    program.functions.emplace_back(fn2);
     program.functions.emplace_back(fn1);
     
     //program.functions[0]->

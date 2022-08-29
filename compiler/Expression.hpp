@@ -2,7 +2,7 @@
 #define Expression_hpp
 
 #include <string>
-#include <variant>
+#include <vector>
 
 #include "Types.hpp"
 
@@ -88,6 +88,14 @@ namespace ti
             void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
         };
         
+        struct FCall : public Expression
+        {
+            Identifier* left;
+            std::vector<Expression*> args;
+            
+            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+        };
+        
         struct Ternary : public Expression
         {
             Expression* left;
@@ -105,11 +113,6 @@ namespace ti
         
         namespace binary
         {
-            struct FCall : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            
             struct Equals : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;

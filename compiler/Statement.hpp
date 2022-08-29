@@ -81,7 +81,7 @@ namespace ti
         
         struct Variable final : public Statement
         {
-            std::vector<ti::Variable> variables;
+            std::vector<ti::Variable*> variables;
             
             void generate(Context&, Function&) noexcept override;
         };

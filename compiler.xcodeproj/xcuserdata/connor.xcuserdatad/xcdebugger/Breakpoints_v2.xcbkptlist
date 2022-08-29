@@ -213,8 +213,8 @@
             filePath = "compiler/Expression.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "470"
-            endingLineNumber = "470"
+            startingLineNumber = "509"
+            endingLineNumber = "509"
             landmarkName = "ti::expr::unary::Negative::generate(context, function, allocation)"
             landmarkType = "7">
          </BreakpointContent>

@@ -101,14 +101,14 @@ void ti::expr::Ternary::generate(ti::Context& context, ti::Function& function, c
 
     //go to correct condition label
     const auto second_label = ti::format(label_template, "false", function.name.c_str(), context.counter);
-    context.add_to_code(ti::format("\tjez [%s]\n", second_label.c_str()).c_str());
+    context.add_to_code(ti::format("\tjez %s\n", second_label.c_str()).c_str());
     
     const auto end_label = ti::format(label_template, "end", function.name.c_str(), context.counter);
     
     //true label
     context.add_to_code(ti::format("@%s:\n", ti::format(label_template, "true", function.name.c_str(), context.counter).c_str()));
     center->generate(context, function, allocation);
-    context.add_to_code(ti::format("\tjmp([%s])\n", end_label.c_str()).c_str());
+    context.add_to_code(ti::format("\tjmp(%s)\n", end_label.c_str()).c_str());
     
     //false label
     context.add_to_code(ti::format("@%s:\n", second_label.c_str()));
@@ -137,7 +137,7 @@ void ti::expr::Numconst::generate(ti::Context& context, ti::Function& function, 
  | BINARY EXPRESSION GENERATION |
  *------------------------------*/
 
-void ti::expr::binary::FCall::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
+void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for function call expression");
     
@@ -167,7 +167,46 @@ void ti::expr::binary::FCall::generate(ti::Context& context, ti::Function& funct
     {
         auto* nsym = static_cast<ti::FunctionSymbol*>(res);
         
-#error this is where I was at
+        /*
+         TypeVisibility visibility;
+         CompleteType type;
+         std::string name;
+         Expression* value;
+         */
+        
+        const auto def_num = nsym->arguments.size();
+        const auto fcl_num = args.size();
+        
+        if (def_num != fcl_num)
+        {
+            //arity of definition and call do not match
+            ti::throw_error("Function %s takes %u arguments but was called with %u", l->name.c_str(), def_num, fcl_num);
+        }
+        
+        auto* var_stmt = new ti::stmt::Variable();
+        var_stmt->type = ti::StatementType::VARIABLE;
+        var_stmt->variables = {};
+        
+        for (auto i = 0; i < fcl_num; ++i)
+        {
+            const auto& arg = nsym->arguments[i];
+            
+            //will leak
+            auto* var = new ti::Variable();
+
+            context.counter++;
+            var->name = ti::format("%s_%s_%u", function.name.c_str(), arg.name.c_str(), context.counter);
+            var->type = arg.type;
+            var->visibility = ti::TypeVisibility::LOCAL;
+            var->value = args[i];
+            
+            var_stmt->variables.emplace_back(var);
+        
+        }
+        
+        var_stmt->generate(context, function);
+        
+        context.add_to_code(ti::format("\tcall(function_start_%s)\n", nsym->name.c_str()));
     }
 }
 
@@ -365,11 +404,11 @@ void ti::expr::binary::NotEquals::generate(ti::Context& context, ti::Function& f
     const auto zero_template = ti::format("zero_%s_%u", function.name.c_str(), context.counter);
     
     context.add_to_code(ti::format("\tsbb %s, %s\n", loc1.c_str(), loc2.c_str()));
-    context.add_to_code(ti::format("\tjez [%s]\n", zero_template.c_str()));
+    context.add_to_code(ti::format("\tjez %s\n", zero_template.c_str()));
     context.add_to_code(ti::format("\tldb %s, #0\n", loc1.c_str()));
     
     const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
-    context.add_to_code(ti::format("\tjmp([%s])\n", end_template.c_str()));
+    context.add_to_code(ti::format("\tjmp(%s)\n", end_template.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", zero_template.c_str()).c_str());
     
@@ -393,11 +432,11 @@ void ti::expr::binary::Less::generate(ti::Context& context, ti::Function& functi
     const auto less_template = ti::format("less_%s_%u", function.name.c_str(), context.counter);
     
     context.add_to_code(ti::format("\tsbb %s, %s\n", loc1.c_str(), loc2.c_str()));
-    context.add_to_code(ti::format("\tjcc([%s])\n", less_template.c_str()));
+    context.add_to_code(ti::format("\tjcc(%s)\n", less_template.c_str()));
     context.add_to_code(ti::format("\tldb %s, #0\n", loc1.c_str()));
     
     const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
-    context.add_to_code(ti::format("\tjmp([%s])\n", end_template.c_str()));
+    context.add_to_code(ti::format("\tjmp(%s)\n", end_template.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", less_template.c_str()).c_str());
     
@@ -421,11 +460,11 @@ void ti::expr::binary::Greater::generate(ti::Context& context, ti::Function& fun
     const auto greater_template = ti::format("greater_%s_%u", function.name.c_str(), context.counter);
     
     context.add_to_code(ti::format("\tsbb %s, %s\n", loc1.c_str(), loc2.c_str()));
-    context.add_to_code(ti::format("\tjcc([%s])\n", greater_template.c_str()));
+    context.add_to_code(ti::format("\tjcc(%s)\n", greater_template.c_str()));
     context.add_to_code(ti::format("\tldb %s, #0\n", loc1.c_str()));
     
     const auto end_template = ti::format("end_%s_%u", function.name.c_str(), context.counter);
-    context.add_to_code(ti::format("\tjmp([%s])\n", end_template.c_str()));
+    context.add_to_code(ti::format("\tjmp(%s)\n", end_template.c_str()));
     
     context.add_to_code(ti::format("@%s:\n", greater_template.c_str()).c_str());
     

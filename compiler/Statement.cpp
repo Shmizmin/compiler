@@ -27,7 +27,7 @@ void ti::stmt::If::generate(ti::Context& context, ti::Function& function) noexce
     condition->generate(context, function, alloc);
     
     context.add_to_code("\tupdateFlags()\n");
-    context.add_to_code(ti::format("\tjez [%s]", label.c_str()));
+    context.add_to_code(ti::format("\tjez %s", label.c_str()));
     
     context.deallocate_forced(alloc);
     
@@ -49,7 +49,7 @@ void ti::stmt::While::generate(ti::Context& context, ti::Function& function) noe
     context.deallocate_forced(alloc);
     
     context.add_to_code("\tupdateFlags()\n");
-    context.add_to_code(ti::format("\tjnz([%s])\n", label.c_str()));
+    context.add_to_code(ti::format("\tjnz(%s)\n", label.c_str()));
 }
 
 void ti::stmt::Return::generate(ti::Context& context, ti::Function& function) noexcept
@@ -59,7 +59,7 @@ void ti::stmt::Return::generate(ti::Context& context, ti::Function& function) no
     const auto alloc = context.allocate_forced();
     
     value->generate(context, function, alloc);
-    context.add_to_code(ti::format("\tjmp([function_end_%s])\n", function.name.c_str()));
+    context.add_to_code(ti::format("\tjmp(function_end_%s)\n", function.name.c_str()));
     
     context.deallocate_forced(alloc);
 }
@@ -73,17 +73,17 @@ void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) 
 {
     ti::write_log("Generating code for variable statement");
 
-    std::for_each(variables.begin(), variables.end(), [&](ti::Variable& variable)
+    std::for_each(variables.begin(), variables.end(), [&](ti::Variable* variable)
     {
-        const auto& name = variable.name;
-        const auto  defined = (variable.value != nullptr);
+        const auto& name = variable->name;
+        const auto  defined = (variable->value != nullptr);
         
-        if (variable.type.specifier == ti::TypeSpecifier::VOID)
+        if (variable->type.specifier == ti::TypeSpecifier::VOID)
         {
             ti::throw_error("Variable %s was illegally declared as type \'void\'", name.c_str());
         }
 
-        const auto address = context.allocate_heap(ti::get_type_size(variable.type));
+        const auto address = context.allocate_heap(ti::get_type_size(variable->type));
               auto* symbol = new ti::VariableSymbol
         {
             {
@@ -93,7 +93,7 @@ void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) 
             },
             
             address,
-            variable.visibility,
+            variable->visibility,
             function,
         };
     
@@ -103,7 +103,7 @@ void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) 
         {
             const auto alloc = context.allocate_forced();
             
-            variable.value->generate(context, function, alloc);
+            variable->value->generate(context, function, alloc);
             
             context.add_to_code(ti::format("\tstb %%%u, %s\n", address, ti::location_to_string(alloc.location).c_str()));
                                 
