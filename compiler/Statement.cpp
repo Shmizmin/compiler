@@ -59,6 +59,10 @@ void ti::stmt::Return::generate(ti::Context& context, ti::Function& function) no
     const auto alloc = context.allocate_forced();
     
     value->generate(context, function, alloc);
+    
+    //for specialized call macro
+    context.add_to_code(ti::format("\tpush %s\n", ti::location_to_string(alloc.location).c_str()));
+    
     context.add_to_code(ti::format("\tjmp(function_end_%s)\n", function.name.c_str()));
     
     context.deallocate_forced(alloc);

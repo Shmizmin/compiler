@@ -206,7 +206,7 @@ void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, con
         
         var_stmt->generate(context, function);
         
-        context.add_to_code(ti::format("\tcall(function_start_%s)\n", nsym->name.c_str()));
+        context.add_to_code(ti::format("\tcall_%s(function_start_%s)\n", ti::location_to_string(allocation.location).c_str(), nsym->name.c_str()));
     }
 }
 
