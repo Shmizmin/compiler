@@ -37,10 +37,7 @@ namespace ti
         BIT_XOR,
         BIT_AND,
         BIT_OR,
-
-        LOG_AND,
-        LOG_OR,
-
+        
         EQUALS_EQUALS,
         NOT_EQUALS,
 

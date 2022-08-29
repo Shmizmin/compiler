@@ -365,17 +365,6 @@ void ti::expr::binary::BitOr::generate(ti::Context& context, ti::Function& funct
 }
 
 
-void ti::expr::binary::LogAnd::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for binary logical and expression");
-}
-
-void ti::expr::binary::LogOr::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
-{
-    ti::write_log("Generating code for binary logical or expression");
-}
-
-
 void ti::expr::binary::EqualsEquals::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for binary equals-equals expression");

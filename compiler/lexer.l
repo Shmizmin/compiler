@@ -25,9 +25,7 @@
 "++"       { return T_PLUSPLUS;   }
 "+"        { return T_PLUS;       }
 "!"        { return T_LNOT;       }
-"||"       { return T_LOR;        }
 "|"        { return T_BOR;        }
-"&&"       { return T_LAND;       }
 "&"        { return T_BAND;       }
 "^"        { return T_BXOR;       }
 "<<"       { return T_LSHIFT;     }

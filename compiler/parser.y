@@ -30,9 +30,7 @@ void yyerror(const char* s);
        T_PLUSPLUS   "++"
        T_PLUS       "+"
        T_LNOT       "!"
-       T_LOR        "||"
        T_BOR        "|"
-       T_LAND       "&&"
        T_BAND       "&"
        T_BXOR       "^"
 
@@ -73,8 +71,6 @@ void yyerror(const char* s);
 
 %left  ","
 %right "?" ":" "="
-%left  "||"
-%left  "&&"
 %left  "==" "!="
 %left  ">" "<"
 %left  "|"
@@ -154,11 +150,11 @@ variable_declarator_i
     ;
     
 local_declarator
-    : "local" variable_declarator
+    : "local" variable_declarator { $$ = $2; }
     ;
     
 global_declarator
-    : "global" variable_declarator
+    : "global" variable_declarator { $$ = $2; }
     ;
     
 expect_semicolon
@@ -200,42 +196,40 @@ statement
     : "{" statements "}"
     | "if" "(" expression ")" statement else_opt
     | "while" "(" expression ")" statement
-    | "return" expression_opt ";"
-    | expect_semicolon
-    | local_declarator ";"
-    | global_declarator ";"
+    | "return" expression_opt ";"                   { create_stmt_return($2); }
+    | expect_semicolon                              { create_stmt_null(); }
+    | local_declarator ";"                          { create_stmt_localvar($1); }
+    | global_declarator ";"                         { create_stmt_globalvar($1); }
     ;
 
 expression_opt
-    : %empty
-    | expression
+    : %empty { $$ = Expression{}; }
+    | expression { }
     ;
     
 expression
-    : T_NUMCONST
-    | T_STRINGCONST
-    | T_IDENTIFIER
-    | "(" expression ")"
-    | T_IDENTIFIER "("  args_delim_opt expect_rparen //function call
-    | expression "=" expression
-    | expression "+"  expression
-    | expression "-"  expression %prec "+"
-    | expression "<<" expression
-    | expression ">>" expression %prec "<<"
-    | expression "^"  expression
-    | expression "&"  expression
-    | expression "|"  expression
-    | T_IDENTIFIER "++"
-    | T_IDENTIFIER "--"          %prec "++"
-    | expression "||" expression
-    | expression "&&" expression
-    | expression "==" expression
-    | expression "!=" expression %prec "=="
-    |            "-"  expression %prec "-"
-    |            "+"  expression
-    | expression "?"  expression ":" expression
-    | expression "<"  expression
-    | expression ">"  expression
+    : T_NUMCONST                                     { create_expr_numconst($1); }
+    | T_STRINGCONST                                  { create_expr_stringconst($1); }
+    | T_IDENTIFIER                                   { create_expr_identifier($1); }
+    | "(" expression ")"                             { create_expr_paren($2); }
+    | T_IDENTIFIER "("  args_delim_opt expect_rparen { create_expr_fcall($1, $3); }//function call
+    | T_IDENTIFIER "=" expression                    { create_expr_equals($1, $3); }
+    | expression "+"  expression                     { create_expr_plus($1, $3); }
+    | expression "-"  expression %prec "+"           { create_expr_minus($1, $3); }
+    | expression "<<" expression                     { create_expr_lshift($1, $3); }
+    | expression ">>" expression %prec "<<"          { create_expr_rshift($1, $3); }
+    | expression "^"  expression                     { create_expr_xor($1, $3); }
+    | expression "&"  expression                     { create_expr_and($1, $3); }
+    | expression "|"  expression                     { create_expr_or($1, $3); }
+    | T_IDENTIFIER "++"                              { create_expr_inc($1); }
+    | T_IDENTIFIER "--"          %prec "++"          { create_expr_dec($1); }
+    | expression "==" expression                     { create_expr_isequal($1, $3); }
+    | expression "!=" expression %prec "=="          { create_expr_isnotequal($1, $3); }
+    |            "+"  expression                     { create_expr_positive($2); }
+    |            "-"  expression %prec "-"           { create_expr_negative($2); }
+    | expression "?"  expression ":" expression      { create_expr_ternary($1, $3, $5); }
+    | expression "<"  expression                     { create_expr_less($1, $3); }
+    | expression ">"  expression                     { create_expr_greater($1, $3); }
     ;
 
 %%
