@@ -149,7 +149,7 @@ variable_declarator_i
     
 local_declarator
     : "local" variable_declarator { $$ = create_variable_decl($2, LOCAL); }
-    |         variable_declarator { $$ = create_variable_decl($1, LOCAL); } //no visibility specifier is local
+    |         variable_declarator { $$ = create_variable_decl($1, LOCAL); } //default local
     ;
     
 global_declarator
@@ -197,7 +197,7 @@ statement
     ;
 
 expression_opt
-    : %empty     { $$ = EmptyExpression; }
+    : %empty     { $$ = Expression{}; }
     | expression { $$ = $1; }
     ;
     

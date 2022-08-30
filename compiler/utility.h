@@ -16,6 +16,12 @@ typedef enum
     VAL,
 } Types;
 
+typedef enum
+{
+    LOCAL,
+    GLOBAL,
+} Access;
+
 
 
 #ifdef __cplusplus
@@ -53,20 +59,35 @@ extern "C"
     
     
     
-    Block_Statement* create_stmt_block(Statements*);
-    If_Statement* create_stmt_if(Expression*, Statement*);
-    While_Statement* create_stmt_while(Expression*, Statement*);
-    Return_Statement* create_stmt_return(Expression*);
-    Null_Statement* create_stmt_null(void);
+       Block_Statement* create_stmt_block(Statements*);
+          If_Statement* create_stmt_if(Expression*, Statement*);
+       While_Statement* create_stmt_while(Expression*, Statement*);
+      Return_Statement* create_stmt_return(Expression*);
+        Null_Statement* create_stmt_null(void);
     Variable_Statement* create_stmt_variable(Var_Decl*);
     
     
     Expression* create_expr_numconst(uint8_t);
     Expression* create_expr_stringconst(const char*);
     Expression* create_expr_identifier(const char*);
-    Expression* create_expr_fcall(
-    
-    
+    Expression* create_expr_fcall(const char*, FCall_Args*);
+    Expression* create_expr_equals(const char*, Expression*);
+    Expression* create_expr_plus(Expression*, Expression*);
+    Expression* create_expr_minus(Expression*, Expression*);
+    Expression* create_expr_lshift(Expression*, Expression*);
+    Expression* create_expr_rshift(Expression*, Expression*);
+    Expression* create_expr_xor(Expression*, Expression*);
+    Expression* create_expr_and(Expression*, Expression*);
+    Expression* create_expr_or(Expression*, Expression*);
+    Expression* create_expr_inc(const char*);
+    Expression* create_expr_dec(const char*);
+    Expression* create_expr_isequal(Expression*, Expression*);
+    Expression* create_expr_notequal(Expression*, Expresion*);
+    Expression* create_expr_positive(Expression*);
+    Expression* create_expr_negative(Expression*);
+    Expression* create_expr_ternary(Expression*, Expression*, Expression*);
+    Expression* create_expr_less(Expression*, Expression*);
+    Expression* create_expr_greater(Expression*, Expression*);
     
 
     
