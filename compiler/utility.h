@@ -5,8 +5,18 @@
 
 
 typedef unsigned int size;
-
 extern size line;
+
+typedef enum
+{
+    BYTE,
+    VOID,
+    
+    PTR,
+    VAL,
+} Types;
+
+
 
 #ifdef __cplusplus
 extern "C"
@@ -15,35 +25,52 @@ extern "C"
     
     char* capture(char* in, size n, size m);
     
-    void create_expr_numconst(uint8_t);
-    void create_expr_stringconst(char*);
-    void create_expr_identifier(char*);
-    void create_expr_paren(Expression*);
-    void create_expr_fcall(char*, Arguments*);
-    void create_expr_equals(char*, Expression*);
-    void create_expr_plus(Expression*, Expression*);
-    void create_expr_minus(Expression*, Expression*);
+    void begin_compiler(void);
+    Definition create_definition(Function*);
     
-    void create_expr_lshift(Expression*, Expression*);
-    void create_expr_rshift(Expression*, Expression*);
+    Complete_Type make_complete_type(Type_Specifier, TypeQualifier, const char*);
     
-    void create_expr_xor(Expression*, Expression*);
-    void create_expr_and(Expression*, Expression*);
-    void create_expr_or(Expression*, Expression*);
+    Function create_function_proto(Complete_Type, Argument*);
     
-    void create_expr_inc(char*);
-    void create_expr_dec(char*);
+    Argument* create_first_arg_decl(CompleteType);
+    Argument* create_later_arg_decl(CompleteType);
     
-    void create_expr_isequal(Expression*, Expression*);
-    void create_expr_isnotequal(Expresion*, Expression*);
+    Function create_function_undef(Function_Proto);
+    Function create_function_def(Function_Proto);
     
-    void create_expr_positive(Expression*);
-    void create_expr_negative(Expression*);
+    Variable* create_first_var_decl(Type_Specifier, Type_Qualifier, Var_Decl);
+    Variable* create_later_var_decl(Var_Decl);
     
-    void create_expr_ternary(Expression*, Expression*, Expression*);
+    Var_Decl create_variable_def(const char*, Expression*);
+    Var_Decl create_variable_undef(const char*);
     
-    void create_expr_less(Expression*, Expression*);
-    void create_expr_greater(Expression*, Expression*);
+    
+    Local_Decl create_local_variable_decl(Var_Decl);
+    Global_Decl create_global_variable_decl(Var_Decl);
+    
+    FCall_Arg create_first_fcall_param(Expression*);
+    FCall_Arg create_later_fcall_param(Expression*);
+    
+    
+    
+    Block_Statement* create_stmt_block(Statements*);
+    If_Statement* create_stmt_if(Expression*, Statement*);
+    While_Statement* create_stmt_while(Expression*, Statement*);
+    Return_Statement* create_stmt_return(Expression*);
+    Null_Statement* create_stmt_null(void);
+    Variable_Statement* create_stmt_variable(Var_Decl*);
+    
+    
+    Expression* create_expr_numconst(uint8_t);
+    Expression* create_expr_stringconst(const char*);
+    Expression* create_expr_identifier(const char*);
+    Expression* create_expr_fcall(
+    
+    
+    
+
+    
+    
     
     
     

@@ -96,8 +96,8 @@ program
     ;
     
 definitions_opt
-    : %empty { $$ = Definition{}; }
-    | definitions_opt definition { $$ = create_definition}
+    : %empty                     { $$ = Definition{}; }
+    | definitions_opt definition { $$ = create_definition($2); }
     ;
     
 definition
@@ -128,8 +128,8 @@ arguments
     ;
     
 arguments_opt
-    : %empty
-    | arguments
+    : %empty    { $$ = Arguments{}; }
+    | arguments { $$ = $1; }
     ;
     
 function_declarator
@@ -138,8 +138,8 @@ function_declarator
     ;
     
 variable_declarator
-    : type_specifier type_qualifier variable_declarator_i { $$ = create_first_variable_decl($1, $2, $3); }
-    | variable_declarator "," variable_declarator_i       { $$ = create_later_variable_decl($3); }
+    : type_specifier type_qualifier variable_declarator_i { $$ = create_first_var_decl($1, $2, $3); }
+    | variable_declarator "," variable_declarator_i       { $$ = create_later_var_decl($3); }
     ;
 
 variable_declarator_i
@@ -148,12 +148,12 @@ variable_declarator_i
     ;
     
 local_declarator
-    : "local" variable_declarator { $$ = create_local_variable_decl($2); }
-    |         variable_declarator { $$ = create_local_variable_decl($1); } //no visibility specifier is local
+    : "local" variable_declarator { $$ = create_variable_decl($2, LOCAL); }
+    |         variable_declarator { $$ = create_variable_decl($1, LOCAL); } //no visibility specifier is local
     ;
     
 global_declarator
-    : "global" variable_declarator { $$ = create_global_variable_decl($2); }
+    : "global" variable_declarator { $$ = create_variable_decl($2, GLOBAL); }
     ;
     
 expect_semicolon
@@ -172,18 +172,18 @@ expect_rbrace
     ;
     
 args_delim
-    : expression
-    | args_delim "," expression
+    : expression                { $$ = create_first_fcall_param($1); }
+    | args_delim "," expression { $$ = create_later_fcall_param($3); }
     ;
     
 args_delim_opt
-    : %empty
-    | args_delim
+    : %empty     { $$ = Arguments{}; }
+    | args_delim { $$ = $1; }
     ;
     
 statements
-    : statements statement { $$ = $2; }
-    | %empty               { $$ = EmptyStatement; }
+    : statements statement { $$ = append_statement($2); }
+    | %empty               { $$ = Statement{}; }
     ;
     
 statement
@@ -197,7 +197,7 @@ statement
     ;
 
 expression_opt
-: %empty         { $$ = EmptyExpression; }
+    : %empty     { $$ = EmptyExpression; }
     | expression { $$ = $1; }
     ;
     
