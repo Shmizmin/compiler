@@ -20,8 +20,14 @@ void yyerror(const char* s);
 
 %union
 {
-    uint8_t ival;
-    char* cval;
+    uint8_t int_value;
+    char* char_value;
+    
+    Function_Definition_Arguments* fdef_args_value;
+    Definition* definition_value;
+    Type_Specifier type_specifier_value;
+    Type_Qualifier type_qualifier_value;
+    
 }
 
 %token T_END 0
@@ -82,8 +88,13 @@ void yyerror(const char* s);
 %right "++" "--"
 %left  "("
 
-%token<ival> T_NUMCONST
-%token<cval> T_IDENTIFIER T_STRINGCONST
+%token<int_value> T_NUMCONST
+%token<char_value> T_IDENTIFIER T_STRINGCONST
+
+%type<definition_value> definitions_opt
+%type<type_specifier_value> type_specifier
+%type<type_qualifier_value> type_qualifier
+
 
 %start program
 
@@ -148,12 +159,12 @@ variable_declarator_i
     ;
     
 local_declarator
-    : "local" variable_declarator { $$ = create_variable_decl($2, LOCAL); }
-    |         variable_declarator { $$ = create_variable_decl($1, LOCAL); } //default local
+    : "local" variable_declarator { $$ = qualify_variable_decl($2, LOCAL); }
+    |         variable_declarator { $$ = qualify_variable_decl($1, LOCAL); } //default local
     ;
     
 global_declarator
-    : "global" variable_declarator { $$ = create_variable_decl($2, GLOBAL); }
+    : "global" variable_declarator { $$ = qualify_variable_decl($2, GLOBAL); }
     ;
     
 expect_semicolon
@@ -182,8 +193,8 @@ args_delim_opt
     ;
     
 statements
-    : statements statement { $$ = append_statement($2); }
-    | %empty               { $$ = Statement{}; }
+    : statements statement { $$ = append_statement_list($2); }
+    | %empty               { $$ = return_statement_list(); }
     ;
     
 statement

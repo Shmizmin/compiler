@@ -8,7 +8,7 @@ namespace ti
         LOCAL,
         GLOBAL,
     };
-    
+        
     enum class TypeSpecifier
     {
         BYTE,
