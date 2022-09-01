@@ -7,6 +7,9 @@
 typedef unsigned int size;
 extern size line;
 
+struct Statement;
+struct Expression;
+
 typedef enum
 {
     BYTE,
@@ -46,32 +49,31 @@ typedef struct
 typedef struct
 {
     Complete_Type complete_type;
-    Function_Definition_Arguments arguments;
+    Function_Definition_Arguments* arguments;
 } Function_Prototype;
 
 typedef struct
 {
     Function_Prototype* definition;
+    struct Statement* body;
 } Function_Definition;
+
+
+typedef union
+{
+    Function_Definition* function_definition;
+} Definition_Value;
 
 typedef enum
 {
     Function,
 } Definition_Type;
 
-typedef union
+typedef struct
 {
-    
-} Definition_
-
-typedef union
-{
-    Function_Definition function_definition;
+    Definition_Type definition_type;
+    Definition_Value definition_value;
 } Definition;
-
-
-struct Statement;
-struct Expression;
 
 
 typedef struct
@@ -144,11 +146,11 @@ typedef enum
 
 typedef union
 {
-    Block_Statement* block_statement;
-    If_Statement* if_statement;
-    While_Statement* while_statement;
-    Return_Statement* return_statement;
-    Null_Statement* null_statement;
+       Block_Statement* block_statement;
+          If_Statement* if_statement;
+       While_Statement* while_statement;
+      Return_Statement* return_statement;
+        Null_Statement* null_statement;
     Variable_Statement* variable_statement;
 } Statement_Value;
 
@@ -167,7 +169,7 @@ typedef struct
 
 typedef struct
 {
-    Expression* exprs;
+    struct Expression* exprs;
     size_t num_exprs;
 } Expressions;
 
@@ -183,64 +185,71 @@ extern "C"
     
     Complete_Type make_complete_type(Type_Specifier, Type_Qualifier, const char*);
 
-    Function_Definition* create_function_proto(Complete_Type, Function_Definition_Argument*);
+    Function_Prototype* create_function_proto(Complete_Type, Function_Definition_Arguments*);
     
     //for function definition parameter specification
     Function_Definition_Arguments* create_first_arg_decl(Complete_Type);
     Function_Definition_Arguments* create_later_arg_decl(Complete_Type);
     
     //function declarators
-    Function_Definition* create_function_undef(Function_Prototype);
-    Function_Definition* create_function_def(Function_Prototype);
+    Function_Definition* create_function_undef(Function_Prototype*);
+    Function_Definition* create_function_def(Function_Prototype*, struct Statement*);
     
     
     //full variable declaration/definition, just without visibility
     Variable_Definition* create_first_var_decl(Type_Specifier, Type_Qualifier, Variable_Declaration*);
     Variable_Definition* create_later_var_decl(Variable_Declaration*);
     
-    Variable_Declaration* create_variable_def(const char*, Expression*);
+    Variable_Declaration* create_variable_def(const char*, struct Expression*);
     Variable_Declaration* create_variable_undef(const char*);
     
     //visibility specified variables
     Qualified_Variable_Definition* qualify_variable_definition(Variable_Definition*, Type_Visibility);
     
     
-    Expressions* create_first_fcall_param(Expression*);
-    Expressions* create_later_fcall_param(Expression*);
+    Expressions* create_first_fcall_param(struct Expression*);
+    Expressions* create_later_fcall_param(struct Expression*);
     
     
-    Statements* append_statement_list(Statement*);
+    Statements* append_statement_list(struct Statement*);
     Statements* return_statement_list(void);
     
     
-       Block_Statement* create_stmt_block(Statements*);
-          If_Statement* create_stmt_if(Expression*, Statement*);
-       While_Statement* create_stmt_while(Expression*, Statement*);
-      Return_Statement* create_stmt_return(Expression*);
-        Null_Statement* create_stmt_null(void);
-    Variable_Statement* create_stmt_variable(Qualified_Variable_Definition*);
+    struct Expression* Empty_Expression(void);
+    Expressions* Empty_Expressions(void);
+    Definition* Empty_Definition(void);
+    Definition* make_definition(Definition_Type, Function_Definition*);
     
-    Expression* create_expr_numconst(uint8_t);
-    Expression* create_expr_stringconst(const char*);
-    Expression* create_expr_identifier(const char*);
-    Expression* create_expr_fcall(const char*, Expressions*);
-    Expression* create_expr_equals(const char*, Expression*);
-    Expression* create_expr_plus(Expression*, Expression*);
-    Expression* create_expr_minus(Expression*, Expression*);
-    Expression* create_expr_lshift(Expression*, Expression*);
-    Expression* create_expr_rshift(Expression*, Expression*);
-    Expression* create_expr_xor(Expression*, Expression*);
-    Expression* create_expr_and(Expression*, Expression*);
-    Expression* create_expr_or(Expression*, Expression*);
-    Expression* create_expr_inc(const char*);
-    Expression* create_expr_dec(const char*);
-    Expression* create_expr_isequal(Expression*, Expression*);
-    Expression* create_expr_notequal(Expression*, Expression*);
-    Expression* create_expr_positive(Expression*);
-    Expression* create_expr_negative(Expression*);
-    Expression* create_expr_ternary(Expression*, Expression*, Expression*);
-    Expression* create_expr_less(Expression*, Expression*);
-    Expression* create_expr_greater(Expression*, Expression*);
+    
+    struct Statement* create_stmt_block(Statements*);
+    struct Statement* create_stmt_if(struct Expression*, struct Statement*);
+    struct Statement* create_stmt_while(struct Expression*, struct Statement*);
+    struct Statement* create_stmt_return(struct Expression*);
+    struct Statement* create_stmt_null(void);
+    struct Statement* create_stmt_variable(Qualified_Variable_Definition*);
+    
+    
+    struct Expression* create_expr_numconst(uint8_t);
+    struct Expression* create_expr_stringconst(const char*);
+    struct Expression* create_expr_identifier(const char*);
+    struct Expression* create_expr_fcall(const char*, Expressions*);
+    struct Expression* create_expr_equals(const char*, struct Expression*);
+    struct Expression* create_expr_plus(struct Expression*, struct Expression*);
+    struct Expression* create_expr_minus(struct Expression*, struct Expression*);
+    struct Expression* create_expr_lshift(struct Expression*, struct Expression*);
+    struct Expression* create_expr_rshift(struct Expression*, struct Expression*);
+    struct Expression* create_expr_xor(struct Expression*, struct Expression*);
+    struct Expression* create_expr_and(struct Expression*, struct Expression*);
+    struct Expression* create_expr_or(struct Expression*, struct Expression*);
+    struct Expression* create_expr_inc(const char*);
+    struct Expression* create_expr_dec(const char*);
+    struct Expression* create_expr_isequal(struct Expression*, struct Expression*);
+    struct Expression* create_expr_notequal(struct Expression*, struct Expression*);
+    struct Expression* create_expr_positive(struct Expression*);
+    struct Expression* create_expr_negative(struct Expression*);
+    struct Expression* create_expr_ternary(struct Expression*, struct Expression*, struct Expression*);
+    struct Expression* create_expr_less(struct Expression*, struct Expression*);
+    struct Expression* create_expr_greater(struct Expression*, struct Expression*);
     
     void create_ast(void);
     void generate_ast(void);

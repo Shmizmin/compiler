@@ -24,10 +24,23 @@ void yyerror(const char* s);
     char* char_value;
     
     Function_Definition_Arguments* fdef_args_value;
+    Function_Definition* fdef_value;
     Definition* definition_value;
     Type_Specifier type_specifier_value;
     Type_Qualifier type_qualifier_value;
+    Complete_Type complete_type_value;
+    Function_Prototype* fproto_value;
     
+    Variable_Definition* vdef_value;
+    Variable_Declaration* vdec_value;
+    
+    Qualified_Variable_Definition* qvar_defs_value;
+    
+    struct Statement* statement_value;
+    Statements* statements_value;
+    
+    struct Expression* expression_value;
+    Expressions* expressions_value;
 }
 
 %token T_END 0
@@ -94,11 +107,24 @@ void yyerror(const char* s);
 %type<definition_value> definitions_opt
 %type<type_specifier_value> type_specifier
 %type<type_qualifier_value> type_qualifier
-
+%type<definition_value> definition
+%type<fdef_value> function_declarator
+%type<complete_type_value> complete_type
+%type<fproto_value> function_prototype
+%type<fdef_args_value> arguments_opt
+%type<fdef_args_value> arguments
+%type<statement_value> statement
+%type<vdef_value> variable_declarator
+%type<vdec_value> variable_declarator_i //internal
+%type<expression_value> expression
+%type<qvar_defs_value> local_declarator global_declarator
+%type<expressions_value> args_delim args_delim_opt
+%type<statements_value> statements
+%type<expression_value> expression_opt
 
 %start program
 
-%expect 1
+//%expect 1
 
 %%
 
@@ -107,12 +133,12 @@ program
     ;
     
 definitions_opt
-    : %empty                     { $$ = Definition{}; }
-    | definitions_opt definition { $$ = create_definition($2); }
+    : %empty                     { $$ = Empty_Definition(); }
+    | definitions_opt definition { $$ = $2; }
     ;
     
 definition
-    : function_declarator { $$ = $1; }
+    : function_declarator { $$ = make_definition(Function, $1); }
     ;
     
 type_specifier
@@ -121,8 +147,7 @@ type_specifier
     ;
     
 type_qualifier
-    : "ptr" { $$ = PTR; }
-    | "val" { $$ = VAL; }
+    : "val" { $$ = VAL; }
     ;
     
 complete_type
@@ -139,7 +164,7 @@ arguments
     ;
     
 arguments_opt
-    : %empty    { $$ = Arguments{}; }
+    : %empty    { $$ = NULL; }
     | arguments { $$ = $1; }
     ;
     
@@ -159,12 +184,12 @@ variable_declarator_i
     ;
     
 local_declarator
-    : "local" variable_declarator { $$ = qualify_variable_decl($2, LOCAL); }
-    |         variable_declarator { $$ = qualify_variable_decl($1, LOCAL); } //default local
+    : "local" variable_declarator { $$ = qualify_variable_definition($2, LOCAL); }
+    |         variable_declarator { $$ = qualify_variable_definition($1, LOCAL); } //default local
     ;
     
 global_declarator
-    : "global" variable_declarator { $$ = qualify_variable_decl($2, GLOBAL); }
+    : "global" variable_declarator { $$ = qualify_variable_definition($2, GLOBAL); }
     ;
     
 expect_semicolon
@@ -188,7 +213,7 @@ args_delim
     ;
     
 args_delim_opt
-    : %empty     { $$ = Arguments{}; }
+    : %empty     { $$ = Empty_Expressions(); }
     | args_delim { $$ = $1; }
     ;
     
@@ -199,16 +224,16 @@ statements
     
 statement
     : "{" statements "}"                   { $$ = create_stmt_block($2); }
-    | "if" "(" expression ")" statement    { $$ = create_stmt_if($3, $5, $6); }
+    | "if" "(" expression ")" statement    { $$ = create_stmt_if($3, $5); }
     | "while" "(" expression ")" statement { $$ = create_stmt_while($3, $5); }
     | "return" expression_opt ";"          { $$ = create_stmt_return($2); }
     | expect_semicolon                     { $$ = create_stmt_null(); }
-    | local_declarator ";"                 { $$ = create_stmt_localvar($1); }
-    | global_declarator ";"                { $$ = create_stmt_globalvar($1); }
+    | local_declarator ";"                 { $$ = create_stmt_variable($1); }
+    | global_declarator ";"                { $$ = create_stmt_variable($1); }
     ;
 
 expression_opt
-    : %empty     { $$ = Expression{}; }
+    : %empty     { $$ = Empty_Expression(); }
     | expression { $$ = $1; }
     ;
     
@@ -229,7 +254,7 @@ expression
     | T_IDENTIFIER "++"                              { $$ = create_expr_inc($1); }
     | T_IDENTIFIER "--"          %prec "++"          { $$ = create_expr_dec($1); }
     | expression "==" expression                     { $$ = create_expr_isequal($1, $3); }
-    | expression "!=" expression %prec "=="          { $$ = create_expr_isnotequal($1, $3); }
+    | expression "!=" expression %prec "=="          { $$ = create_expr_notequal($1, $3); }
     |            "+"  expression                     { $$ = create_expr_positive($2); }
     |            "-"  expression %prec "-"           { $$ = create_expr_negative($2); }
     | expression "?"  expression ":" expression      { $$ = create_expr_ternary($1, $3, $5); }

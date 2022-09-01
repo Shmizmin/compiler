@@ -137,3 +137,50 @@ void generate_ast(void)
     
     ti::generate_program(program, parameters);
 }
+
+
+void begin_compiler(void)
+{
+    
+}
+
+Definition* create_definition(Function_Definition* function_definition)
+{
+    return nullptr;
+}
+
+Complete_Type make_complete_type(Type_Specifier specifier, Type_Qualifier qualifier, const char* ident)
+{
+    return Complete_Type{ specifier, qualifier, ident };
+}
+
+Function_Prototype* create_function_proto(Complete_Type type, Function_Definition_Arguments* args)
+{
+    return new Function_Prototype{ type, args };
+}
+
+std::vector<Function_Definition_Argument> fun_in_prog_args{};
+Function_Definition_Arguments* cached_ptr = nullptr;
+Function_Definition_Arguments* create_first_arg_decl(Complete_Type type)
+{
+    fun_in_prog_args.clear();
+    fun_in_prog_args.emplace_back(Function_Definition_Argument{ type });
+    
+    if (cached_ptr == nullptr)
+    {
+        return new Function_Definition_Arguments{ fun_in_prog_args.data(), fun_in_prog_args.size() };
+    }
+    else
+    {
+        (*cached_ptr) = Function_Definition_Arguments{ fun_in_prog_args.data(), fun_in_prog_args.size() };
+        return cached_ptr;
+    }
+}
+
+Function_Definition_Arguments* create_later_arg_decl(Complete_Type type)
+{
+    fun_in_prog_args.emplace_back(Function_Definition_Argument{ type });
+    
+    (*cached_ptr) = Function_Definition_Arguments{ fun_in_prog_args.data(), fun_in_prog_args.size() };
+    return cached_ptr;
+}

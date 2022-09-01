@@ -9,8 +9,9 @@
 
 #define YY_DECL int yylex()
 
-#include "y.tab.h"
 #include "utility.h"
+#include "y.tab.h"
+
 
 //(\'(\\.|[^\\"])\')  { yylval.cval = capture(yytext, 1, 1); return T_CHAR; }
 %}
@@ -60,16 +61,16 @@
 "while"    { return T_WHILE;      }
 "return"   { return T_RETURN;     }
   
-[0-9]+           { yylval.cval = capture(yytext, 0, 0); return T_NUMCONST; }
-(0b[0-1]+)       { yylval.cval = capture(yytext, 2, 0); return T_NUMCONST; }
-(0x[0-9a-fA-F]+) { yylval.cval = capture(yytext, 2, 0); return T_NUMCONST; }
+[0-9]+           { yylval.char_value = capture(yytext, 0, 0); return T_NUMCONST; }
+(0b[0-1]+)       { yylval.char_value = capture(yytext, 2, 0); return T_NUMCONST; }
+(0x[0-9a-fA-F]+) { yylval.char_value = capture(yytext, 2, 0); return T_NUMCONST; }
 
 (\/\/[^\r\n]*)                               { /* single line comment */ }
 \/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/ { /*  multi line comment */ }
 
-[a-zA-Z_][a-zA-Z0-9_]* { yylval.cval = capture(yytext, 0, 0); return T_IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.char_value = capture(yytext, 0, 0); return T_IDENTIFIER; }
 
-(\"(\\.|[^\\"])*\") { yylval.cval = capture(yytext, 1, 1); return T_STRINGCONST; }
+(\"(\\.|[^\\"])*\") { yylval.char_value = capture(yytext, 1, 1); return T_STRINGCONST; }
 
 
 %%
