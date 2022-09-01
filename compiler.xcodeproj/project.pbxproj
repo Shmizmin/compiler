@@ -14,6 +14,8 @@
 		B33126B028A4BF57001E52E6 /* lexer.l in Sources */ = {isa = PBXBuildFile; fileRef = B33126AB28A4BF57001E52E6 /* lexer.l */; };
 		B33126B128A4BF57001E52E6 /* utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B33126AD28A4BF57001E52E6 /* utility.cpp */; };
 		B33126B228A4BF57001E52E6 /* parser.y in Sources */ = {isa = PBXBuildFile; fileRef = B33126AE28A4BF57001E52E6 /* parser.y */; };
+		B365EF9E28C05C2C00CE4CEA /* titanium.yy in Sources */ = {isa = PBXBuildFile; fileRef = B365EF9C28C05C2C00CE4CEA /* titanium.yy */; };
+		B365EF9F28C05C2C00CE4CEA /* titanium.ll in Sources */ = {isa = PBXBuildFile; fileRef = B365EF9D28C05C2C00CE4CEA /* titanium.ll */; };
 		B3D451E128B4057500355D7B /* Expression.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3D451DF28B4057500355D7B /* Expression.cpp */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +48,8 @@
 		B33126AE28A4BF57001E52E6 /* parser.y */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; path = parser.y; sourceTree = "<group>"; };
 		B33775A327E8E2F9006CA5FA /* compiler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = compiler; sourceTree = BUILT_PRODUCTS_DIR; };
 		B357019B28ACCC00003ABA0D /* codegen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = codegen.h; sourceTree = "<group>"; };
+		B365EF9C28C05C2C00CE4CEA /* titanium.yy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; name = titanium.yy; path = compiler/titanium.yy; sourceTree = "<group>"; };
+		B365EF9D28C05C2C00CE4CEA /* titanium.ll */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm.llvm; name = titanium.ll; path = compiler/titanium.ll; sourceTree = "<group>"; };
 		B3D451DF28B4057500355D7B /* Expression.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Expression.cpp; sourceTree = "<group>"; };
 		B3D451E028B4057500355D7B /* Expression.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Expression.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -64,6 +68,8 @@
 		B337759A27E8E2F9006CA5FA = {
 			isa = PBXGroup;
 			children = (
+				B365EF9D28C05C2C00CE4CEA /* titanium.ll */,
+				B365EF9C28C05C2C00CE4CEA /* titanium.yy */,
 				B33775A527E8E2F9006CA5FA /* compiler */,
 				B33775A427E8E2F9006CA5FA /* Products */,
 			);
@@ -92,8 +98,8 @@
 				B33126AE28A4BF57001E52E6 /* parser.y */,
 				B33126AD28A4BF57001E52E6 /* utility.cpp */,
 				B33126AC28A4BF57001E52E6 /* utility.h */,
-				B357019B28ACCC00003ABA0D /* codegen.h */,
 				B30556B528B408EA00BEAB4D /* Statement.cpp */,
+				B357019B28ACCC00003ABA0D /* codegen.h */,
 				B30556B628B408EA00BEAB4D /* Statement.hpp */,
 				B30556B828B40FC800BEAB4D /* Context.cpp */,
 				B30556B928B40FC800BEAB4D /* Context.hpp */,
@@ -160,10 +166,12 @@
 			files = (
 				B30556CA28B44CCC00BEAB4D /* Driver.cpp in Sources */,
 				B33126B228A4BF57001E52E6 /* parser.y in Sources */,
+				B365EF9F28C05C2C00CE4CEA /* titanium.ll in Sources */,
 				B33126B128A4BF57001E52E6 /* utility.cpp in Sources */,
 				B30556B728B408EA00BEAB4D /* Statement.cpp in Sources */,
 				B30556C028B4201A00BEAB4D /* Function.cpp in Sources */,
 				B30556BA28B40FC800BEAB4D /* Context.cpp in Sources */,
+				B365EF9E28C05C2C00CE4CEA /* titanium.yy in Sources */,
 				B33126B028A4BF57001E52E6 /* lexer.l in Sources */,
 				B3D451E128B4057500355D7B /* Expression.cpp in Sources */,
 			);

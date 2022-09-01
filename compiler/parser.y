@@ -1,3 +1,35 @@
+%skeleton "larl1.cc"
+%require "3.8.1"
+
+%define api.token.raw
+
+%define api.token.constructor
+%define api.value.type variant
+%define parse.assert
+
+%code requires {
+#include <string>
+class driver;
+}
+
+%param { driver& drv }
+%locations
+
+%define parse.trace
+%define parse.error detailed
+%define parse.lac full
+
+%code {
+#include "driver.hpp"
+}
+
+%define api.token.prefix {T_}
+
+%token
+
+
+
+
 %{
 #include <stdio.h>
 #include <stdint.h>
@@ -18,6 +50,7 @@ extern FILE* yyin;
 void yyerror(const char* s);
 %}
 
+/*
 %union
 {
     uint8_t int_value;
@@ -42,6 +75,7 @@ void yyerror(const char* s);
     struct Expression* expression_value;
     Expressions* expressions_value;
 }
+ */
 
 %token T_END 0
 %token T_MINUSMINUS "--"
