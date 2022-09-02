@@ -20,6 +20,8 @@ namespace ti
     void generate_statement(Context&, Function&, Statement*) noexcept;
     void generate_expression(Context&, Function&, Expression*) noexcept;
     
+    void optimize(std::string&) noexcept;
+    
     //reformatted from https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
     template<typename... T>
     std::string format(const std::string& format, T&&... t)

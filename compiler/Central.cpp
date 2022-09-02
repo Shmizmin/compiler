@@ -1,4 +1,4 @@
-#include "Driver.hpp"
+#include "Central.hpp"
 #include "Error.hpp"
 
 #include <fstream>
@@ -34,6 +34,8 @@ void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noex
     
     context.add_to_code(".end\n");
     
+    ti::optimize(context.code_segment);
+    
     const auto path = parameters.file_name + ".s";
     
     auto file = std::fopen(path.c_str(), "w");
@@ -41,6 +43,11 @@ void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noex
     std::fwrite(context.code_segment.data(), sizeof(context.code_segment[0]), context.code_segment.size(), file);
 }
 
+
+void ti::optimize(std::string& code) noexcept
+{
+    
+}
 
 void ti::generate_function(ti::Context& context, ti::Function& function) noexcept
 {

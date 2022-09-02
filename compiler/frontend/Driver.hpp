@@ -1,8 +1,12 @@
-#ifndef driver_hpp
-#define driver_hpp
+#ifndef Driver_hpp
+#define Driver_hpp
 
 #include <string>
 #include <vector>
+
+#include "../Function.hpp"
+#include "../Statement.hpp"
+#include "../Expression.hpp"
 
 #include "parser.hh"
 
@@ -26,7 +30,12 @@ public:
     yy::location location;
     
     
-    
+    std::vector<ti::Statement*> statement_queue;
+    std::vector<ti::Function> definition_queue;
+    std::vector<ti::Argument> fdecl_args_queue;
+    std::vector<ti::Expression*> fcall_args_queue;
+
+    std::vector<ti::Variable*> var_decl_queue;
 
 
     int parse(const std::string& f);

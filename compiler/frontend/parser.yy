@@ -8,6 +8,7 @@
 
 %code requires {
 #include <string>
+#include <vector>
   class driver;
 }
 
@@ -20,7 +21,7 @@
 %define parse.error verbose
 
 %code {
-#include "driver.hpp"
+#include "Driver.hpp"
 }
 
 %define api.token.prefix {T_}

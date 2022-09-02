@@ -1,16 +1,17 @@
 %{ /* -*- C++ -*- */
-# include <cerrno>
-# include <climits>
-# include <cstdlib>
-# include <string>
-# include "driver.hh"
-# include "parser.hh"
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
+#include <string>
 
-# undef yywrap
-# define yywrap() 1
+#include "Driver.hpp"
+#include "Parser.hpp"
+
+#undef yywrap
+#define yywrap() 1
 
 #if defined __GNUC__ && 7 <= __GNUC__
-# pragma GCC diagnostic ignored "-Wnull-dereference"
+#pragma GCC diagnostic ignored "-Wnull-dereference"
 #endif
 %}
 
