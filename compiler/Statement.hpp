@@ -47,6 +47,11 @@ namespace ti
             std::vector<Statement*> statements;
             
             void generate(Context&, Function&) noexcept override;
+            
+            Block(std::vector<Statement*> statements) noexcept
+                : statements(statements)
+            {
+            }
         };
         
         struct If final : public Statement
@@ -55,6 +60,11 @@ namespace ti
             Statement* statement;
             
             void generate(Context&, Function&) noexcept override;
+            
+            If(Expression* condition, Statement* statement) noexcept
+                : condition(condition), statement(statement)
+            {
+            }
         };
         
         struct While final : public Statement
@@ -63,6 +73,11 @@ namespace ti
             Statement* statement;
             
             void generate(Context&, Function&) noexcept override;
+            
+            While(Expression* condition, Statement* statement) noexcept
+                : condition(condition), statement(statement)
+            {
+            }
         };
         
         struct Return final : public Statement
@@ -70,6 +85,11 @@ namespace ti
             Expression* value;
             
             void generate(Context&, Function&) noexcept override;
+            
+            Return(Expression* value) noexcept
+                : value(value)
+            {
+            }
         };
         
         struct Null final : public Statement
@@ -77,6 +97,10 @@ namespace ti
             //null
             
             void generate(Context&, Function&) noexcept override;
+            
+            Null(void) noexcept
+            {
+            }
         };
         
         struct Variable final : public Statement
@@ -84,6 +108,11 @@ namespace ti
             std::vector<ti::Variable*> variables;
             
             void generate(Context&, Function&) noexcept override;
+            
+            Variable(std::vector<ti::Variable*> variables) noexcept
+                : variables(variables)
+            {
+            }
         };
     }
 }

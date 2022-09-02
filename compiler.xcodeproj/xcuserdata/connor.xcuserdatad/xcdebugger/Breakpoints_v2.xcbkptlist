@@ -14,10 +14,10 @@
             filePath = "compiler/Driver.hpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "27"
-            endingLineNumber = "27"
-            landmarkName = "format(format, t)"
-            landmarkType = "9">
+            startingLineNumber = "30"
+            endingLineNumber = "30"
+            landmarkName = "driver"
+            landmarkType = "3">
             <Locations>
                <Location
                   uuid = "52C60064-9EDC-422A-975E-07104F19D41B - 739180801c6c75b0"
@@ -230,9 +230,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "37"
-            endingLineNumber = "37"
-            landmarkName = "ti::generate_program(program, parameters)"
-            landmarkType = "7">
+            endingLineNumber = "37">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

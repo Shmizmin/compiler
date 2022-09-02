@@ -1,5 +1,5 @@
 %skeleton "lalr1.cc" /* -*- C++ -*- */
-%require "3.8.1"
+%require "3.8.2"
 %defines
 
 %define api.token.constructor
@@ -9,19 +9,37 @@
 %code requires {
 #include <string>
 #include <vector>
+#include <cstdint>
+#include <cstdlib>
   class driver;
+
+#include "Types.hpp"
+#include "Driver.hpp"
+#include "Context.hpp"
+#include "Central.hpp"
+#include "Function.hpp"
+#include "Statement.hpp"
+#include "Expression.hpp"
+#include <cstdint>
+#include <cstdlib>
 }
 
 // The parsing context.
 %param { driver& drv }
 
-%locations
+//%locations
 
 %define parse.trace
 %define parse.error verbose
 
 %code {
+#include "Types.hpp"
 #include "Driver.hpp"
+#include "Context.hpp"
+#include "Central.hpp"
+#include "Function.hpp"
+#include "Statement.hpp"
+#include "Expression.hpp"
 }
 
 %define api.token.prefix {T_}
@@ -89,7 +107,7 @@
 %token<std::string> IDENTIFIER
 
 %token<std::string> STRINGCONST
-%token<int> NUMCONST
+%token<std::uint8_t> NUMCONST
 
 %type<ti::Expression*> expression expression_opt
 %type<ti::Statement*> statement
@@ -111,8 +129,6 @@
 
 %type<std::vector<ti::Expression*>> fcall_args fcall_args_opt
 
-%printer { yyoutput << $$; } <*>;
-
 %%
     
 %start translation_unit;
@@ -130,13 +146,13 @@ definitions_opt
 definitions
 : definitions definition
 {
-    driver.definition_queue.emplace_back($2);
-    $$ = driver.definition_queue;
+    drv.definition_queue.emplace_back($2);
+    $$ = drv.definition_queue;
 }
 | definition
 {
-    driver.definition_queue.emplace_back($1);
-    $$ = driver.definition_queue;
+    drv.definition_queue.emplace_back($1);
+    $$ = drv.definition_queue;
 }
 ;
 
@@ -169,12 +185,12 @@ complete_type
 
 // functions
 function_declarator
-: "proto" function_header ";" { $$ = ti::Function{ $2.name, $2.return_type, $2.argumnts, nullptr }; }
-| function_header statement   { $$ = ti::Function{ $1.name, $1.return_type, $1.arguments, $2 }; }
+: "proto" function_header ";" { $$ = $2; }
+| function_header statement   { auto a = $1; a.body = $2; $$ = a; }
 ;
 
 function_header
-: "function" complete_type IDENTIFIER "=" "(" fdecl_args_opt ")" { $$ = ti::Function{ $3, $2, $6, nullptr }; }
+: "function" complete_type IDENTIFIER "=" "(" fdecl_args_opt ")" { $$ = ti::Function{ $3, $2, $6, NULL }; }
 ;
 
     // function definition args
@@ -186,13 +202,13 @@ function_header
     fdecl_args
     : complete_type IDENTIFIER
     {
-        driver.fdecl_args_queue.emplace_back(ti::Argument{ $2, $1 });
-        $$ = driver.fdecl_args_queue;
+        drv.fdecl_args_queue.emplace_back(ti::Argument{ $2, $1 });
+        $$ = drv.fdecl_args_queue;
     }
     | fdecl_args "," complete_type IDENTIFIER
     {
-        driver.fdecl_args_queue.emplace_back(ti::Argument{ $4, $3 });
-        $$ = driver.fdecl_args_queue;
+        drv.fdecl_args_queue.emplace_back(ti::Argument{ $4, $3 });
+        $$ = drv.fdecl_args_queue;
     }
     ;
     // /function definition args
@@ -206,13 +222,13 @@ function_header
     fcall_args
     : expression
     {
-        driver.fcall_args_queue.emplace_back($1);
-        $$ = driver.fcall_args_queue;
+        drv.fcall_args_queue.emplace_back($1);
+        $$ = drv.fcall_args_queue;
     }
     | fcall_args "," expression
     {
-        driver.fcall_args_queue.emplace_back($3);
-        $$ = driver.fcall_args_queue;
+        drv.fcall_args_queue.emplace_back($3);
+        $$ = drv.fcall_args_queue;
     }
     ;
     // /function call args
@@ -224,8 +240,8 @@ function_header
 variable_declarator
 : type_visibility complete_type variable_declarator_i
 {
-    driver.active_visibility = $1;
-    driver.active_type = $2;
+    drv.active_visibility = $1;
+    drv.active_type = $2;
     $$ = $3;
 }
 | variable_declarator "," variable_declarator_i
@@ -237,13 +253,13 @@ variable_declarator
 variable_declarator_i
 : IDENTIFIER "=" expression
 {
-    driver.var_decl_queue.emplace_back(new ti::Variable{ driver.active_visibility, driver.active_type, $1, $3 });
-    $$ = driver.var_decl_queue;
+    drv.var_decl_queue.emplace_back(new ti::Variable{ drv.active_visibility, drv.active_type, $1, $3 });
+    $$ = drv.var_decl_queue;
 }
 | IDENTIFIER
 {
-    driver.var_decl_queue.emplace_back(new ti::Variable{ driver.active_visibility, driver.active_type, $1, nullptr });
-    $$ = driver.var_decl_queue;
+    drv.var_decl_queue.emplace_back(new ti::Variable{ drv.active_visibility, drv.active_type, $1, NULL });
+    $$ = drv.var_decl_queue;
 }
 ;
 // /variables
@@ -278,8 +294,8 @@ statement
 ;
 
 statements
-: statements statement { driver.statement_queue.emplace_back($2); $$ = driver.statement_queue; }
-| statement            { driver.statement_queue.emplace_back($1); $$ = driver.statement_queue; }
+: statements statement { drv.statement_queue.emplace_back($2); $$ = drv.statement_queue; }
+| statement            { drv.statement_queue.emplace_back($1); $$ = drv.statement_queue; }
 ;
 
 statements_opt
@@ -294,7 +310,7 @@ expression
 : "(" expression ")"                        { $$ = $2; }
 | NUMCONST                                  { $$ = new ti::expr::Numconst{ $1 }; }
 | STRINGCONST                               { $$ = new ti::expr::Stringconst{ $1 }; }
-| IDENTIFIER                                { $$ = new ti::epxr::Identifier{ $1 }; }
+| IDENTIFIER                                { $$ = new ti::expr::Identifier{ $1 }; }
 | IDENTIFIER "("  fcall_args_opt ")"        { $$ = new ti::expr::FCall{ new ti::expr::Identifier{ $1 }, $3 }; }
 | IDENTIFIER "="  expression                { $$ = new ti::expr::binary::Equals{ new ti::expr::Identifier{ $1 }, $3 }; }
 | expression "+"  expression                { $$ = new ti::expr::binary::Plus{ $1, $3 }; }
@@ -304,19 +320,19 @@ expression
 | expression "^"  expression                { $$ = new ti::expr::binary::BitXor{ $1, $3 }; }
 | expression "&"  expression                { $$ = new ti::expr::binary::BitAnd{ $1, $3 }; }
 | expression "|"  expression                { $$ = new ti::expr::binary::BitOr{ $1, $3 }; }
-| IDENTIFIER "++"                           { $$ = new ti::expr::unary::PlusPlus{ $1 }; }
-| IDENTIFIER "--"            %prec "++"     { $$ = new ti::expr::unary::MinusMinus{ $1 }; }
+| expression "++"                           { $$ = new ti::expr::unary::PlusPlus{ $1 }; }
+| expression "--"            %prec "++"     { $$ = new ti::expr::unary::MinusMinus{ $1 }; }
 | expression "==" expression                { $$ = new ti::expr::binary::EqualsEquals{ $1, $3 }; }
 | expression "!=" expression %prec "=="     { $$ = new ti::expr::binary::NotEquals{ $1, $3 }; }
 |            "+"  expression                { $$ = new ti::expr::unary::Positive{ $2 }; }
 |            "-"  expression %prec "+"      { $$ = new ti::expr::unary::Negative{ $2 }; }
 | expression "?"  expression ":" expression { $$ = new ti::expr::Ternary{ $1, $3, $5 }; }
 | expression "<"  expression                { $$ = new ti::expr::binary::Less{ $1, $3 }; }
-| expression ">"  expression                { $$ = new ti::expr::bniary::Greater{ $1, $3 }; }
+| expression ">"  expression                { $$ = new ti::expr::binary::Greater{ $1, $3 }; }
 ;
 
 expression_opt
-: %empty     { $$ = nullptr; }
+: %empty     { $$ = NULL; }
 | expression { $$ = $1; }
 ;
 // /expressions

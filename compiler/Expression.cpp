@@ -183,7 +183,7 @@ void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, con
             ti::throw_error("Function %s takes %u arguments but was called with %u", l->name.c_str(), def_num, fcl_num);
         }
         
-        auto* var_stmt = new ti::stmt::Variable();
+        auto* var_stmt = new ti::stmt::Variable({});
         var_stmt->type = ti::StatementType::VARIABLE;
         var_stmt->variables = {};
         

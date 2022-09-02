@@ -4,14 +4,17 @@
 #include <string>
 #include <vector>
 
-#include "../Function.hpp"
-#include "../Statement.hpp"
-#include "../Expression.hpp"
+#include "Types.hpp"
+#include "Function.hpp"
+#include "Statement.hpp"
+#include "Expression.hpp"
 
-#include "parser.hh"
+#include "location.hh"
+#include "Parser.hpp"
 
+#undef YY_DECL
 #define YY_DECL \
-  yy::parser::symbol_type yylex (driver& drv)
+  yy::parser::symbol_type yylex(driver& drv)
 // ... and declare it for the parser's sake.
 YY_DECL;
 
@@ -22,13 +25,16 @@ public:
     driver(void) noexcept;
     
 public:
-    int result
+    int result;
     std::string file;
     
     bool trace_scanning, trace_parsing;
     
     yy::location location;
     
+    
+    ti::TypeVisibility active_visibility;
+    ti::CompleteType active_type;
     
     std::vector<ti::Statement*> statement_queue;
     std::vector<ti::Function> definition_queue;

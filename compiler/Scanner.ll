@@ -4,8 +4,13 @@
 #include <cstdlib>
 #include <string>
 
+#include "Types.hpp"
 #include "Driver.hpp"
-#include "Parser.hpp"
+#include "Context.hpp"
+#include "Central.hpp"
+#include "Function.hpp"
+#include "Statement.hpp"
+#include "Expression.hpp"
 
 #undef yywrap
 #define yywrap() 1
@@ -22,22 +27,22 @@ int   [0-9]+
 blank [ \t]
 
 %{
-  # define YY_USER_ACTION  loc.columns (yyleng);
+    #define YY_USER_ACTION  loc.columns (yyleng);
 %}
 
 %%
     
 %{
-  yy::location& loc = drv.location;
-  loc.step ();
+    yy::location& loc = drv.location;
+    loc.step();
 %}
 
 {blank}+   loc.step();
 [\n]+      loc.lines(yyleng); loc.step();
 
 
-"--" { return yy::parser::make_MINUSMINUS(loc); }
-"++" { return yy::parser::make_PLUSPLUS(loc); }
+"--" { return yy::parser::make_MINUS_MINUS(loc); }
+"++" { return yy::parser::make_PLUS_PLUS(loc); }
 
 "-" { return yy::parser::make_MINUS(loc); }
 "+" { return yy::parser::make_PLUS(loc); }
@@ -50,10 +55,10 @@ blank [ \t]
 ">>" { return yy::parser::make_BITRSHIFT(loc); }
 
 "<" { return yy::parser::make_LESS(loc); }
-">" { return yy::parser::make_GREATER(loc): }
+">" { return yy::parser::make_GREATER(loc); }
 
-"!=" { return yy::parser::make_NOTEQ(loc); }
-"==" { return yy::parser::make_ISEQ(loc); }
+"!=" { return yy::parser::make_NOT_EQ(loc); }
+"==" { return yy::parser::make_IS_EQ(loc); }
 
 ";" { return yy::parser::make_SEMICOLON(loc); }
 "," { return yy::parser::make_COMMA(loc); }

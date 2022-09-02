@@ -69,6 +69,11 @@ namespace ti
             std::uint8_t value;
             
             void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            
+            Numconst(std::uint8_t value)
+                : value(value)
+            {
+            }
         };
         
         struct Stringconst : public Expression
@@ -76,6 +81,11 @@ namespace ti
             std::string value;
             
             void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            
+            Stringconst(std::string value)
+                : value(value)
+            {
+            }
         };
         
         struct Identifier : public Expression
@@ -83,6 +93,11 @@ namespace ti
             std::string name;
             
             void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            
+            Identifier(std::string name)
+                : name(name)
+            {
+            }
         };
         
         struct FCall : public Expression
@@ -91,6 +106,11 @@ namespace ti
             std::vector<Expression*> args;
             
             void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            
+            FCall(Identifier* left, std::vector<Expression*> args)
+                : left(left), args(args)
+            {
+            }
         };
         
         struct Ternary : public Expression
@@ -100,68 +120,139 @@ namespace ti
             Expression* right;
             
             void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+            
+            Ternary(Expression* left, Expression* center, Expression* right)
+                : left(left), center(center), right(right)
+            {
+            }
         };
         
         struct Binary : public Expression
         {
             Expression* left;
             Expression* right;
+            
+            Binary(Expression* left, Expression* right)
+                : left(left), right(right)
+            {
+            }
         };
         
         namespace binary
         {
-            struct Equals : public Binary
+            struct Equals final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                Equals(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
             
-            struct Plus : public Binary
+            
+            struct Plus final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                Plus(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
-            struct Minus : public Binary
+            struct Minus final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                Minus(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
             
-            struct LeftShift : public Binary
+            struct LeftShift final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                LeftShift(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
-            struct RightShift : public Binary
+            struct RightShift final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            
-            struct BitXor : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            struct BitAnd : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            struct BitOr : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                RightShift(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
             
-            struct EqualsEquals : public Binary
+            struct BitXor final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                BitXor(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
-            struct NotEquals : public Binary
+            struct BitAnd final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                BitAnd(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
+            };
+            struct BitOr final : public Binary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                BitOr(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
             
-            struct Less : public Binary
+            struct EqualsEquals final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                EqualsEquals(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
-            struct Greater : public Binary
+            struct NotEquals final : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                NotEquals(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
+            };
+            
+            struct Less final : public Binary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                Less(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
+            };
+            struct Greater final : public Binary
+            {
+                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                Greater(Expression* left, Expression* right)
+                    : Binary(left, right)
+                {
+                }
             };
         }
         
@@ -169,25 +260,53 @@ namespace ti
         struct Unary : public Expression
         {
             Expression* center;
+            
+            Unary(Expression* center)
+                : center(center)
+            {
+            }
         };
        
         namespace unary
         {
-            struct PlusPlus : public Unary
+            struct PlusPlus final : public Unary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                PlusPlus(Expression* center)
+                    : Unary(center)
+                {
+                }
             };
-            struct MinusMinus : public Unary
+            struct MinusMinus final : public Unary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                MinusMinus(Expression* center)
+                    : Unary(center)
+                {
+                }
+
             };
-            struct Positive : public Unary
+            struct Positive final : public Unary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                Positive(Expression* center)
+                    : Unary(center)
+                {
+                }
+
             };
-            struct Negative : public Unary
+            struct Negative final : public Unary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
+                
+                Negative(Expression* center)
+                    : Unary(center)
+                {
+                }
+
             };
         }
     }
