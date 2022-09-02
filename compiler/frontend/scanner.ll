@@ -86,15 +86,17 @@ blank [ \t]
         throw yy::parser::syntax_error (loc, "integer is out of range: " + std::string(yytext));
     }
     
-    return yy::parser::make_NUMBER(n, loc);
+    return yy::parser::make_NUMCONST(n, loc);
 }
 
 {id} { return yy::parser::make_IDENTIFIER(yytext, loc); }
 
-    //unknown
-.  { throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext)); }
+.  throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));
 
 <<EOF>> return yy::parser::make_END(loc);
+
+(\/\/[^\r\n]*)                               { /* single line comment */ }
+\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/ { /*  multi line comment */ }
 
 %%
 

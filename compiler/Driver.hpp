@@ -1,5 +1,5 @@
-#ifndef Driver_hpp
-#define Driver_hpp
+#ifndef Central_hpp
+#define Central_hpp
 
 #include "Context.hpp"
 #include "Function.hpp"
@@ -26,7 +26,7 @@ namespace ti
     {
         int size_s = std::snprintf(nullptr, 0, format.c_str(), t...) + 1; // Extra space for '\0'
         
-        if (size_s <= 0 )
+        if (size_s <= 0)
         {
             throw std::runtime_error("Error during formatting.");
         }
@@ -42,4 +42,4 @@ namespace ti
 
 }
 
-#endif /* Driver_hpp */
+#endif /* Central_hpp */

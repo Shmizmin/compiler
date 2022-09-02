@@ -146,15 +146,6 @@ namespace ti
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
             };
             
-            struct LogAnd : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            struct LogOr : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            };
-            
             struct EqualsEquals : public Binary
             {
                 void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
