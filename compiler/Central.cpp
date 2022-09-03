@@ -8,22 +8,9 @@
 #include <iostream>
 
 
-namespace
-{
-    void print_function(ti::Function& f) noexcept
-    {
-        //print_statement()
-    }
-}
-
-
-
 void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noexcept
 {
     auto context = ti::Context{};
-    
-    
-    
     
     context.add_to_code(".begin\n");
     context.add_to_code(".include \"def.s\"\n");
