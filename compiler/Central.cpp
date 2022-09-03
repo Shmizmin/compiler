@@ -56,6 +56,8 @@ void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noex
     auto file = std::fopen(path.c_str(), "w");
     
     std::fwrite(context.code_segment.data(), sizeof(context.code_segment[0]), context.code_segment.size(), file);
+    
+    std::fclose(file);
 }
 
 

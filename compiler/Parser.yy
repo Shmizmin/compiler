@@ -140,8 +140,7 @@ translation_unit
 : definitions_opt END
 {
     auto program = ti::Program{ $1 };
-    //auto context = ti::Context{};
-    auto parameters = ti::Parameters{ "test.ti" };
+    auto parameters = ti::Parameters{ driver.file };
     
     ti::generate_program(program, parameters);
 }
