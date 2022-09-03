@@ -32,13 +32,6 @@ public:
     bool trace_scanning, trace_parsing;
     
     yy::location location;
-    
-    
-    ti::TypeVisibility active_visibility;
-    ti::CompleteType active_type;
-    
-
-
 
     int parse(const std::string& f);
 

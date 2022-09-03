@@ -1051,250 +1051,247 @@ namespace yy {
 #line 1052 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
-  case 25: // variable_declarator: type_visibility complete_type variable_declarator_i
+  case 25: // variable_declarator: variable_declarator_i
 #line 255 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
-    drv.active_visibility = yystack_[2].value.as < ti::TypeVisibility > ();
-    drv.active_type = yystack_[1].value.as < ti::CompleteType > ();
-    
     yylhs.value.as < std::vector<ti::Variable*> > () = std::vector<ti::Variable*>();
     yylhs.value.as < std::vector<ti::Variable*> > ().emplace_back(yystack_[0].value.as < ti::Variable* > ());
 }
-#line 1064 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1061 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 26: // variable_declarator: variable_declarator "," variable_declarator_i
-#line 263 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 260 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
     auto& vec = yystack_[2].value.as < std::vector<ti::Variable*> > ();
     vec.emplace_back(yystack_[0].value.as < ti::Variable* > ());
     yylhs.value.as < std::vector<ti::Variable*> > () = vec;
 }
-#line 1074 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1071 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
-  case 27: // variable_declarator_i: IDENTIFIER "=" expression
-#line 272 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+  case 27: // variable_declarator_i: type_visibility complete_type IDENTIFIER "=" expression
+#line 269 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
-    yylhs.value.as < ti::Variable* > () = new ti::Variable{ drv.active_visibility, drv.active_type, yystack_[2].value.as < std::string > (), yystack_[0].value.as < ti::Expression* > () };
+    yylhs.value.as < ti::Variable* > () = new ti::Variable{ yystack_[4].value.as < ti::TypeVisibility > (), yystack_[3].value.as < ti::CompleteType > (), yystack_[2].value.as < std::string > (), yystack_[0].value.as < ti::Expression* > () };
 }
-#line 1082 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1079 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
-  case 28: // variable_declarator_i: IDENTIFIER
-#line 276 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+  case 28: // variable_declarator_i: type_visibility complete_type IDENTIFIER
+#line 273 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
-    yylhs.value.as < ti::Variable* > () = new ti::Variable{ drv.active_visibility, drv.active_type, yystack_[0].value.as < std::string > (), NULL };
+    yylhs.value.as < ti::Variable* > () = new ti::Variable{ yystack_[2].value.as < ti::TypeVisibility > (), yystack_[1].value.as < ti::CompleteType > (), yystack_[0].value.as < std::string > (), NULL };
 }
-#line 1090 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1087 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 29: // statement: "{" statements_opt "}"
-#line 303 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 300 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::Block{ yystack_[1].value.as < std::vector<ti::Statement*> > () }; }
-#line 1096 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1093 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 30: // statement: "if" "(" expression ")" statement
-#line 304 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 301 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::If{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Statement* > () }; }
-#line 1102 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1099 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 31: // statement: "while" "(" expression ")" statement
-#line 305 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 302 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::While{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Statement* > () }; }
-#line 1108 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1105 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 32: // statement: "return" expression_opt ";"
-#line 306 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 303 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::Return{ yystack_[1].value.as < ti::Expression* > () }; }
-#line 1114 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1111 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 33: // statement: ";"
-#line 307 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 304 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::Null{}; }
-#line 1120 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1117 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 34: // statement: variable_declarator ";"
-#line 308 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 305 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::Variable{ yystack_[1].value.as < std::vector<ti::Variable*> > () }; }
-#line 1126 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1123 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 35: // statements: statements statement
-#line 312 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 309 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                        { auto& vec = yystack_[1].value.as < std::vector<ti::Statement*> > (); vec.emplace_back(yystack_[0].value.as < ti::Statement* > ()); yylhs.value.as < std::vector<ti::Statement*> > () = vec; }
-#line 1132 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1129 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 36: // statements: statement
-#line 313 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 310 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                        { yylhs.value.as < std::vector<ti::Statement*> > () = std::vector<ti::Statement*>(); yylhs.value.as < std::vector<ti::Statement*> > ().emplace_back(yystack_[0].value.as < ti::Statement* > ()); }
-#line 1138 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1135 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 37: // statements_opt: %empty
-#line 317 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 314 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
              { yylhs.value.as < std::vector<ti::Statement*> > () = {}; }
-#line 1144 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1141 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 38: // statements_opt: statements
-#line 318 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 315 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
              { yylhs.value.as < std::vector<ti::Statement*> > () = yystack_[0].value.as < std::vector<ti::Statement*> > (); }
-#line 1150 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1147 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 39: // expression: "(" expression ")"
-#line 325 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 322 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = yystack_[1].value.as < ti::Expression* > (); }
-#line 1156 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1153 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 40: // expression: NUMCONST
-#line 326 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 323 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::Numconst{ yystack_[0].value.as < std::uint8_t > () }; }
-#line 1162 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1159 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 41: // expression: STRINGCONST
-#line 327 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 324 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::Stringconst{ yystack_[0].value.as < std::string > () }; }
-#line 1168 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1165 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 42: // expression: IDENTIFIER
-#line 328 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 325 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::Identifier{ yystack_[0].value.as < std::string > () }; }
-#line 1174 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1171 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 43: // expression: IDENTIFIER "(" fcall_args_opt ")"
-#line 329 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 326 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::FCall{ new ti::expr::Identifier{ yystack_[3].value.as < std::string > () }, yystack_[1].value.as < std::vector<ti::Expression*> > () }; }
-#line 1180 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1177 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 44: // expression: IDENTIFIER "=" expression
-#line 330 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 327 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Equals{ new ti::expr::Identifier{ yystack_[2].value.as < std::string > () }, yystack_[0].value.as < ti::Expression* > () }; }
-#line 1186 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1183 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 45: // expression: expression "+" expression
-#line 331 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 328 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Plus{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1192 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1189 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 46: // expression: expression "-" expression
-#line 332 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 329 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Minus{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1198 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1195 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 47: // expression: expression "<<" expression
-#line 333 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 330 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::LeftShift{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1204 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1201 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 48: // expression: expression ">>" expression
-#line 334 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 331 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::RightShift{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1210 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1207 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 49: // expression: expression "^" expression
-#line 335 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 332 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::BitXor{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1216 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1213 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 50: // expression: expression "&" expression
-#line 336 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 333 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::BitAnd{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1222 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1219 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 51: // expression: expression "|" expression
-#line 337 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 334 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::BitOr{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1228 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1225 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 52: // expression: expression "++"
-#line 338 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 335 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::unary::PlusPlus{ yystack_[1].value.as < ti::Expression* > () }; }
-#line 1234 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1231 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 53: // expression: expression "--"
-#line 339 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 336 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::unary::MinusMinus{ yystack_[1].value.as < ti::Expression* > () }; }
-#line 1240 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1237 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 54: // expression: expression "==" expression
-#line 340 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 337 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::EqualsEquals{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1246 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1243 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 55: // expression: expression "!=" expression
-#line 341 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 338 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::NotEquals{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1252 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1249 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 56: // expression: "+" expression
-#line 342 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 339 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::unary::Positive{ yystack_[0].value.as < ti::Expression* > () }; }
-#line 1258 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1255 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 57: // expression: "-" expression
-#line 343 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 340 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::unary::Negative{ yystack_[0].value.as < ti::Expression* > () }; }
-#line 1264 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1261 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 58: // expression: expression "?" expression ":" expression
-#line 344 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 341 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::Ternary{ yystack_[4].value.as < ti::Expression* > (), yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1270 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1267 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 59: // expression: expression "<" expression
-#line 345 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 342 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Less{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1276 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1273 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 60: // expression: expression ">" expression
-#line 346 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 343 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Greater{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
-#line 1282 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1279 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 61: // expression_opt: %empty
-#line 350 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 347 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
              { yylhs.value.as < ti::Expression* > () = NULL; }
-#line 1288 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1285 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 62: // expression_opt: expression
-#line 351 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 348 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
              { yylhs.value.as < ti::Expression* > () = yystack_[0].value.as < ti::Expression* > (); }
-#line 1294 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1291 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
 
-#line 1298 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1295 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
 
             default:
               break;
@@ -1783,25 +1780,25 @@ namespace yy {
   }
 
 
-  const signed char parser::yypact_ninf_ = -34;
+  const signed char parser::yypact_ninf_ = -35;
 
   const signed char parser::yytable_ninf_ = -1;
 
   const short
   parser::yypact_[] =
   {
-     -16,   -10,   -14,    21,    25,   -16,   -34,   -34,    27,   -34,
-     -34,    22,    11,    33,   -34,   -34,   -34,   -34,    27,   -34,
-     -34,    31,    34,     5,   -10,     2,   -34,   -34,   -34,    36,
-     -34,   -34,    27,    30,     5,     5,     5,     5,     5,    20,
-     -34,   -34,   189,    44,    26,   -34,    26,    47,   -34,   -34,
-      96,   127,    41,    41,   158,     5,     5,   -34,   -34,     5,
+     -16,    12,   -14,    25,    54,   -16,   -35,   -35,    27,   -35,
+     -35,    35,    49,    83,   -35,   -35,   -35,   -35,    27,   -35,
+     -35,    79,    95,     5,    12,    33,   -35,   -35,   -35,   -35,
+     120,   -35,   -35,    27,   117,     5,     5,     5,     5,     5,
+      34,   -35,   -35,   175,   124,   106,   -35,    38,   123,   -35,
+     -35,    82,   113,    59,    59,   144,     5,     5,   -35,   -35,
        5,     5,     5,     5,     5,     5,     5,     5,     5,     5,
-       5,   -34,    45,   -34,   -34,   -10,    27,    27,   -34,   189,
-      48,    50,   189,    41,    41,   140,   171,   202,     9,     9,
-     114,   114,    68,    68,    81,     5,    62,    78,    65,   -34,
-     -34,   -34,     5,     5,   189,   -34,   -34,   -10,   189,   189,
-      77,   -34
+       5,     5,   -35,   125,   -35,    12,    27,    27,   -35,   175,
+     145,   127,   175,    59,    59,   126,   157,   188,    41,    41,
+       9,     9,   100,   100,    67,     5,   110,   149,   153,   -35,
+     -35,   -35,     5,     5,   175,   -35,   -35,    12,   175,   175,
+     136,   -35
   };
 
   const signed char
@@ -1809,88 +1806,84 @@ namespace yy {
   {
        3,     0,     0,     0,     0,     4,     6,     7,     0,     9,
        8,     0,     0,     0,     1,     2,     5,    33,    37,    11,
-      12,     0,     0,    61,     0,     0,    15,    10,    13,     0,
-      14,    36,    38,     0,     0,     0,     0,     0,     0,    42,
-      41,    40,    62,     0,     0,    34,     0,     0,    35,    29,
-       0,     0,    57,    56,     0,     0,    21,    53,    52,     0,
+      12,     0,     0,    61,     0,     0,    25,    15,    10,    13,
+       0,    14,    36,    38,     0,     0,     0,     0,     0,     0,
+      42,    41,    40,    62,     0,     0,    34,     0,     0,    35,
+      29,     0,     0,    57,    56,     0,     0,    21,    53,    52,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    32,    28,    25,    26,    17,     0,     0,    39,    44,
+       0,     0,    32,    28,    26,    17,     0,     0,    39,    44,
        0,    22,    23,    46,    45,    51,    50,    49,    47,    48,
       59,    60,    55,    54,     0,     0,     0,     0,    18,    30,
       31,    43,     0,     0,    27,    19,    16,     0,    24,    58,
        0,    20
   };
 
-  const signed char
+  const short
   parser::yypgoto_[] =
   {
-     -34,   -34,   -34,   -34,   108,   -34,   -34,   -34,   -24,   -34,
-     124,   -34,   -34,   -34,   -34,   -34,    82,   -12,   -34,   -34,
-     -33,   -34
+     -35,   -35,   -35,   -35,   167,   -35,   -35,   -35,   -24,   -35,
+     171,   -35,   -35,   -35,   -35,   -35,   128,   -12,   -35,   -35,
+     -34,   -35
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-       0,     3,     4,     5,     6,    11,    28,    24,    12,     7,
-       8,    97,    98,    80,    81,    25,    73,    26,    32,    33,
-      42,    43
+       0,     3,     4,     5,     6,    11,    29,    24,    12,     7,
+       8,    97,    98,    80,    81,    25,    26,    27,    33,    34,
+      43,    44
   };
 
   const signed char
   parser::yytable_[] =
   {
-      44,    50,    51,    52,    53,    54,    31,     1,     2,     1,
-      36,    37,    57,    58,    59,    60,     9,    10,    45,    46,
-      48,    14,    79,    82,    38,    15,    83,    84,    85,    86,
-      87,    88,    89,    90,    91,    92,    93,    94,    55,    56,
-      39,    40,    41,    17,    57,    58,    29,    27,    18,    30,
-      34,    96,    49,    35,    47,    19,    20,    21,    22,    23,
-      71,    72,   104,    95,    99,   100,    75,   102,   101,   108,
-     109,    57,    58,    59,    60,    61,    62,    63,    64,    65,
-      66,    67,   107,   110,    57,    58,    59,    60,    61,    62,
-      63,    64,    65,    66,    67,    68,    69,   105,   106,    57,
+      45,    51,    52,    53,    54,    55,    32,     1,     2,     1,
+      37,    38,    58,    59,    60,    61,    62,    63,    64,    65,
+      66,    49,    79,    82,    39,    14,    83,    84,    85,    86,
+      87,    88,    89,    90,    91,    92,    93,    94,     9,    10,
+      40,    41,    42,    17,    58,    59,    60,    61,    18,    46,
+      47,    96,    56,    57,    15,    19,    20,    21,    22,    23,
+      28,   104,    58,    59,    99,   100,    19,    20,   108,   109,
       58,    59,    60,    61,    62,    63,    64,    65,    66,    67,
-      68,    69,   111,    16,    70,   103,    76,    57,    58,    59,
-      60,    61,    62,    63,    64,    65,    13,     0,    74,    70,
-      57,    58,    59,    60,    61,    62,    63,    64,    65,    66,
-      67,    68,    69,    57,    58,    59,    60,    77,    62,    63,
-      64,    65,     0,     0,     0,     0,     0,     0,     0,     0,
-      70,    57,    58,    59,    60,    61,    62,    63,    64,    65,
-      66,    67,    68,    69,    57,    58,    59,    60,    78,     0,
-      63,    64,    65,     0,     0,     0,     0,     0,     0,     0,
-       0,    70,    57,    58,    59,    60,    61,    62,    63,    64,
-      65,    66,    67,    68,    69,    57,    58,    59,    60,     0,
-       0,     0,    64,    65,     0,     0,     0,     0,     0,     0,
-       0,     0,    70
+      68,    69,    70,   110,    30,    58,    59,    60,    61,    62,
+      63,    64,    65,    66,    67,    68,    69,    70,    35,    31,
+      71,   103,    76,    58,    59,    60,    61,    62,    63,    64,
+      65,    66,    67,    68,    36,    71,    58,    59,    60,    61,
+      62,    63,    64,    65,    66,    67,    68,    69,    70,    58,
+      59,    60,    61,    77,    63,    64,    65,    66,    48,    50,
+      72,    73,    75,    95,   102,   105,    71,    58,    59,    60,
+      61,    62,    63,    64,    65,    66,    67,    68,    69,    70,
+      58,    59,    60,    61,    78,   101,    64,    65,    66,   106,
+     107,   111,    16,    13,     0,    74,     0,    71,    58,    59,
+      60,    61,    62,    63,    64,    65,    66,    67,    68,    69,
+      70,    58,    59,    60,    61,     0,     0,     0,    65,    66,
+       0,     0,     0,     0,     0,     0,     0,     0,    71
   };
 
   const signed char
   parser::yycheck_[] =
   {
-      24,    34,    35,    36,    37,    38,    18,    23,    24,    23,
-       5,     6,     3,     4,     5,     6,    26,    27,    16,    17,
-      32,     0,    55,    56,    19,     0,    59,    60,    61,    62,
-      63,    64,    65,    66,    67,    68,    69,    70,    18,    19,
-      35,    36,    37,    16,     3,     4,    35,    25,    21,    16,
-      19,    75,    22,    19,    18,    28,    29,    30,    31,    32,
-      16,    35,    95,    18,    76,    77,    19,    17,    20,   102,
-     103,     3,     4,     5,     6,     7,     8,     9,    10,    11,
-      12,    13,    17,   107,     3,     4,     5,     6,     7,     8,
-       9,    10,    11,    12,    13,    14,    15,    35,    20,     3,
-       4,     5,     6,     7,     8,     9,    10,    11,    12,    13,
-      14,    15,    35,     5,    33,    34,    20,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,     2,    -1,    46,    33,
+      24,    35,    36,    37,    38,    39,    18,    23,    24,    23,
+       5,     6,     3,     4,     5,     6,     7,     8,     9,    10,
+      11,    33,    56,    57,    19,     0,    60,    61,    62,    63,
+      64,    65,    66,    67,    68,    69,    70,    71,    26,    27,
+      35,    36,    37,    16,     3,     4,     5,     6,    21,    16,
+      17,    75,    18,    19,     0,    28,    29,    30,    31,    32,
+      25,    95,     3,     4,    76,    77,    28,    29,   102,   103,
        3,     4,     5,     6,     7,     8,     9,    10,    11,    12,
-      13,    14,    15,     3,     4,     5,     6,    20,     8,     9,
-      10,    11,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      33,     3,     4,     5,     6,     7,     8,     9,    10,    11,
-      12,    13,    14,    15,     3,     4,     5,     6,    20,    -1,
-       9,    10,    11,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    33,     3,     4,     5,     6,     7,     8,     9,    10,
-      11,    12,    13,    14,    15,     3,     4,     5,     6,    -1,
-      -1,    -1,    10,    11,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    33
+      13,    14,    15,   107,    35,     3,     4,     5,     6,     7,
+       8,     9,    10,    11,    12,    13,    14,    15,    19,    16,
+      33,    34,    20,     3,     4,     5,     6,     7,     8,     9,
+      10,    11,    12,    13,    19,    33,     3,     4,     5,     6,
+       7,     8,     9,    10,    11,    12,    13,    14,    15,     3,
+       4,     5,     6,    20,     8,     9,    10,    11,    18,    22,
+      16,    35,    19,    18,    17,    35,    33,     3,     4,     5,
+       6,     7,     8,     9,    10,    11,    12,    13,    14,    15,
+       3,     4,     5,     6,    20,    20,     9,    10,    11,    20,
+      17,    35,     5,     2,    -1,    47,    -1,    33,     3,     4,
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
+      15,     3,     4,     5,     6,    -1,    -1,    -1,    10,    11,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    33
   };
 
   const signed char
@@ -1898,12 +1891,12 @@ namespace yy {
   {
        0,    23,    24,    39,    40,    41,    42,    47,    48,    26,
       27,    43,    46,    48,     0,     0,    42,    16,    21,    28,
-      29,    30,    31,    32,    45,    53,    55,    25,    44,    35,
-      16,    55,    56,    57,    19,    19,     5,     6,    19,    35,
-      36,    37,    58,    59,    46,    16,    17,    18,    55,    22,
-      58,    58,    58,    58,    58,    18,    19,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,    12,    13,    14,    15,
-      33,    16,    35,    54,    54,    19,    20,    20,    20,    58,
+      29,    30,    31,    32,    45,    53,    54,    55,    25,    44,
+      35,    16,    55,    56,    57,    19,    19,     5,     6,    19,
+      35,    36,    37,    58,    59,    46,    16,    17,    18,    55,
+      22,    58,    58,    58,    58,    58,    18,    19,     3,     4,
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
+      15,    33,    16,    35,    54,    19,    20,    20,    20,    58,
       51,    52,    58,    58,    58,    58,    58,    58,    58,    58,
       58,    58,    58,    58,    58,    18,    46,    49,    50,    55,
       55,    20,    17,    34,    58,    35,    20,    17,    58,    58,
@@ -1927,7 +1920,7 @@ namespace yy {
   {
        0,     2,     2,     0,     1,     2,     1,     1,     1,     1,
        1,     1,     1,     2,     3,     2,     7,     0,     1,     2,
-       4,     0,     1,     1,     3,     3,     3,     3,     1,     3,
+       4,     0,     1,     1,     3,     1,     3,     5,     3,     3,
        5,     5,     3,     1,     2,     2,     1,     0,     1,     3,
        1,     1,     1,     4,     3,     3,     3,     3,     3,     3,
        3,     3,     2,     2,     3,     3,     2,     2,     5,     3,
@@ -1963,11 +1956,11 @@ namespace yy {
   {
        0,   140,   140,   152,   153,   157,   163,   171,   178,   179,
      183,   187,   188,   192,   199,   200,   204,   209,   210,   214,
-     219,   230,   231,   235,   240,   254,   262,   271,   275,   303,
-     304,   305,   306,   307,   308,   312,   313,   317,   318,   325,
-     326,   327,   328,   329,   330,   331,   332,   333,   334,   335,
-     336,   337,   338,   339,   340,   341,   342,   343,   344,   345,
-     346,   350,   351
+     219,   230,   231,   235,   240,   254,   259,   268,   272,   300,
+     301,   302,   303,   304,   305,   309,   310,   314,   315,   322,
+     323,   324,   325,   326,   327,   328,   329,   330,   331,   332,
+     333,   334,   335,   336,   337,   338,   339,   340,   341,   342,
+     343,   347,   348
   };
 
   void
@@ -1999,9 +1992,9 @@ namespace yy {
 
 
 } // yy
-#line 2003 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
+#line 1996 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
 
-#line 355 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 352 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 
 
 void yy::parser::error(const location_type& l, const std::string& m)

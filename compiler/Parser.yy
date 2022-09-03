@@ -251,13 +251,10 @@ function_header
 
 // variables
 variable_declarator
-: type_visibility complete_type variable_declarator_i
+: variable_declarator_i
 {
-    drv.active_visibility = $1;
-    drv.active_type = $2;
-    
     $$ = std::vector<ti::Variable*>();
-    $$.emplace_back($3);
+    $$.emplace_back($1);
 }
 | variable_declarator "," variable_declarator_i
 {
@@ -268,13 +265,13 @@ variable_declarator
 ;
 
 variable_declarator_i
-: IDENTIFIER "=" expression
+: type_visibility complete_type IDENTIFIER "=" expression
 {
-    $$ = new ti::Variable{ drv.active_visibility, drv.active_type, $1, $3 };
+    $$ = new ti::Variable{ $1, $2, $3, $5 };
 }
-| IDENTIFIER
+| type_visibility complete_type IDENTIFIER
 {
-    $$ = new ti::Variable{ drv.active_visibility, drv.active_type, $1, NULL };
+    $$ = new ti::Variable{ $1, $2, $3, NULL };
 }
 ;
 // /variables
