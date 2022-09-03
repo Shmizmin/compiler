@@ -1,2 +1,2 @@
-bison -o Parser.cpp Parser.yy
-flex -o Scanner.cpp Scanner.ll
+bison -o /Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp /Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy
+flex -o /Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.cpp /Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll

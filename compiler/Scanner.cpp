@@ -1,6 +1,6 @@
-#line 1 "Scanner.cpp"
+#line 1 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.cpp"
 
-#line 3 "Scanner.cpp"
+#line 3 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -71,6 +71,7 @@ typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
+typedef uint64_t flex_uint64_t;
 #else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
@@ -195,7 +196,7 @@ typedef size_t yy_size_t;
 #endif
 
 /* %if-not-reentrant */
-extern int yyleng;
+extern yy_size_t yyleng;
 /* %endif */
 
 /* %if-c-only */
@@ -248,7 +249,7 @@ struct yy_buffer_state
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	int yy_n_chars;
+	yy_size_t yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -329,8 +330,8 @@ static YY_BUFFER_STATE * yy_buffer_stack = NULL; /**< Stack as an array. */
 /* %not-for-header */
 /* yy_hold_char holds the character lost when yytext is formed. */
 static char yy_hold_char;
-static int yy_n_chars;		/* number of characters read into yy_ch_buf */
-int yyleng;
+static yy_size_t yy_n_chars;		/* number of characters read into yy_ch_buf */
+yy_size_t yyleng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = NULL;
@@ -360,7 +361,7 @@ static void yy_init_buffer ( YY_BUFFER_STATE b, FILE *file  );
 
 YY_BUFFER_STATE yy_scan_buffer ( char *base, yy_size_t size  );
 YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
-YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, int len  );
+YY_BUFFER_STATE yy_scan_bytes ( const char *bytes, yy_size_t len  );
 
 /* %endif */
 
@@ -428,7 +429,7 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 #define YY_DO_BEFORE_ACTION \
 	(yytext_ptr) = yy_bp; \
 /* %% [2.0] code to fiddle yytext and yyleng for yymore() goes here \ */\
-	yyleng = (int) (yy_cp - yy_bp); \
+	yyleng = (yy_size_t) (yy_cp - yy_bp); \
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 /* %% [3.0] code to copy yytext_ptr to yytext[] goes here, if %array \ */\
@@ -597,8 +598,8 @@ static const flex_int16_t yy_rule_linenum[39] =
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "Scanner.ll"
-#line 2 "Scanner.ll"
+#line 1 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
+#line 2 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
@@ -618,12 +619,12 @@ char *yytext;
 #if defined __GNUC__ && 7 <= __GNUC__
 #pragma GCC diagnostic ignored "-Wnull-dereference"
 #endif
-#line 621 "Scanner.cpp"
+#line 622 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.cpp"
 #define YY_NO_INPUT 1
-#line 30 "Scanner.ll"
+#line 30 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
     #define YY_USER_ACTION  loc.columns (yyleng);
-#line 625 "Scanner.cpp"
-#line 626 "Scanner.cpp"
+#line 626 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.cpp"
+#line 627 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.cpp"
 
 #define INITIAL 0
 
@@ -675,7 +676,7 @@ FILE *yyget_out ( void );
 
 void yyset_out  ( FILE * _out_str  );
 
-			int yyget_leng ( void );
+			yy_size_t yyget_leng ( void );
 
 char *yyget_text ( void );
 
@@ -762,7 +763,7 @@ static int input ( void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		yy_size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -901,16 +902,16 @@ YY_DECL
 
 	{
 /* %% [7.0] user's declarations go here */
-#line 33 "Scanner.ll"
+#line 33 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 
-#line 35 "Scanner.ll"
+#line 35 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
     
 
     yy::location& loc = drv.location;
     loc.step();
 
 
-#line 913 "Scanner.cpp"
+#line 914 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -988,173 +989,173 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 41 "Scanner.ll"
+#line 41 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 loc.step();
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 42 "Scanner.ll"
+#line 42 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 loc.lines(yyleng); loc.step();
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 45 "Scanner.ll"
+#line 45 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_MINUS_MINUS(loc); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 46 "Scanner.ll"
+#line 46 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_PLUS_PLUS(loc); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 48 "Scanner.ll"
+#line 48 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_MINUS(loc); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 49 "Scanner.ll"
+#line 49 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_PLUS(loc); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 51 "Scanner.ll"
+#line 51 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_BITOR(loc); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 52 "Scanner.ll"
+#line 52 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_BITAND(loc); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 53 "Scanner.ll"
+#line 53 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_BITXOR(loc); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 55 "Scanner.ll"
+#line 55 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_BITLSHIFT(loc); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 56 "Scanner.ll"
+#line 56 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_BITRSHIFT(loc); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 58 "Scanner.ll"
+#line 58 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_LESS(loc); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 59 "Scanner.ll"
+#line 59 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_GREATER(loc); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 61 "Scanner.ll"
+#line 61 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_NOT_EQ(loc); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 62 "Scanner.ll"
+#line 62 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_IS_EQ(loc); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 64 "Scanner.ll"
+#line 64 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_SEMICOLON(loc); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 65 "Scanner.ll"
+#line 65 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_COMMA(loc); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 66 "Scanner.ll"
+#line 66 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_EQ(loc); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 68 "Scanner.ll"
+#line 68 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_LPAREN(loc); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 69 "Scanner.ll"
+#line 69 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_RPAREN(loc); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 70 "Scanner.ll"
+#line 70 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_LBRACE(loc); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 71 "Scanner.ll"
+#line 71 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_RBRACE(loc); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 73 "Scanner.ll"
+#line 73 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_FUNCTION(loc); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 74 "Scanner.ll"
+#line 74 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_PROTO(loc); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 75 "Scanner.ll"
+#line 75 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_VAL(loc); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 76 "Scanner.ll"
+#line 76 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_VOID(loc); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 77 "Scanner.ll"
+#line 77 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_BYTE(loc); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 78 "Scanner.ll"
+#line 78 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_BYTE(loc); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 79 "Scanner.ll"
+#line 79 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_LOCAL(loc); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 80 "Scanner.ll"
+#line 80 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_GLOBAL(loc); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 81 "Scanner.ll"
+#line 81 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_IF(loc); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 82 "Scanner.ll"
+#line 82 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_WHILE(loc); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 83 "Scanner.ll"
+#line 83 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_RETURN(loc); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 86 "Scanner.ll"
+#line 86 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 {
     errno = 0;
     
@@ -1170,35 +1171,35 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 99 "Scanner.ll"
+#line 99 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { return yy::parser::make_IDENTIFIER(yytext, loc); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 101 "Scanner.ll"
+#line 101 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 103 "Scanner.ll"
+#line 103 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 return yy::parser::make_END(loc);
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 105 "Scanner.ll"
+#line 105 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { /* single line comment */ }
 	YY_BREAK
 case 38:
 /* rule 38 can match eol */
 YY_RULE_SETUP
-#line 106 "Scanner.ll"
+#line 106 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 { /*  multi line comment */ }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 108 "Scanner.ll"
+#line 108 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 ECHO;
 	YY_BREAK
-#line 1201 "Scanner.cpp"
+#line 1202 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.cpp"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1400,7 +1401,7 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-			int num_to_read =
+			yy_size_t num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -1414,7 +1415,7 @@ static int yy_get_next_buffer (void)
 
 			if ( b->yy_is_our_buffer )
 				{
-				int new_size = b->yy_buf_size * 2;
+				yy_size_t new_size = b->yy_buf_size * 2;
 
 				if ( new_size <= 0 )
 					b->yy_buf_size += b->yy_buf_size / 8;
@@ -1472,7 +1473,7 @@ static int yy_get_next_buffer (void)
 
 	if (((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 		/* Extend the array by 50%, plus the number we really need. */
-		int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
+		yy_size_t new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
 		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) yyrealloc(
 			(void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t) new_size  );
 		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
@@ -1593,7 +1594,7 @@ static int yy_get_next_buffer (void)
 
 		else
 			{ /* need more input */
-			int offset = (int) ((yy_c_buf_p) - (yytext_ptr));
+			yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
 			switch ( yy_get_next_buffer(  ) )
@@ -2036,12 +2037,12 @@ YY_BUFFER_STATE yy_scan_string (const char * yystr )
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE yy_scan_bytes  (const char * yybytes, int  _yybytes_len )
+YY_BUFFER_STATE yy_scan_bytes  (const char * yybytes, yy_size_t  _yybytes_len )
 {
 	YY_BUFFER_STATE b;
 	char *buf;
 	yy_size_t n;
-	int i;
+	yy_size_t i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = (yy_size_t) (_yybytes_len + 2);
@@ -2088,7 +2089,7 @@ static void yynoreturn yy_fatal_error (const char* msg )
 	do \
 		{ \
 		/* Undo effects of setting up yytext. */ \
-        int yyless_macro_arg = (n); \
+        yy_size_t yyless_macro_arg = (n); \
         YY_LESS_LINENO(yyless_macro_arg);\
 		yytext[yyleng] = (yy_hold_char); \
 		(yy_c_buf_p) = yytext + yyless_macro_arg; \
@@ -2132,7 +2133,7 @@ FILE *yyget_out  (void)
 /** Get the length of the current token.
  * 
  */
-int yyget_leng  (void)
+yy_size_t yyget_leng  (void)
 {
         return yyleng;
 }
@@ -2303,7 +2304,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 108 "Scanner.ll"
+#line 108 "/Users/connor/Desktop/cpu-design/compiler/compiler/Scanner.ll"
 
 
 void driver::scan_begin(void)
