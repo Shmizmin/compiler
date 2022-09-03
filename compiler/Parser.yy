@@ -14,7 +14,7 @@
   class driver;
 
 #include "Types.hpp"
-#include "Driver.hpp"
+//#include "Driver.hpp"
 #include "Context.hpp"
 #include "Central.hpp"
 #include "Function.hpp"
@@ -27,10 +27,11 @@
 // The parsing context.
 %param { driver& drv }
 
-//%locations
+%locations
 
 %define parse.trace
 %define parse.error verbose
+//%define parse.lac full
 
 %code {
 #include "Types.hpp"

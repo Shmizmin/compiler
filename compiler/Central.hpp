@@ -7,6 +7,7 @@
 #include "Expression.hpp"
 
 #include <string>
+#include <memory>
 
 namespace ti
 {

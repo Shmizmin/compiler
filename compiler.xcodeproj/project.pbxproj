@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		B30556B728B408EA00BEAB4D /* Statement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556B528B408EA00BEAB4D /* Statement.cpp */; };
 		B30556BA28B40FC800BEAB4D /* Context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556B828B40FC800BEAB4D /* Context.cpp */; };
-		B30556C028B4201A00BEAB4D /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556BE28B4201A00BEAB4D /* Function.cpp */; };
 		B30556CA28B44CCC00BEAB4D /* Central.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556C828B44CCC00BEAB4D /* Central.cpp */; };
+		B306BB5728C3112700445D5F /* Titanium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B306BB5628C3112700445D5F /* Titanium.cpp */; };
 		B37193BC28C24888000799D3 /* Driver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37193B628C24888000799D3 /* Driver.cpp */; };
 		B37193BD28C24888000799D3 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37193B928C24888000799D3 /* Parser.cpp */; };
 		B37193BE28C24888000799D3 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37193BA28C24888000799D3 /* Scanner.cpp */; };
@@ -35,11 +35,11 @@
 		B30556B828B40FC800BEAB4D /* Context.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Context.cpp; sourceTree = "<group>"; };
 		B30556B928B40FC800BEAB4D /* Context.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Context.hpp; sourceTree = "<group>"; };
 		B30556BD28B41E3300BEAB4D /* Types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Types.hpp; sourceTree = "<group>"; };
-		B30556BE28B4201A00BEAB4D /* Function.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Function.cpp; sourceTree = "<group>"; };
 		B30556BF28B4201A00BEAB4D /* Function.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Function.hpp; sourceTree = "<group>"; };
 		B30556C428B44BBA00BEAB4D /* Error.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Error.hpp; sourceTree = "<group>"; };
 		B30556C828B44CCC00BEAB4D /* Central.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Central.cpp; sourceTree = "<group>"; };
 		B30556C928B44CCC00BEAB4D /* Central.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Central.hpp; sourceTree = "<group>"; };
+		B306BB5628C3112700445D5F /* Titanium.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Titanium.cpp; sourceTree = "<group>"; };
 		B33775A327E8E2F9006CA5FA /* compiler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = compiler; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37193B628C24888000799D3 /* Driver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Driver.cpp; sourceTree = "<group>"; };
 		B37193B728C24888000799D3 /* location.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = location.hh; sourceTree = "<group>"; };
@@ -81,6 +81,7 @@
 		B33775A527E8E2F9006CA5FA /* compiler */ = {
 			isa = PBXGroup;
 			children = (
+				B306BB5628C3112700445D5F /* Titanium.cpp */,
 				B37193B628C24888000799D3 /* Driver.cpp */,
 				B37193B828C24888000799D3 /* Driver.hpp */,
 				B37193B728C24888000799D3 /* location.hh */,
@@ -90,7 +91,6 @@
 				B30556C828B44CCC00BEAB4D /* Central.cpp */,
 				B30556C928B44CCC00BEAB4D /* Central.hpp */,
 				B30556C428B44BBA00BEAB4D /* Error.hpp */,
-				B30556BE28B4201A00BEAB4D /* Function.cpp */,
 				B30556BD28B41E3300BEAB4D /* Types.hpp */,
 				B3D451DF28B4057500355D7B /* Expression.cpp */,
 				B3D451E028B4057500355D7B /* Expression.hpp */,
@@ -163,7 +163,7 @@
 				B30556CA28B44CCC00BEAB4D /* Central.cpp in Sources */,
 				B30556B728B408EA00BEAB4D /* Statement.cpp in Sources */,
 				B37193BD28C24888000799D3 /* Parser.cpp in Sources */,
-				B30556C028B4201A00BEAB4D /* Function.cpp in Sources */,
+				B306BB5728C3112700445D5F /* Titanium.cpp in Sources */,
 				B37193BC28C24888000799D3 /* Driver.cpp in Sources */,
 				B30556BA28B40FC800BEAB4D /* Context.cpp in Sources */,
 				B37193BE28C24888000799D3 /* Scanner.cpp in Sources */,
