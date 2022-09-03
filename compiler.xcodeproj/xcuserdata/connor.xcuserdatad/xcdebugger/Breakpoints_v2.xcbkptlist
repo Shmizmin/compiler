@@ -213,8 +213,8 @@
             filePath = "compiler/Expression.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "575"
-            endingLineNumber = "575"
+            startingLineNumber = "551"
+            endingLineNumber = "551"
             landmarkName = "ti::expr::unary::Negative::generate(context, function, allocation)"
             landmarkType = "7">
          </BreakpointContent>
@@ -291,10 +291,10 @@
             filePath = "compiler/Central.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "11"
-            endingLineNumber = "11"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            startingLineNumber = "26"
+            endingLineNumber = "26"
+            landmarkName = "ti::generate_program(program, parameters)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -403,8 +403,8 @@
             filePath = "compiler/Central.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "89"
-            endingLineNumber = "89"
+            startingLineNumber = "114"
+            endingLineNumber = "114"
             landmarkName = "ti::generate_function(context, function)"
             landmarkType = "7">
          </BreakpointContent>
@@ -419,8 +419,8 @@
             filePath = "compiler/Central.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "93"
-            endingLineNumber = "93"
+            startingLineNumber = "118"
+            endingLineNumber = "118"
             landmarkName = "ti::generate_function(context, function)"
             landmarkType = "7">
          </BreakpointContent>
@@ -451,8 +451,8 @@
             filePath = "compiler/Central.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
+            startingLineNumber = "119"
+            endingLineNumber = "119"
             landmarkName = "ti::generate_function(context, function)"
             landmarkType = "7">
          </BreakpointContent>
@@ -583,6 +583,22 @@
             endingLineNumber = "303"
             landmarkName = "statement"
             landmarkType = "26">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "361528C8-0AF5-4C64-8D0C-2C6A8BDC6A6F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "compiler/Central.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "69"
+            endingLineNumber = "69"
+            landmarkName = "ti::optimize(code)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

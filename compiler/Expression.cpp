@@ -259,30 +259,6 @@ void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, con
             context.add_to_code(ti::format("\tstb %%%u, %s\n", fsym->address, ti::location_to_string(allocation.location).c_str()));
         }
         
-        /*
-        auto* var_stmt = new ti::stmt::Variable({});
-        var_stmt->type = ti::StatementType::VARIABLE;
-        var_stmt->variables = {};
-        
-        for (auto i = 0; i < fcl_num; ++i)
-        {
-            const auto& arg = nsym->arguments[i];
-            
-            //will leak
-            auto* var = new ti::Variable();
-
-            context.counter++;
-            var->name = ti::format("%s_%s", l->name.c_str(), arg.name.c_str());
-            var->type = arg.type;
-            var->visibility = ti::TypeVisibility::LOCAL;
-            var->value = args[i];
-            
-            var_stmt->variables.emplace_back(var);
-        
-        }
-        var_stmt->generate(context, function);
-         */
-        
         context.add_to_code(ti::format("\tcall_%s(function_start_%s)\n", ti::location_to_string(allocation.location).c_str(), nsym->name.c_str()));
     }
 }

@@ -6,6 +6,21 @@
 #include <cstdarg>
 #include <algorithm>
 #include <iostream>
+#include <regex>
+
+namespace
+{
+    void replace(std::string& str, const std::string& from, const std::string& to)
+    {
+        if(from.empty()) return;
+        std::size_t start_pos = 0;
+        while((start_pos = str.find(from, start_pos)) != std::string::npos)
+        {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length();
+        }
+    }
+}
 
 
 void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noexcept
@@ -46,6 +61,16 @@ void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noex
 
 void ti::optimize(std::string& code) noexcept
 {
+    //tail jump elimination
+    {
+        std::regex rx(R"(\tjmp\(function_end_([a-zA-Z][a-zA-Z_0-9]*)\)\n@function_end_\1:)");
+        std::smatch matches;
+        
+        while (std::regex_search(code, matches, rx))
+        {
+            ::replace(code, matches[0].str(), ti::format("@function_end_%s:", matches[1].str().c_str()));
+        }
+    }
     
 }
 
