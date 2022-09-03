@@ -17,8 +17,7 @@ class driver;
 #undef YY_DECL
 #define YY_DECL yy::parser::symbol_type yylex(driver& drv)
 
-//YY_DECL;
-yy::parser::symbol_type yylex(driver& drv);
+YY_DECL;
 
 
 class driver
@@ -38,12 +37,7 @@ public:
     ti::TypeVisibility active_visibility;
     ti::CompleteType active_type;
     
-    std::vector<ti::Statement*> statement_queue;
-    std::vector<ti::Function> definition_queue;
-    std::vector<ti::Argument> fdecl_args_queue;
-    std::vector<ti::Expression*> fcall_args_queue;
 
-    std::vector<ti::Variable*> var_decl_queue;
 
 
     int parse(const std::string& f);

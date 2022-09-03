@@ -51,6 +51,7 @@ namespace ti
             Block(std::vector<Statement*> statements) noexcept
                 : statements(statements)
             {
+                type = ti::StatementType::BLOCK;
             }
         };
         
@@ -64,6 +65,7 @@ namespace ti
             If(Expression* condition, Statement* statement) noexcept
                 : condition(condition), statement(statement)
             {
+                type = ti::StatementType::IF;
             }
         };
         
@@ -77,6 +79,7 @@ namespace ti
             While(Expression* condition, Statement* statement) noexcept
                 : condition(condition), statement(statement)
             {
+                type = ti::StatementType::WHILE;
             }
         };
         
@@ -89,6 +92,7 @@ namespace ti
             Return(Expression* value) noexcept
                 : value(value)
             {
+                type = ti::StatementType::RETURN;
             }
         };
         
@@ -100,6 +104,7 @@ namespace ti
             
             Null(void) noexcept
             {
+                type = ti::StatementType::NIL;
             }
         };
         
@@ -112,6 +117,7 @@ namespace ti
             Variable(std::vector<ti::Variable*> variables) noexcept
                 : variables(variables)
             {
+                type = ti::StatementType::VARIABLE;
             }
         };
     }

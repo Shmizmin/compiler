@@ -32,7 +32,7 @@
 
 
 /**
- ** \file Parser.hpp
+ ** \file /Users/connor/Desktop/cpu-design/compiler/compiler/Parser.hpp
  ** Define the yy::parser class.
  */
 
@@ -42,10 +42,10 @@
 // especially those whose name start with YY_ or yy_.  They are
 // private implementation details that can be changed or removed.
 
-#ifndef YY_YY_PARSER_HPP_INCLUDED
-# define YY_YY_PARSER_HPP_INCLUDED
+#ifndef YY_YY_USERS_CONNOR_DESKTOP_CPU_DESIGN_COMPILER_COMPILER_PARSER_HPP_INCLUDED
+# define YY_YY_USERS_CONNOR_DESKTOP_CPU_DESIGN_COMPILER_COMPILER_PARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 9 "Parser.yy"
+#line 9 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 
 #include <string>
 #include <vector>
@@ -63,7 +63,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-#line 67 "Parser.hpp"
+#line 67 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.hpp"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -203,7 +203,7 @@
 #endif
 
 namespace yy {
-#line 207 "Parser.hpp"
+#line 207 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.hpp"
 
 
 
@@ -446,7 +446,6 @@ namespace yy {
       char dummy6[sizeof (std::vector<ti::Statement*>)];
 
       // variable_declarator
-      // variable_declarator_i
       char dummy7[sizeof (std::vector<ti::Variable*>)];
 
       // complete_type
@@ -472,6 +471,9 @@ namespace yy {
 
       // type_visibility
       char dummy14[sizeof (ti::TypeVisibility)];
+
+      // variable_declarator_i
+      char dummy15[sizeof (ti::Variable*)];
     };
 
     /// The size of the largest semantic type.
@@ -701,7 +703,6 @@ namespace yy {
         break;
 
       case symbol_kind::S_variable_declarator: // variable_declarator
-      case symbol_kind::S_variable_declarator_i: // variable_declarator_i
         value.move< std::vector<ti::Variable*> > (std::move (that.value));
         break;
 
@@ -734,6 +735,10 @@ namespace yy {
 
       case symbol_kind::S_type_visibility: // type_visibility
         value.move< ti::TypeVisibility > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_variable_declarator_i: // variable_declarator_i
+        value.move< ti::Variable* > (std::move (that.value));
         break;
 
       default:
@@ -955,6 +960,20 @@ namespace yy {
       {}
 #endif
 
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, ti::Variable*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const ti::Variable*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
       /// Destroy the symbol.
       ~basic_symbol ()
       {
@@ -1009,7 +1028,6 @@ switch (yykind)
         break;
 
       case symbol_kind::S_variable_declarator: // variable_declarator
-      case symbol_kind::S_variable_declarator_i: // variable_declarator_i
         value.template destroy< std::vector<ti::Variable*> > ();
         break;
 
@@ -1042,6 +1060,10 @@ switch (yykind)
 
       case symbol_kind::S_type_visibility: // type_visibility
         value.template destroy< ti::TypeVisibility > ();
+        break;
+
+      case symbol_kind::S_variable_declarator_i: // variable_declarator_i
+        value.template destroy< ti::Variable* > ();
         break;
 
       default:
@@ -1785,6 +1807,16 @@ switch (yykind)
     parser& operator= (const parser&);
 #endif
 
+    /// Check the lookahead yytoken.
+    /// \returns  true iff the token will be eventually shifted.
+    bool yy_lac_check_ (symbol_kind_type yytoken) const;
+    /// Establish the initial context if no initial context currently exists.
+    /// \returns  true iff the token will be eventually shifted.
+    bool yy_lac_establish_ (symbol_kind_type yytoken);
+    /// Discard any previous initial lookahead context because of event.
+    /// \param event  the event which caused the lookahead to be discarded.
+    ///               Only used for debbuging output.
+    void yy_lac_discard_ (const char* event);
 
     /// Stored state numbers (used for stacks).
     typedef signed char state_type;
@@ -2065,6 +2097,15 @@ switch (yykind)
 
     /// The stack.
     stack_type yystack_;
+    /// The stack for LAC.
+    /// Logically, the yy_lac_stack's lifetime is confined to the function
+    /// yy_lac_check_. We just store it as a member of this class to hold
+    /// on to the memory and to avoid frequent reallocations.
+    /// Since yy_lac_check_ is const, this member must be mutable.
+    mutable std::vector<state_type> yylac_stack_;
+    /// Whether an initial LAC context was established.
+    bool yy_lac_established_;
+
 
     /// Push a new state on the stack.
     /// \param m    a debug message to display
@@ -2189,7 +2230,6 @@ switch (yykind)
         break;
 
       case symbol_kind::S_variable_declarator: // variable_declarator
-      case symbol_kind::S_variable_declarator_i: // variable_declarator_i
         value.copy< std::vector<ti::Variable*> > (YY_MOVE (that.value));
         break;
 
@@ -2222,6 +2262,10 @@ switch (yykind)
 
       case symbol_kind::S_type_visibility: // type_visibility
         value.copy< ti::TypeVisibility > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_variable_declarator_i: // variable_declarator_i
+        value.copy< ti::Variable* > (YY_MOVE (that.value));
         break;
 
       default:
@@ -2285,7 +2329,6 @@ switch (yykind)
         break;
 
       case symbol_kind::S_variable_declarator: // variable_declarator
-      case symbol_kind::S_variable_declarator_i: // variable_declarator_i
         value.move< std::vector<ti::Variable*> > (YY_MOVE (s.value));
         break;
 
@@ -2318,6 +2361,10 @@ switch (yykind)
 
       case symbol_kind::S_type_visibility: // type_visibility
         value.move< ti::TypeVisibility > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_variable_declarator_i: // variable_declarator_i
+        value.move< ti::Variable* > (YY_MOVE (s.value));
         break;
 
       default:
@@ -2386,9 +2433,9 @@ switch (yykind)
 
 
 } // yy
-#line 2390 "Parser.hpp"
+#line 2437 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.hpp"
 
 
 
 
-#endif // !YY_YY_PARSER_HPP_INCLUDED
+#endif // !YY_YY_USERS_CONNOR_DESKTOP_CPU_DESIGN_COMPILER_COMPILER_PARSER_HPP_INCLUDED

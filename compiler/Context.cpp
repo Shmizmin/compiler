@@ -135,12 +135,19 @@ std::uint16_t ti::Context::allocate_heap(std::uint16_t bytes) noexcept
         
         for (auto j = 0; j < size; ++j)
         {
-            if (!available_heap[j])
+            if (!available_heap[i + j])
             {
                 avail = false;
-                continue;
             }
         }
+        if (avail)
+        {
+            for (auto k = 0; k < size; ++k)
+                available_heap[cvt + k] = false;
+            
+            return cvt;
+        }
+        avail = true;
     }
     
     if (avail)

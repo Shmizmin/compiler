@@ -17,6 +17,7 @@ namespace ti
         NUMCONST,
         STRINGCONST,
         IDENTIFIER,
+        FCALL,
         TERNARYOP,
         BINARYOP,
         UNARYOP,
@@ -73,6 +74,7 @@ namespace ti
             Numconst(std::uint8_t value)
                 : value(value)
             {
+                type = ti::ExpressionType::NUMCONST;
             }
         };
         
@@ -85,6 +87,7 @@ namespace ti
             Stringconst(std::string value)
                 : value(value)
             {
+                type = ti::ExpressionType::STRINGCONST;
             }
         };
         
@@ -97,6 +100,7 @@ namespace ti
             Identifier(std::string name)
                 : name(name)
             {
+                type = ti::ExpressionType::IDENTIFIER;
             }
         };
         
@@ -110,6 +114,7 @@ namespace ti
             FCall(Identifier* left, std::vector<Expression*> args)
                 : left(left), args(args)
             {
+                type = ti::ExpressionType::FCALL;
             }
         };
         
@@ -124,6 +129,7 @@ namespace ti
             Ternary(Expression* left, Expression* center, Expression* right)
                 : left(left), center(center), right(right)
             {
+                type = ti::ExpressionType::TERNARYOP;
             }
         };
         
@@ -135,6 +141,7 @@ namespace ti
             Binary(Expression* left, Expression* right)
                 : left(left), right(right)
             {
+                type = ti::ExpressionType::BINARYOP;
             }
         };
         
@@ -264,6 +271,7 @@ namespace ti
             Unary(Expression* center)
                 : center(center)
             {
+                type = ti::ExpressionType::UNARYOP;
             }
         };
        
@@ -286,7 +294,6 @@ namespace ti
                     : Unary(center)
                 {
                 }
-
             };
             struct Positive final : public Unary
             {
@@ -296,7 +303,6 @@ namespace ti
                     : Unary(center)
                 {
                 }
-
             };
             struct Negative final : public Unary
             {
@@ -306,7 +312,6 @@ namespace ti
                     : Unary(center)
                 {
                 }
-
             };
         }
     }

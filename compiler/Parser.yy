@@ -31,7 +31,7 @@
 
 %define parse.trace
 %define parse.error verbose
-//%define parse.lac full
+%define parse.lac full
 
 %code {
 #include "Types.hpp"
@@ -112,7 +112,9 @@
 
 %type<ti::Expression*> expression expression_opt
 %type<ti::Statement*> statement
-%type<std::vector<ti::Variable*>> variable_declarator variable_declarator_i
+
+%type<std::vector<ti::Variable*>> variable_declarator
+%type<ti::Variable*> variable_declarator_i
 
 %type<ti::TypeVisibility> type_visibility
 %type<ti::TypeSpecifier> type_specifier
@@ -136,6 +138,13 @@
 
 translation_unit
 : definitions_opt END
+{
+    auto program = ti::Program{ $1 };
+    //auto context = ti::Context{};
+    auto parameters = ti::Parameters{ "test.ti" };
+    
+    ti::generate_program(program, parameters);
+}
 ;
 
 // definitions
@@ -147,13 +156,14 @@ definitions_opt
 definitions
 : definitions definition
 {
-    drv.definition_queue.emplace_back($2);
-    $$ = drv.definition_queue;
+    auto& vec = $1;
+    vec.emplace_back($2);
+    $$ = vec;
 }
 | definition
 {
-    drv.definition_queue.emplace_back($1);
-    $$ = drv.definition_queue;
+    $$ = std::vector<ti::Function>();
+    $$.emplace_back($1);
 }
 ;
 
@@ -203,13 +213,14 @@ function_header
     fdecl_args
     : complete_type IDENTIFIER
     {
-        drv.fdecl_args_queue.emplace_back(ti::Argument{ $2, $1 });
-        $$ = drv.fdecl_args_queue;
+        $$ = std::vector<ti::Argument>();
+        $$.emplace_back(ti::Argument{ $2, $1 });
     }
     | fdecl_args "," complete_type IDENTIFIER
     {
-        drv.fdecl_args_queue.emplace_back(ti::Argument{ $4, $3 });
-        $$ = drv.fdecl_args_queue;
+        auto& vec = $1;
+        vec.emplace_back(ti::Argument{ $4, $3 });
+        $$ = vec;
     }
     ;
     // /function definition args
@@ -223,13 +234,14 @@ function_header
     fcall_args
     : expression
     {
-        drv.fcall_args_queue.emplace_back($1);
-        $$ = drv.fcall_args_queue;
+        $$ = std::vector<ti::Expression*>();
+        $$.emplace_back($1);
     }
     | fcall_args "," expression
     {
-        drv.fcall_args_queue.emplace_back($3);
-        $$ = drv.fcall_args_queue;
+        auto& vec = $1;
+        vec.emplace_back($3);
+        $$ = vec;
     }
     ;
     // /function call args
@@ -243,24 +255,26 @@ variable_declarator
 {
     drv.active_visibility = $1;
     drv.active_type = $2;
-    $$ = $3;
+    
+    $$ = std::vector<ti::Variable*>();
+    $$.emplace_back($3);
 }
 | variable_declarator "," variable_declarator_i
 {
-    $$ = $3;
+    auto& vec = $1;
+    vec.emplace_back($3);
+    $$ = vec;
 }
 ;
 
 variable_declarator_i
 : IDENTIFIER "=" expression
 {
-    drv.var_decl_queue.emplace_back(new ti::Variable{ drv.active_visibility, drv.active_type, $1, $3 });
-    $$ = drv.var_decl_queue;
+    $$ = new ti::Variable{ drv.active_visibility, drv.active_type, $1, $3 };
 }
 | IDENTIFIER
 {
-    drv.var_decl_queue.emplace_back(new ti::Variable{ drv.active_visibility, drv.active_type, $1, NULL });
-    $$ = drv.var_decl_queue;
+    $$ = new ti::Variable{ drv.active_visibility, drv.active_type, $1, NULL };
 }
 ;
 // /variables
@@ -295,8 +309,8 @@ statement
 ;
 
 statements
-: statements statement { drv.statement_queue.emplace_back($2); $$ = drv.statement_queue; }
-| statement            { drv.statement_queue.emplace_back($1); $$ = drv.statement_queue; }
+: statements statement { auto& vec = $1; vec.emplace_back($2); $$ = vec; }
+| statement            { $$ = std::vector<ti::Statement*>(); $$.emplace_back($1); }
 ;
 
 statements_opt
@@ -337,18 +351,6 @@ expression_opt
 | expression { $$ = $1; }
 ;
 // /expressions
-
-
-/*
- exp:
- ;  exp "+" exp   { $$ = $1 + $3; }
- | exp "-" exp   { $$ = $1 - $3; }
- | exp "*" exp   { $$ = $1 * $3; }
- | exp "/" exp   { $$ = $1 / $3; }
- | "(" exp ")"   { std::swap ($$, $2); }
- | "identifier"  { $$ = drv.variables[$1]; }
- | "number"      { std::swap ($$, $1); };
- */
 
 %%
 

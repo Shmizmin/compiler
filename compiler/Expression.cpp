@@ -5,6 +5,7 @@
 #include "Error.hpp"
 #include "Central.hpp"
 
+#include <iostream>
 #include <stdexcept>
 #include <exception>
 
@@ -57,8 +58,59 @@ void ti::expr::Identifier::generate(ti::Context& context, ti::Function& function
     
     const auto loc = std::find_if(context.symbol_table.begin(), context.symbol_table.end(), [&](Symbol* s)
     {
-        return (name == s->name);
+        auto names_eq = (name == s->name);
+        auto quals_eq = false;
+        
+        if (s->type == ti::SymbolType::VARIABLE)
+        {
+            auto ns = static_cast<ti::VariableSymbol*>(s);
+            
+            auto qual = ti::format("%s_%s", ns->function.name.c_str(), name.c_str());
+            std::cout << qual << std::endl;
+            
+            quals_eq = (s->name == qual);
+        }
+        
+        return (names_eq || quals_eq);
     });
+    
+    const auto loc2 = std::find_if(function.arguments.begin(), function.arguments.end(), [&](Argument& a)
+    {
+        return (name == a.name);
+    });
+    
+    
+    if (loc2 != std::end(function.arguments))
+    {
+        auto sym = ti::format("%s_%s", function.name.c_str(), name.c_str());
+        
+        const auto loc3 = std::find_if(context.symbol_table.begin(), context.symbol_table.end(), [&](Symbol* s)
+        {
+            return (s->type == ti::SymbolType::VARIABLE &&
+                    s->name == sym);
+        });
+        
+        if (loc3 == std::end(context.symbol_table))
+        {
+            ti::throw_error("Parameter %s is previously undefined correctly", name.c_str());
+        }
+        
+        if ((*loc3)->type != ti::SymbolType::VARIABLE)
+        {
+            ti::throw_error("Parameter %s is previously defined not as a variable", name.c_str());
+        }
+        auto var = static_cast<ti::VariableSymbol*>(*loc3);
+        
+        if (!::funcs_equal(var->function, function))
+        {
+            ti::throw_error("Parameter %s is defined for a different function", name.c_str());
+        }
+        
+        context.add_to_code(ti::format("\tldb %s, %%%u\n", ti::location_to_string(allocation.location).c_str(), var->address));
+        
+        return;
+    }
+    
     
     if (loc == std::end(context.symbol_table))
     {
@@ -80,7 +132,8 @@ void ti::expr::Identifier::generate(ti::Context& context, ti::Function& function
         if (nsym->visibility == ti::TypeVisibility::LOCAL && !::funcs_equal(nsym->function, function))
         {
             //variable is local to a different function
-            ti::throw_error("Identifier %s is inaccessible from function %s", name.c_str(), function.name.c_str());
+#warning this
+            //ti::throw_error("Identifier %s is inaccessible from function %s", name.c_str(), function.name.c_str());
         }
         
         //variable is good to query and load
@@ -183,6 +236,30 @@ void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, con
             ti::throw_error("Function %s takes %u arguments but was called with %u", l->name.c_str(), def_num, fcl_num);
         }
         
+        
+        for (auto i = 0; i < fcl_num; ++i)
+        {
+            auto farg = std::find_if(context.symbol_table.begin(), context.symbol_table.end(), [&](Symbol* s)
+            {
+                std::string a = ti::format("%s_%s", l->name.c_str(), nsym->arguments[i].name.c_str());
+                std::cout << a << std::endl;
+                return (s->name == a);
+            });
+            
+            if (farg == std::end(context.symbol_table))
+            {
+                ti::throw_error("Cannot bind to argument %s", nsym->arguments[i].name.c_str());
+            }
+            
+            auto fsym = static_cast<ti::VariableSymbol*>(*farg);
+            
+            fsym->defined = true;
+            args[i]->generate(context, function, allocation);
+            
+            context.add_to_code(ti::format("\tstb %%%u, %s\n", fsym->address, ti::location_to_string(allocation.location).c_str()));
+        }
+        
+        /*
         auto* var_stmt = new ti::stmt::Variable({});
         var_stmt->type = ti::StatementType::VARIABLE;
         var_stmt->variables = {};
@@ -195,7 +272,7 @@ void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, con
             auto* var = new ti::Variable();
 
             context.counter++;
-            var->name = ti::format("%s_%s_%u", function.name.c_str(), arg.name.c_str(), context.counter);
+            var->name = ti::format("%s_%s", l->name.c_str(), arg.name.c_str());
             var->type = arg.type;
             var->visibility = ti::TypeVisibility::LOCAL;
             var->value = args[i];
@@ -203,8 +280,8 @@ void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, con
             var_stmt->variables.emplace_back(var);
         
         }
-        
         var_stmt->generate(context, function);
+         */
         
         context.add_to_code(ti::format("\tcall_%s(function_start_%s)\n", ti::location_to_string(allocation.location).c_str(), nsym->name.c_str()));
     }

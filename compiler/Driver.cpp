@@ -2,8 +2,8 @@
 #include "Parser.hpp"
 
 driver::driver(void) noexcept
-  : trace_parsing(true),
-    trace_scanning(true)
+  : trace_parsing(false),
+    trace_scanning(false)
 {
 }
 

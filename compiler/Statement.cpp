@@ -93,7 +93,7 @@ void ti::stmt::Variable::generate(ti::Context& context, ti::Function& function) 
             {
                 .type = ti::SymbolType::VARIABLE,
                 .name = name,
-                .defined = defined,
+                .defined = true,
             },
             
             address,

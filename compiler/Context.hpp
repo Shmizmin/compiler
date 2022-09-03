@@ -71,8 +71,13 @@ namespace ti
         {
             symbol_table = {};
             code_segment = "";
-            available_registers = { true };
-            available_heap = { true };
+            
+            for (auto&& r : available_registers)
+                r = true;
+            
+            for (auto&& h : available_heap)
+                h = true;
+            
             counter = 0u;
             stack_pointer = 0x7FFF;
         }
