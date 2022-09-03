@@ -62,6 +62,37 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B306BB5B28C3138C00445D5F /* frontend */ = {
+			isa = PBXGroup;
+			children = (
+				B37193B628C24888000799D3 /* Driver.cpp */,
+				B37193B828C24888000799D3 /* Driver.hpp */,
+				B37193B928C24888000799D3 /* Parser.cpp */,
+				B37193BB28C24888000799D3 /* Parser.hpp */,
+				B37193BA28C24888000799D3 /* Scanner.cpp */,
+				B37193B728C24888000799D3 /* location.hh */,
+			);
+			name = frontend;
+			sourceTree = "<group>";
+		};
+		B306BB5E28C313EB00445D5F /* backend */ = {
+			isa = PBXGroup;
+			children = (
+				B30556C828B44CCC00BEAB4D /* Central.cpp */,
+				B30556C928B44CCC00BEAB4D /* Central.hpp */,
+				B30556B828B40FC800BEAB4D /* Context.cpp */,
+				B30556B928B40FC800BEAB4D /* Context.hpp */,
+				B30556BF28B4201A00BEAB4D /* Function.hpp */,
+				B30556B528B408EA00BEAB4D /* Statement.cpp */,
+				B30556B628B408EA00BEAB4D /* Statement.hpp */,
+				B3D451DF28B4057500355D7B /* Expression.cpp */,
+				B3D451E028B4057500355D7B /* Expression.hpp */,
+				B30556C428B44BBA00BEAB4D /* Error.hpp */,
+				B30556BD28B41E3300BEAB4D /* Types.hpp */,
+			);
+			name = backend;
+			sourceTree = "<group>";
+		};
 		B337759A27E8E2F9006CA5FA = {
 			isa = PBXGroup;
 			children = (
@@ -81,24 +112,9 @@
 		B33775A527E8E2F9006CA5FA /* compiler */ = {
 			isa = PBXGroup;
 			children = (
+				B306BB5E28C313EB00445D5F /* backend */,
+				B306BB5B28C3138C00445D5F /* frontend */,
 				B306BB5628C3112700445D5F /* Titanium.cpp */,
-				B37193B628C24888000799D3 /* Driver.cpp */,
-				B37193B828C24888000799D3 /* Driver.hpp */,
-				B37193B728C24888000799D3 /* location.hh */,
-				B37193B928C24888000799D3 /* Parser.cpp */,
-				B37193BB28C24888000799D3 /* Parser.hpp */,
-				B37193BA28C24888000799D3 /* Scanner.cpp */,
-				B30556C828B44CCC00BEAB4D /* Central.cpp */,
-				B30556C928B44CCC00BEAB4D /* Central.hpp */,
-				B30556C428B44BBA00BEAB4D /* Error.hpp */,
-				B30556BD28B41E3300BEAB4D /* Types.hpp */,
-				B3D451DF28B4057500355D7B /* Expression.cpp */,
-				B3D451E028B4057500355D7B /* Expression.hpp */,
-				B30556B528B408EA00BEAB4D /* Statement.cpp */,
-				B30556B628B408EA00BEAB4D /* Statement.hpp */,
-				B30556B828B40FC800BEAB4D /* Context.cpp */,
-				B30556B928B40FC800BEAB4D /* Context.hpp */,
-				B30556BF28B4201A00BEAB4D /* Function.hpp */,
 			);
 			path = compiler;
 			sourceTree = "<group>";
