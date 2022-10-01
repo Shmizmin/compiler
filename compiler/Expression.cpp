@@ -13,13 +13,14 @@ namespace
 {
     bool funcs_equal(ti::Function& f1, ti::Function& f2)
     {
-        bool args_same = f1.arguments.size() == f2.arguments.size();
+        bool args_same = (f1.arguments.size() == f2.arguments.size());
+        
         if (args_same)
         {
             for (auto i = 0; i < f1.arguments.size(); ++i)
             {
-                const auto& arg1 = f1.arguments[i];
-                const auto& arg2 = f2.arguments[i];
+                const auto& arg1 = f1.arguments[i],
+                            arg2 = f2.arguments[i];
                 
                 if ((arg1.type.specifier != arg2.type.specifier) ||
                     (arg1.type.qualifier != arg2.type.qualifier) ||
@@ -33,10 +34,131 @@ namespace
         return (f1.name                  == f2.name)                  &&
                (f1.body                  == f2.body)                  &&
                (f1.return_type.specifier == f2.return_type.specifier) &&
-               (f1.return_type.qualifier == f2.return_type.qualifier) &&
-                args_same;
+               (f1.return_type.qualifier == f2.return_type.qualifier) && args_same;
     }
 }
+    
+namespace
+{
+    void generate_numconst(const ti::expr::Numconst& numconst, ti::CommonArgs& common) noexcept
+    {
+        ti::write_log("Generating code for string constant expression");
+        
+        // TODO: support other variable size types
+        const auto ptr = common.context.allocate_heap(1);
+        
+        context.add_to_end(ti::format(".org %u", ptr));
+        context.add_to_end(ti::format(".ascii \"%s\"", value.c_str()));
+        
+        context.add_to_code(ti::format("\tpush #%u\n", ptr & 0x00FF));
+        context.add_to_code(ti::format("\tpush #%u\n", ptr & 0xFF00));
+    }
+    
+    void generate_stringconst(const ti::expr::Stringconst& stringconst, ti::CommonArgs& common) noexcept
+    {
+        
+    }
+    
+    void generate_identifier(const ti::expr::Identifier& identifier, ti::CommonArgs& common) noexcept
+    {
+        
+    }
+    
+    void generate_function_call(const ti::expr::Function_Call& function_call, ti::CommonArgs& common) noexcept
+    {
+        
+    }
+    
+    void generate_ternaryop(const ti::expr::Ternaryop& ternaryop, ti::CommonArgs& common) noexcept
+    {
+        
+    }
+    
+    void generate_binaryop(const ti::expr::Binaryop& binaryop, ti::CommonArgs& common) noexcept
+    {
+        
+    }
+    
+    void generate_unaryop(const ti::expr::Unaryop& unaryop, ti::CommonArgs& common) noexcept
+    {
+        
+    }
+}
+
+namespace ti
+{
+    void generate_expression(Expression& expr, CommonArgs& common) noexcept
+    {
+        using enum ExpressionType;
+        
+        switch (expr.type)
+        {
+            case NUMCONST:      generate_numconst     (expr.as.numconst,     common); break;
+            case STRINGCONST:   generate_stringconst  (expr.as.stringconst,  common); break;
+            case IDENTIFIER:    generate_identifier   (expr.as.identifier,   common); break;
+            case FUNCTION_CALL: generate_function_call(expr.as.functioncall, common); break;
+            case TERNARYOP:     generate_ternaryop    (expr.as.ternaryop,    common); break;
+            case BINARYOP:      generate_binaryop     (expr.as.binaryop,     common); break;
+            case UNARYOP:       generate_unaryop      (expr.as.unaryop,      common); break;
+        }
+    }
+    
+    Expression make_numconst(std::uint8_t value) noexcept
+    {
+        return Expression
+        {
+            .type = ExpressionType::NUMCONST,
+            .as.numconst = expr::Numconst{ value },
+        };
+    }
+    
+    Expression make_stringconst(std::string&& text) noexcept
+    {
+        return Expression
+        {
+            .type = ExpressionType::STRINGCONST,
+            .as.stringconst = expr::Stringconst{ text },
+        };
+    }
+    
+    Expression make_identifier(std::string&& name) noexcept
+    {
+        return Expression
+        {
+            .type = ExpressionType::IDENTIFIER,
+            .as.identifier = expr::Identifier{ name };
+        };
+    }
+    
+    Expression make_function_call(std::string&& name, std::vector<Expression*>&& arguments) noexcept
+    {
+        
+    }
+    
+    Expression make_ternaryop(Expression*, Expression*, Expression*) noexcept
+    {
+        
+    }
+    
+    Expression make_binaryop(Expression*, Expression*, BinaryOperator) noexcept
+    {
+        
+    }
+    
+    Expression make_unaryop(Expression*, UnaryOperator) noexcept;
+    {
+        
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 void ti::expr::Stringconst::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept

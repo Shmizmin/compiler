@@ -2,6 +2,7 @@
 #define Expression_hpp
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "Types.hpp"
@@ -17,13 +18,13 @@ namespace ti
         NUMCONST,
         STRINGCONST,
         IDENTIFIER,
-        FCALL,
+        FUNCTION_CALL,
         TERNARYOP,
         BINARYOP,
         UNARYOP,
     };
     
-    enum class BinaryOp
+    enum class BinaryOperator
     {
         FCALL,
         
@@ -46,7 +47,7 @@ namespace ti
         GREATER,
     };
     
-    enum class UnaryOp
+    enum class UnaryOperator
     {
         PLUS_PLUS,
         MINUS_MINUS,
@@ -55,266 +56,84 @@ namespace ti
         NEGATIVE,
     };
     
-    struct Expression
-    {
-        ExpressionType type;
-        
-        virtual void generate(Context&, Function&, const ForcedAllocation&) noexcept = 0;
-    };
+    struct Expression;
     
     namespace expr
     {
-        struct Numconst : public Expression
+        struct Numconst
         {
-            //CompleteType complete_type;
             std::uint8_t value;
-            
-            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            
-            Numconst(std::uint8_t value)
-                : value(value)
-            {
-                type = ti::ExpressionType::NUMCONST;
-            }
         };
         
-        struct Stringconst : public Expression
+        struct Stringconst
         {
-            std::string value;
-            
-            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            
-            Stringconst(std::string value)
-                : value(value)
-            {
-                type = ti::ExpressionType::STRINGCONST;
-            }
+            std::string text;
         };
         
-        struct Identifier : public Expression
+        struct Identifier
         {
             std::string name;
-            
-            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            
-            Identifier(std::string name)
-                : name(name)
-            {
-                type = ti::ExpressionType::IDENTIFIER;
-            }
         };
         
-        struct FCall : public Expression
+        struct Function_Call
         {
             Identifier* left;
             std::vector<Expression*> args;
-            
-            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            
-            FCall(Identifier* left, std::vector<Expression*> args)
-                : left(left), args(args)
-            {
-                type = ti::ExpressionType::FCALL;
-            }
         };
         
-        struct Ternary : public Expression
+        struct Ternaryop
         {
-            Expression* left;
-            Expression* center;
-            Expression* right;
-            
-            void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-            
-            Ternary(Expression* left, Expression* center, Expression* right)
-                : left(left), center(center), right(right)
-            {
-                type = ti::ExpressionType::TERNARYOP;
-            }
+            Expression *left, *center, *right;
         };
         
-        struct Binary : public Expression
+        struct Binaryop
         {
-            Expression* left;
-            Expression* right;
+            const BinaryOperator type;
             
-            Binary(Expression* left, Expression* right)
-                : left(left), right(right)
-            {
-                type = ti::ExpressionType::BINARYOP;
-            }
+            Expression *left, *right;
         };
         
-        namespace binary
+        struct Unaryop
         {
-            struct Equals final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                Equals(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
+            const UnaryOperator type;
             
-            
-            struct Plus final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                Plus(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            struct Minus final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                Minus(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            
-            struct LeftShift final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                LeftShift(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            struct RightShift final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                RightShift(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            
-            struct BitXor final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                BitXor(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            struct BitAnd final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                BitAnd(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            struct BitOr final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                BitOr(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            
-            struct EqualsEquals final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                EqualsEquals(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            struct NotEquals final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                NotEquals(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            
-            struct Less final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                Less(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-            struct Greater final : public Binary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                Greater(Expression* left, Expression* right)
-                    : Binary(left, right)
-                {
-                }
-            };
-        }
-        
-
-        struct Unary : public Expression
-        {
-            Expression* center;
-            
-            Unary(Expression* center)
-                : center(center)
-            {
-                type = ti::ExpressionType::UNARYOP;
-            }
+            Expression *right;
         };
-       
-        namespace unary
-        {
-            struct PlusPlus final : public Unary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                PlusPlus(Expression* center)
-                    : Unary(center)
-                {
-                }
-            };
-            struct MinusMinus final : public Unary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                MinusMinus(Expression* center)
-                    : Unary(center)
-                {
-                }
-            };
-            struct Positive final : public Unary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                Positive(Expression* center)
-                    : Unary(center)
-                {
-                }
-            };
-            struct Negative final : public Unary
-            {
-                void generate(Context&, Function&, const ForcedAllocation&) noexcept override;
-                
-                Negative(Expression* center)
-                    : Unary(center)
-                {
-                }
-            };
-        }
     }
+        
+    struct Expression
+    {
+        const ExpressionType type;
+        
+        const union
+        {
+            expr::Numconst numconst;
+            expr::Stringconst stringconst;
+            expr::Identifier identifier;
+            expr::Function_Call functioncall;
+            expr::Ternaryop ternaryop;
+            expr::Binaryop binaryop;
+            expr::Unaryop unaryop;
+        } as;
+    };
+    
+    struct CommonArgs
+    {
+        Context& context;
+        Function& function;
+        ForcedAllocation& allocation;
+    };
+    
+    
+    Expression make_numconst(std::uint8_t) noexcept;
+    Expression make_stringconst(std::string&&) noexcept;
+    Expression make_identifier(std::string&&) noexcept;
+    Expression make_function_call(std::string&&, std::vector<Expression*>&&) noexcept;
+    Expression make_ternaryop(Expression*, Expression*, Expression*) noexcept;
+    Expression make_binaryop(Expression*, Expression*, BinaryOperator) noexcept;
+    Expression make_unaryop(Expression*, UnaryOperator) noexcept;
+    
+    void generate_expression(Expression&, CommonArgs&) noexcept;
 }
 
 #endif /* Expression_hpp */

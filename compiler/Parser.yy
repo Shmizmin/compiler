@@ -300,7 +300,7 @@ statement
 | "if" "(" expression ")" statement    { $$ = new ti::stmt::If{ $3, $5 }; }
 | "while" "(" expression ")" statement { $$ = new ti::stmt::While{ $3, $5 }; }
 | "return" expression_opt ";"          { $$ = new ti::stmt::Return{ $2 }; }
-| ";"                                  { $$ = new ti::stmt::Null{}; }
+| ";"                                  { $$ = nullptr; }
 | variable_declarator ";"              { $$ = new ti::stmt::Variable{ $1 }; }
 ;
 

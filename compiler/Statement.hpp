@@ -28,99 +28,55 @@ namespace ti
         IF,
         WHILE,
         RETURN,
-        NIL,
         VARIABLE,
     };
     
     
-    struct Statement
-    {
-        StatementType type;
-        
-        virtual void generate(Context&, Function&) noexcept = 0;
-    };
+    struct Statement;
     
     namespace stmt
     {
-        struct Block final : public Statement
+        struct Block
         {
             std::vector<Statement*> statements;
-            
-            void generate(Context&, Function&) noexcept override;
-            
-            Block(std::vector<Statement*> statements) noexcept
-                : statements(statements)
-            {
-                type = ti::StatementType::BLOCK;
-            }
         };
         
-        struct If final : public Statement
+        struct If
         {
             Expression* condition;
             Statement* statement;
-            
-            void generate(Context&, Function&) noexcept override;
-            
-            If(Expression* condition, Statement* statement) noexcept
-                : condition(condition), statement(statement)
-            {
-                type = ti::StatementType::IF;
-            }
         };
-        
-        struct While final : public Statement
+
+        struct While
         {
             Expression* condition;
             Statement* statement;
-            
-            void generate(Context&, Function&) noexcept override;
-            
-            While(Expression* condition, Statement* statement) noexcept
-                : condition(condition), statement(statement)
-            {
-                type = ti::StatementType::WHILE;
-            }
         };
         
-        struct Return final : public Statement
+        struct Return
         {
             Expression* value;
-            
-            void generate(Context&, Function&) noexcept override;
-            
-            Return(Expression* value) noexcept
-                : value(value)
-            {
-                type = ti::StatementType::RETURN;
-            }
         };
         
-        struct Null final : public Statement
+        struct Variable
         {
-            //null
-            
-            void generate(Context&, Function&) noexcept override;
-            
-            Null(void) noexcept
-            {
-                type = ti::StatementType::NIL;
-            }
-        };
-        
-        struct Variable final : public Statement
-        {
-            std::vector<ti::Variable*> variables;
-            
-            void generate(Context&, Function&) noexcept override;
-            
-            Variable(std::vector<ti::Variable*> variables) noexcept
-                : variables(variables)
-            {
-                type = ti::StatementType::VARIABLE;
-            }
+            std::vector<Variable*> variables;
         };
     }
+    
+    struct Statement
+    {
+        const StatementType type;
+        
+        const union
+        {
+            stmt::Block as_block;
+            stmt::If as_if;
+            stmt::While as_while;
+            stmt::Return as_return;
+            stmt::Variable as_variable;
+        } value;
+    };
 }
 
 #endif /* Statement_hpp */

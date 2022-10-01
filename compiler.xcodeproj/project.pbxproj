@@ -16,6 +16,7 @@
 		B37193BD28C24888000799D3 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37193B928C24888000799D3 /* Parser.cpp */; };
 		B37193BE28C24888000799D3 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37193BA28C24888000799D3 /* Scanner.cpp */; };
 		B3D451E128B4057500355D7B /* Expression.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3D451DF28B4057500355D7B /* Expression.cpp */; };
+		B3F390B728E7906200DA4FE0 /* IR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3F390B528E7906200DA4FE0 /* IR.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -54,6 +55,8 @@
 		B37193BB28C24888000799D3 /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
 		B3D451DF28B4057500355D7B /* Expression.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Expression.cpp; sourceTree = "<group>"; };
 		B3D451E028B4057500355D7B /* Expression.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Expression.hpp; sourceTree = "<group>"; };
+		B3F390B528E7906200DA4FE0 /* IR.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IR.cpp; sourceTree = "<group>"; };
+		B3F390B628E7906200DA4FE0 /* IR.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IR.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +99,8 @@
 				B3D451E028B4057500355D7B /* Expression.hpp */,
 				B30556C428B44BBA00BEAB4D /* Error.hpp */,
 				B30556BD28B41E3300BEAB4D /* Types.hpp */,
+				B3F390B528E7906200DA4FE0 /* IR.cpp */,
+				B3F390B628E7906200DA4FE0 /* IR.hpp */,
 			);
 			name = backend;
 			sourceTree = "<group>";
@@ -193,6 +198,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3F390B728E7906200DA4FE0 /* IR.cpp in Sources */,
 				B30556CA28B44CCC00BEAB4D /* Central.cpp in Sources */,
 				B30556B728B408EA00BEAB4D /* Statement.cpp in Sources */,
 				B306BB8028C4093100445D5F /* Preprocessor.cpp in Sources */,
