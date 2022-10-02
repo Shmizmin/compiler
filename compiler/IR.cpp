@@ -1,12 +1,6 @@
 #include "IR.hpp"
 #include "Utility.hpp"
 
-namespace
-{
-    
-}
-
-
 namespace ti
 {
     std::string generate_commands(const std::vector<Command>& commands) noexcept
@@ -25,9 +19,9 @@ namespace ti
                     switch (command.as.directive.type)
                     {
                         case ORIGIN: code.append(ti::format(".org %u",       command.as.directive.as.origin.address));      break;
-                        case BYTE:   code.append(ti::format(".byte $u",      command.as.directive.as.word.value));          break;
-                        case WORD:   code.append(ti::format(".word %u",      command.as.directive.as.word.value));          break;
-                        case ASCII:  code.append(ti::format(".ascii \"%s\"", command.as.directive.as.ascii.text.c_str()));  break;
+                        case   BYTE: code.append(ti::format(".byte $u",      command.as.directive.as.word.value));          break;
+                        case   WORD: code.append(ti::format(".word %u",      command.as.directive.as.word.value));          break;
+                        case  ASCII: code.append(ti::format(".ascii \"%s\"", command.as.directive.as.ascii.text.c_str()));  break;
                     }
                 } break;
                     
@@ -38,12 +32,12 @@ namespace ti
                         using enum OperandType;
                         switch (op.type)
                         {
-                            case A:   return "r0";
-                            case B:   return "r1";
-                            case C:   return "r2";
-                            case D:   return "r3";
-                            case F:   return "flags";
-                            case IP:  return "ip";
+                            case   A: return "r0";
+                            case   B: return "r1";
+                            case   C: return "r2";
+                            case   D: return "r3";
+                            case   F: return "flags";
+                            case  IP: return "ip";
                             case MEM: return ("%" + std::to_string(op.as.mem.address));
                             case IMM: return ("#" + std::to_string(op.as.imm.value));
                         }
@@ -62,13 +56,13 @@ namespace ti
                             using enum insn::Math::Operation;
                             switch (command.as.instruction.as.math.op)
                             {
-                                case ADC:  code.append("\tadc ");       break;
-                                case SBB:  code.append("\tsbb %s, %s"); break;
-                                case LAND: code.append("\tand %s, %s"); break;
-                                case LOR:  code.append("\tor %s, %s");  break;
-                                case LNOT: code.append("\tnot %s");     break;
-                                case ROL:  code.append("\trol %s, %s"); break;
-                                case ROR:  code.append("\tror %s, %s"); break;
+                                case  ADC: code.append("\tadc "); break;
+                                case  SBB: code.append("\tsbb "); break;
+                                case LAND: code.append("\tand "); break;
+                                case  LOR: code.append("\tor ");  break;
+                                case LNOT: code.append("\tnot "); break;
+                                case  ROL: code.append("\trol "); break;
+                                case  ROR: code.append("\tror "); break;
                             }
                             
                             if (command.as.instruction.as.math.op != LNOT) [[likely]]
@@ -125,7 +119,8 @@ namespace ti
                                 case JCS: code.append("\tjcs "); break;
                             }
                             
-                            code.append(command.as.instruction.as.jmp.label);
+                            code.append(format("%s\n",
+                                command.as.instruction.as.jmp.label));
                         } break;
                             
                         case STACK
@@ -134,29 +129,34 @@ namespace ti
                             using enum insn::Stack::Data;
                             switch (command.as.instruction.as.stack.dir)
                             {
-                                case PUSH:
-                                {
-                                    switch (command.as.instruction.as.stack.data)
-                                    {
-                                        case 
-                                    }
-                                } break;
-                                    
-                                case POP:
-                                {
-                                    
-                                } break;
+                                case PUSH: code.append("\tpush "); break;
+                                case  POP: code.append("\tpop ");  break;
+                            }
+                            
+                            switch (command.as.instruction.as.stack.data)
+                            {
+                                case  A: code.append("r0\n");    break;
+                                case  B: code.append("r1\n");    break;
+                                case  C: code.append("r2\n");    break;
+                                case  D: code.append("r3\n");    break;
+                                case  F: code.append("flags\n"); break;
+                                case IP: code.append("ip\n");    break;
                             }
                         } break;
                             
                         case DEREF
                         {
-                            
+                            using enum insn::Deref::Operation;
+                            switch (command.as.instruction.as.deref.op)
+                            {
+                                case AB_TO_A: code.append("\tderef r0-r1, r0\n"); break;
+                                case CD_TO_C: code.append("\tderef r2-r3, r2\n"); break;
+                            }
                         } break;
                     }
                 } break;
                     
-                case LABEL: break;
+                case LABEL: code.append(command.as.label.name); break;
             }
         }
         

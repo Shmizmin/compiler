@@ -4,6 +4,7 @@
 #include "Function.hpp"
 #include "Error.hpp"
 #include "Central.hpp"
+#include "IR.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -40,55 +41,87 @@ namespace
     
 namespace
 {
-    void generate_numconst(const ti::expr::Numconst& numconst, ti::CommonArgs& common) noexcept
+    void compile_numconst(const ti::expr::Numconst& numconst, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("Generating code for string constant expression");
-        
-        const auto ptr = common.context.allocate_heap(1);
-        
-        
-        
         
         
         
         
         
         // TODO: support other variable size types
-        const auto ptr = common.context.allocate_heap(1);
+        /*const auto ptr = common.context.allocate_heap(1);
         
         context.add_to_end(ti::format(".org %u", ptr));
         context.add_to_end(ti::format(".ascii \"%s\"", value.c_str()));
         
         context.add_to_code(ti::format("\tpush #%u\n", ptr & 0x00FF));
-        context.add_to_code(ti::format("\tpush #%u\n", ptr & 0xFF00));
+        context.add_to_code(ti::format("\tpush #%u\n", ptr & 0xFF00));*/
     }
     
-    void generate_stringconst(const ti::expr::Stringconst& stringconst, ti::CommonArgs& common) noexcept
+    void compile_stringconst(const ti::expr::Stringconst& stringconst, ti::CommonArgs& common) noexcept
+    {
+        ti::write_log("Generating code for string constant expression");
+        
+        const auto ptr = common.context.allocate_heap(stringconst.text.size());
+        
+        // .org ptr
+        common.context.add_org(ptr);
+        /*common.context.add_command(ti::Directive
+        {
+            .type = ti::DirectiveType::ORIGIN,
+            .as.origin.address = ptr,
+        });*/
+        
+        
+        // .ascii "text"
+        common.context.add_ascii(stringconst.text);
+        /*common.context.add_command(ti::Directive
+        {
+            .type = ti::DirectiveType::ASCII,
+            .as.ascii.text = stringconst.text,
+        });*/
+        
+        
+        // push rx
+        common.context.add_push(ptr & 0x00FF);
+        /*common.context.add_command(ti::Instruction
+        {
+            .type = ti::InstructionType::STACK,
+            .as.stack.dir = ti::insn::Stack::Direction::PUSH,
+            .as.stack.data = (ptr & 0x00FF),
+        });*/
+        
+        // push rx
+        common.context.add_push(ptr & 0xFF00);
+        /*common.context.add_command(ti::Instruction
+        {
+            .type = ti::InstructionType::STACK,
+            .as.stack.dir = ti::insn::Stack::Direction::PUSH,
+            .as.stack.data = (ptr & 0xFF00),
+        });*/
+    }
+    
+    void compile_identifier(const ti::expr::Identifier& identifier, ti::CommonArgs& common) noexcept
     {
         
     }
     
-    void generate_identifier(const ti::expr::Identifier& identifier, ti::CommonArgs& common) noexcept
+    void compile_function_call(const ti::expr::Function_Call& function_call, ti::CommonArgs& common) noexcept
     {
         
     }
     
-    void generate_function_call(const ti::expr::Function_Call& function_call, ti::CommonArgs& common) noexcept
+    void compile_ternaryop(const ti::expr::Ternaryop& ternaryop, ti::CommonArgs& common) noexcept
     {
         
     }
     
-    void generate_ternaryop(const ti::expr::Ternaryop& ternaryop, ti::CommonArgs& common) noexcept
+    void compile_binaryop(const ti::expr::Binaryop& binaryop, ti::CommonArgs& common) noexcept
     {
         
     }
     
-    void generate_binaryop(const ti::expr::Binaryop& binaryop, ti::CommonArgs& common) noexcept
-    {
-        
-    }
-    
-    void generate_unaryop(const ti::expr::Unaryop& unaryop, ti::CommonArgs& common) noexcept
+    void compile_unaryop(const ti::expr::Unaryop& unaryop, ti::CommonArgs& common) noexcept
     {
         
     }
@@ -96,19 +129,18 @@ namespace
 
 namespace ti
 {
-    void generate_expression(Expression& expr, CommonArgs& common) noexcept
+    void compile_expression(Expression& expr, CommonArgs& common) noexcept
     {
         using enum ExpressionType;
-        
         switch (expr.type)
         {
-            case NUMCONST:      generate_numconst     (expr.as.numconst,     common); break;
-            case STRINGCONST:   generate_stringconst  (expr.as.stringconst,  common); break;
-            case IDENTIFIER:    generate_identifier   (expr.as.identifier,   common); break;
-            case FUNCTION_CALL: generate_function_call(expr.as.functioncall, common); break;
-            case TERNARYOP:     generate_ternaryop    (expr.as.ternaryop,    common); break;
-            case BINARYOP:      generate_binaryop     (expr.as.binaryop,     common); break;
-            case UNARYOP:       generate_unaryop      (expr.as.unaryop,      common); break;
+            case NUMCONST:      return compile_numconst     (expr.as.numconst,     common); break;
+            case STRINGCONST:   return compile_stringconst  (expr.as.stringconst,  common); break;
+            case IDENTIFIER:    return compile_identifier   (expr.as.identifier,   common); break;
+            case FUNCTION_CALL: return compile_function_call(expr.as.functioncall, common); break;
+            case TERNARYOP:     return compile_ternaryop    (expr.as.ternaryop,    common); break;
+            case BINARYOP:      return compile_binaryop     (expr.as.binaryop,     common); break;
+            case UNARYOP:       return compile_unaryop      (expr.as.unaryop,      common); break;
         }
     }
     
@@ -126,7 +158,7 @@ namespace ti
         return Expression
         {
             .type = ExpressionType::STRINGCONST,
-            .as.stringconst = expr::Stringconst{ text },
+            .as.stringconst = expr::Stringconst{ std::move(text) },
         };
     }
     
@@ -135,28 +167,50 @@ namespace ti
         return Expression
         {
             .type = ExpressionType::IDENTIFIER,
-            .as.identifier = expr::Identifier{ name };
+            .as.identifier = expr::Identifier{ std::move(name) },
         };
     }
     
     Expression make_function_call(std::string&& name, std::vector<Expression*>&& arguments) noexcept
     {
-        
+        return Expression
+        {
+            .type = ExpressionType::FUNCTION_CALL,
+            .as.functioncall.left = expr::Identifier{ std::move(name) },
+            .as.functioncall.args = std::move(arguments),
+        };
     }
     
-    Expression make_ternaryop(Expression*, Expression*, Expression*) noexcept
+    Expression make_ternaryop(Expression* left, Expression* center, Expression* right) noexcept
     {
-        
+        return Expression
+        {
+            .type = ExpressionType::TERNARYOP,
+            .as.ternaryop.left = left,
+            .as.ternaryop.center = center,
+            .as.ternaryop.right = right,
+        };
     }
     
-    Expression make_binaryop(Expression*, Expression*, BinaryOperator) noexcept
+    Expression make_binaryop(Expression* left, Expression* right, BinaryOperator op) noexcept
     {
-        
+        return Expression
+        {
+            .type = ExpresionType::BINARYOP,
+            .as.binaryop.type = op,
+            .as.binaryop.left = left,
+            .as.binaryop.right = right,
+        };
     }
     
-    Expression make_unaryop(Expression*, UnaryOperator) noexcept;
+    Expression make_unaryop(Expression* center, UnaryOperator op) noexcept;
     {
-        
+        return Expression
+        {
+            .type = ExpressionType::UNARYOP,
+            .as.unaryop.type = op,
+            .as.unaryop.center = center,
+        };
     }
 }
 

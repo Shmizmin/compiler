@@ -77,7 +77,7 @@ namespace ti
         
         struct Function_Call
         {
-            Identifier* left;
+            Identifier left;
             std::vector<Expression*> args;
         };
         
@@ -97,7 +97,7 @@ namespace ti
         {
             const UnaryOperator type;
             
-            Expression *right;
+            Expression *center;
         };
     }
         
@@ -128,7 +128,7 @@ namespace ti
     Expression make_numconst(std::uint8_t) noexcept;
     Expression make_stringconst(std::string&&) noexcept;
     Expression make_identifier(std::string&&) noexcept;
-    Expression make_function_call(std::string&&, std::vector<Expression*>&&) noexcept;
+    Expression make_function_call(std::string&&, std::vector<Expression>&&) noexcept;
     Expression make_ternaryop(Expression*, Expression*, Expression*) noexcept;
     Expression make_binaryop(Expression*, Expression*, BinaryOperator) noexcept;
     Expression make_unaryop(Expression*, UnaryOperator) noexcept;
