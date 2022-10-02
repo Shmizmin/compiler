@@ -133,7 +133,7 @@ namespace ti
     Expression make_binaryop(Expression*, Expression*, BinaryOperator) noexcept;
     Expression make_unaryop(Expression*, UnaryOperator) noexcept;
     
-    void generate_expression(Expression&, CommonArgs&) noexcept;
+    void compile_expression(Expression&, CommonArgs&) noexcept;
 }
 
 #endif /* Expression_hpp */

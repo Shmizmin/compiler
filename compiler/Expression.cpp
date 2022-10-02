@@ -44,6 +44,15 @@ namespace
     {
         ti::write_log("Generating code for string constant expression");
         
+        const auto ptr = common.context.allocate_heap(1);
+        
+        
+        
+        
+        
+        
+        
+        
         // TODO: support other variable size types
         const auto ptr = common.context.allocate_heap(1);
         

@@ -2,15 +2,15 @@
 #define IR_hpp
 
 #include <cstdint>
+#include <limits>
+#include <string>
+#include <vector>
 
 namespace ti
 {
-#pragma mark Init
     enum class DirectiveType
     {
         ORIGIN,
-        BEGIN,
-        END,
         BYTE,
         WORD,
         ASCII,
@@ -22,32 +22,22 @@ namespace ti
     {
         struct Origin
         {
-            
-        };
-        
-        struct Begin
-        {
-            
-        };
-        
-        struct End
-        {
-            
+            std::uint16_t address;
         };
         
         struct Byte
         {
-            
+            std::uint8_t value;
         };
         
         struct Word
         {
-            
+            std::uint16_t value;
         };
         
         struct Ascii
         {
-            
+            std::string text;
         };
     }
     
@@ -58,8 +48,6 @@ namespace ti
         const union
         {
             dir::Origin origin;
-            dir::Begin begin;
-            dir::End end;
             dir::Byte byte;
             dir::Word word;
             dir::Ascii ascii;
@@ -68,24 +56,62 @@ namespace ti
     
     
     
+    enum class OperandType
+    {
+        A, B, C, D, F,
+        IP,
+        IMM, MEM,
+    };
+    
+    struct Operand;
+    
+    namespace op
+    {
+        struct A  {};
+        struct B  {};
+        struct C  {};
+        struct D  {};
+        struct F  {};
+        struct IP {};
+        
+        struct IMM
+        {
+            std::uint8_t value;
+        };
+        
+        struct MEM
+        {
+            std::uint16_t address;
+        };
+    }
+    
+    struct Operand
+    {
+        const OperandType type;
+        
+        const union
+        {
+            op::A a;
+            op::B b;
+            op::C c;
+            op::D d;
+            op::F f;
+            op::IP ip;
+            op::IMM imm;
+            op::MEM mem;
+        } as;
+    };
+
+    
+    
     enum class InstructionType
     {
         NOP,
         BRK,
-        MVB,
-        ADC,
-        SBB,
-        AND,
-        LOR,
-        NOT,
-        ROL,
-        ROR,
-        LDB,
-        STB,
-        JEZ,
-        JCS,
-        PUSH,
-        POP,
+        MATH,
+        MOVE,
+        JMP,
+        STACK,
         DEREF,
     };
     
@@ -93,100 +119,60 @@ namespace ti
     
     namespace insn
     {
-        struct Nop
+        struct Nop {};
+        struct Brk {};
+        
+        struct Math
         {
+            enum class Operation
+            {
+                ADC,
+                SBB,
+                LAND,
+                LOR,
+                LNOT,
+                ROL,
+                ROR,
+            } op;
             
+            Operand op1, op2;
         };
         
-        struct Brk
+        struct Move
         {
-            
-        };
-        
-        struct Mvb
-        {
-            
-        };
-        
-        struct Adc
-        {
-            
-        };
-        
-        struct Sbb
-        {
-            
-        };
-        
-        struct Land
-        {
-            
-        };
-        
-        struct Lor
-        {
-            
-        };
-        
-        struct Lnot
-        {
-            
-        };
-        
-        struct Rol
-        {
-            
-        };
-        
-        struct Ror
-        {
-            
-        };
-        
-        struct Ldb
-        {
-            
-        };
-        
-        struct Stb
-        {
-            
+            Operand op1, op2;
         };
         
         
         struct Jmp
         {
-            enum
+            enum class Condition
             {
                 JEZ,
                 JCS,
-            } type;
+            } cond;
             
-            std::uint16_t addr;
+            std::string label;
         };
         
-        struct Push
+        struct Stack
         {
-            enum
+            enum class Data
             {
                 A, B, C, D, F,
                 IP,
-            } op;
-        };
-        
-        struct Pop
-        {
-            enum
+            } data;
+            
+            enum class Direction
             {
-                A, B, C, D, F,
-                IP,
-                DISCARD,
-            } op;
+                PUSH,
+                POP,
+            } dir;
         };
         
         struct Deref
         {
-            enum
+            enum class Operation
             {
                 AB_TO_A,
                 CD_TO_C,
@@ -202,19 +188,30 @@ namespace ti
         {
             insn::Nop nop;
             insn::Brk brk;
-            insn::Mvb mvb;
-            insn::Adc adc;
-            insn::Sbb sbb;
-            insn::Land land;
-            insn::Lor lor;
-            insn::Lnot lnot;
-
+            insn::Math math;
+            insn::Move move;
+            insn::Jmp jmp;
+            insn::Stack stack;
+            insn::Deref deref;
         } as;
     };
     
     
     
+    struct Label
+    {
+        std::string name;
+    };
     
+    
+    
+    
+    enum CommandType
+    {
+        DIRECTIVE,
+        INSTRUCTION,
+        LABEL,
+    };
     
     struct Command
     {
@@ -222,9 +219,13 @@ namespace ti
         
         const union
         {
-            
+            Directive directive;
+            Instruction instruction;
+            Label label;
         } as;
     };
+    
+    std::vector<std::uint8_t> generate_commands(const std::vector<Command>&) noexcept;
 }
 
 
