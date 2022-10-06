@@ -1,5 +1,5 @@
 #include "IR.hpp"
-#include "Utility.hpp"
+//#include "Utility.hpp"
 
 namespace ti
 {
@@ -42,7 +42,6 @@ namespace ti
                             case IMM: return ("#" + std::to_string(op.as.imm.value));
                         }
                     };
-                    
                     
                     
                     using enum InstructionType;
@@ -156,7 +155,7 @@ namespace ti
                     }
                 } break;
                     
-                case LABEL: code.append(command.as.label.name); break;
+                case LABEL: code.append(ti::format("@%s:\n", command.as.label.name)); break;
             }
         }
         

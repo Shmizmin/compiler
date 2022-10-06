@@ -2,11 +2,13 @@
 #define Context_hpp
 
 #include <vector>
+#include <forward_list>
 #include <array>
 #include <string>
 #include <optional>
 
 #include "Types.hpp"
+#include "IR.hpp"
 #include "Expression.hpp"
 
 namespace ti
@@ -19,29 +21,38 @@ namespace ti
         FUNCTION,
     };
     
+    namespace sym
+    {
+        struct Variable
+        {
+            std::uint16_t address;
+            TypeVisibility visibility;
+            Function& parent_function;
+        };
+        
+        struct Function
+        {
+            std::vector<Argument> arguments;
+        };
+    }
+    
     struct Symbol
     {
         SymbolType type;
         std::string name;
         bool defined;
+        
+        const union
+        {
+            sym::Variable variable;
+            sym::Function function;
+        } as;
     };
     
-    struct VariableSymbol : public Symbol
-    {
-        std::uint16_t address;
-        TypeVisibility visibility;
-        Function& function; //parent function
-    };
-    
-    struct FunctionSymbol : public Symbol
-    {
-        //null
-        std::vector<Argument> arguments;
-    };
+
     
     
-    
-    enum Location
+    enum class Location
     {
         R0,
         R1,
@@ -51,7 +62,7 @@ namespace ti
         HEAP,
     };
     
-    struct ForcedAllocation
+    struct Allocation
     {
         Location location;
         bool was_forced; //requires 'pop'ing old value back into reg
@@ -60,6 +71,38 @@ namespace ti
     
     
     
+    struct Context
+    {
+        std::vector<Symbol> symbol_table;
+        std::forward_list<Command> ir_code;
+        
+        std::array<bool, 4> available_registers;
+        std::array<bool, 0x4000> available_heap;
+        
+        Context(void) noexcept
+        {
+            symbol_table = {};
+            ir_code = {};
+            
+            for (auto&& reg : available_registers)
+                reg = true;
+            
+            for (auto&& byte : available_heap)
+                byte = true;
+        }
+        
+        const Allocation allocate_register(void) noexcept;
+        const Allocation allocate_register_forced(void) noexcept;
+        
+        void deallocate_register(const Location&) noexcept;
+        void deallocate_register(const Allocation&) noexcept;
+        
+        std::uint16_t allocate_heap(std::uint16_t) noexcept;
+        void deallocate_heap(std::uint16_t, std::uint16_t) noexcept;
+    };
+    
+    
+    /*
     struct Context
     {
         std::vector<Symbol*> symbol_table;
@@ -100,11 +143,11 @@ namespace ti
         std::uint16_t allocate_heap(std::uint16_t) noexcept;
         void deallocate_heap(std::uint16_t, std::uint16_t) noexcept;
         
-    };
+    };*/
     
     std::uint8_t get_type_size(CompleteType&) noexcept;
-    std::string location_to_string(Location) noexcept;
-    std::string expression_type_to_string(ExpressionType) noexcept;
+    std::string&& location_to_string(Location) noexcept;
+    std::string&& expression_type_to_string(ExpressionType) noexcept;
 }
 
 

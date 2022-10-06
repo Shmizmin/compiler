@@ -41,40 +41,30 @@ namespace
     
 namespace
 {
+#define symbols common.context.symbol_table
     void compile_numconst(const ti::expr::Numconst& numconst, ti::CommonArgs& common) noexcept
     {
+        ti::write_log("\t\tCompiling 8-bit numeric constant expression");
         
-        
-        
-        
-        
-        // TODO: support other variable size types
-        /*const auto ptr = common.context.allocate_heap(1);
-        
-        context.add_to_end(ti::format(".org %u", ptr));
-        context.add_to_end(ti::format(".ascii \"%s\"", value.c_str()));
-        
-        context.add_to_code(ti::format("\tpush #%u\n", ptr & 0x00FF));
-        context.add_to_code(ti::format("\tpush #%u\n", ptr & 0xFF00));*/
+        common.context.emit_ldb(common.allocation.location, numconst.value);
     }
     
     void compile_stringconst(const ti::expr::Stringconst& stringconst, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("Generating code for string constant expression");
+        ti::write_log("\t\tCompiling string constant expression");
         
         const auto ptr = common.context.allocate_heap(stringconst.text.size());
         
         // .org ptr
-        common.context.add_org(ptr);
+        common.context.emit_org(ptr);
         /*common.context.add_command(ti::Directive
         {
             .type = ti::DirectiveType::ORIGIN,
             .as.origin.address = ptr,
         });*/
         
-        
         // .ascii "text"
-        common.context.add_ascii(stringconst.text);
+        common.context.emit_ascii(stringconst.text);
         /*common.context.add_command(ti::Directive
         {
             .type = ti::DirectiveType::ASCII,
@@ -83,7 +73,7 @@ namespace
         
         
         // push rx
-        common.context.add_push(ptr & 0x00FF);
+        common.context.emit_push(ptr & 0x00FF);
         /*common.context.add_command(ti::Instruction
         {
             .type = ti::InstructionType::STACK,
@@ -92,7 +82,7 @@ namespace
         });*/
         
         // push rx
-        common.context.add_push(ptr & 0xFF00);
+        common.context.emit_push(ptr & 0xFF00);
         /*common.context.add_command(ti::Instruction
         {
             .type = ti::InstructionType::STACK,
@@ -103,28 +93,267 @@ namespace
     
     void compile_identifier(const ti::expr::Identifier& identifier, ti::CommonArgs& common) noexcept
     {
-        
+        ti::write_log("\t\tCompiling identifier expression");
+            
+        for (auto&& symbol : common.context.symbol_table)
+        {
+            //add in error checking and messages for each specific case here
+            if (symbol.defined &&
+                symbol.type == ti::SymbolType::VARIABLE &&
+                symbol.name == identifier.name)
+            {
+                if (symbol.as.variable.visibility == ti::TypeVisibility::LOCAL &&
+                    !funcs_equal(symbol.as.variable.parent_function, common.parent_function))
+                {
+                    //throw error maybe?
+                }
+                
+                //found the variable we were looking for
+                common.context.emit_ldb(common.allocation.location, symbol. as.variable.address);
+                return;
+            }
+        }
     }
     
     void compile_function_call(const ti::expr::Function_Call& function_call, ti::CommonArgs& common) noexcept
     {
+        ti::write_log("\t\tCompiling function call expression");
+        
+        auto& symbols = common.context.symbol_table;
+        
+        for (const auto&& symbol : symbols)
+        {
+            if (auto defined_arity = symbol.as.function.arguments.size();
+                     defined_arity == function_call.args.size() &&
+                     symbol.defined &&
+                     symbol.type == ti::SymbolType::FUNCTION &&
+                     symbol.name == function_call.left.name)
+            {
+                //found the function we were looking for
+                for (auto i = 0u; i < defined_arity; ++i)
+                {
+                    for (auto&& argument_symbol : symbols)
+                    {
+                        // TODO: verify that we dont need to check other fields of the 'Symbol' struct
+                        if (argument_symbol.name == ti::format("%s_%s", function_call.left.name, symbol.as.function.arguments[i].name))
+                        {
+                            argument_symbol.defined = true;
+                            
+                            ti::compile_expression(symbol.as.function.arguments[i], common);
+                            
+                            common.context.emit_stb(argument_symbol.as.variable.address, common.allocation.location);
+                        }
+                    }
+                }
+                
+                //first arg is call_rx (return location of function)
+                common.context.emit_call(allocation.location, ti::format("function_start_%s", symbol.name));
+            }
+        }
         
     }
     
     void compile_ternaryop(const ti::expr::Ternaryop& ternaryop, ti::CommonArgs& common) noexcept
     {
+        ti::write_log("\t\tCompiling ternary expresssion");
+                    
+        ti::compile_expression(ternaryop.left, common);
+                    
+        //verify that we can perform a conditional jump on the expression with valid flags
+        //assume it is a register for now
+        common.context.emit_updateflags(common.allocation.location);
+                   
+        // ternary_funcname_true/false_HASH
+        const auto label_template = "ternary_%s_%s_";
+                    
+        const auto  true_label = ti::format(label_template, common.parent_function.name, "true"),
+                   false_label = ti::format(label_template, common.parent_function.name, "false"),
+                     end_label = ti::format(label_template, common.parent_function.name, "end");
+        
+        //add in trailling uuid
+         true_label.append(std::hash(true_label_nhash));
+        false_label.append(std::hash(true_label_nhash));
+          end_label.append(std::hash(end_label_nhash));
+                    
+        common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, false_label_nhash);
+                    
+        common.context.emit_label(true_label);
+        ti::generate_expression(ternaryop.center, common);
+                    
+        //clear the zero flag & jump (basically unconditional jump)
+        common.context.emit_lor(common.allocation.location, 1);
+        common.context.emit_jmp(ti::insn::Jmp::Condtion::JEZ, end_label);
+        
+        common.context.emit_label(false_label);
+        ti::generate_expression(ternaryop.right, common);
+        
+        common.context.emit_label(end_label);
         
     }
     
     void compile_binaryop(const ti::expr::Binaryop& binaryop, ti::CommonArgs& common) noexcept
     {
+        ti::write_log("\t\tCompiling binary operator expression");
         
+        using enum ti::BinaryOperator;
+        switch (binaryop.type)
+        {
+            case EQUALS:
+            {
+                ti::write_log("\t\t\tCompiling assignment binary operator");
+                
+                if (binaryop.left->type == ti::ExpressionType::IDENTIFIER)
+                {
+                    for (const auto& symbol : symbols)
+                    {
+                        if (symbol.type == ti::SymbolType::VARIABLE &&
+                            symbol.name == binaryop.left->as.identifier.name)
+                        {
+                            if (symbol.as.variable.visibility == ti::TypeVisibility::LOCAL &&
+                                !funcs_equal(symbol.as.variable.parent_function, common.parent_function))
+                            {
+                                //throw error maybe?
+                            }
+                            
+                            ti::compile_expression(binaryop.right, common);
+                            common.context.emit_stb(symbol.as.variable.address, common.allocation.location);
+                        }
+                    }
+                }
+            } break;
+                
+            case PLUS:
+            {
+                ti::write_log("\t\t\tCompiling addition binary operator");
+                
+                ti::compile_expression(binaryop.left, common);
+                
+                const auto new_allocation = common.context.allocate_register_forced_exclude(allocation);
+                {
+                    ti::compile_expression(binaryop.right, { common.context, common.parent_function, new_allocation });
+                    common.context.emit_adc(allocation.location, new_allocation.location);
+                }
+                common.context.deallocate_register_forced(new_allocation);
+            } break;
+                
+            case MINUS:
+            {
+                ti::write_log("\t\t\tCompiling subtraction binary operator");
+                
+                ti::compile_expression(binaryop.left, common);
+                
+                const auto new_allocation = common.context.allocate_register_forced_exclude(allocation);
+                {
+                    ti::compile_expression(binaryop.right, { common.context, common.parent_function, new_allocation });
+                    common.context.emit_sbb(allocation.location, new_allocation.location);
+                }
+                common.context.deallocate_register_forced(new_allocation);
+            } break;
+                
+            case LEFT_SHIFT:
+            {
+                ti::write_log("\t\t\tCompiling left shift binary operator");
+                
+                //once constant expressions are implemented, more than just numbers can be on right hand side
+                //ie [5 + 1 << 3] may be considered a valid rvalue
+                if (binaryop.right->type != ti::ExpressionType::NUMCONST)
+                {
+                    ti::compile_expression(binaryop.left);
+                    common.context.emit_rol(allocation.location, binaryop.right->as.numconst.value);
+                }
+            } break;
+                
+            case RIGHT_SHIFT:
+            {
+                ti::write_log("\t\t\tCompiling right shift binary operator");
+                
+                //see left shift for later improvements
+                if (binaryop.right->type != ti::ExpressionType::NUMCONST)
+                {
+                    ti::compile_expression(binaryop.left);
+                    common.context.emit_ror(allocation.location, binaryop.right->as.numconst.value);
+                }
+            } break;
+                
+            case BIT_XOR:
+            {
+                // TODO: this
+            } break;
+                
+            case BIT_AND:
+            {
+                // TODO: this
+            } break;
+                
+            case BIT_OR:
+            {
+                // TODO: this
+            } break;
+                
+            case EQUALS_EQUALS:
+            {
+                // TODO: this
+            } break;
+                
+            case NOT_EQUALS:
+            {
+                // TODO: this
+            } break;
+                
+            case LESS:
+            {
+                // TODO: this
+            } break;
+                
+            case GREATER:
+            {
+                // TODO: this
+            } break;
+        }
     }
     
     void compile_unaryop(const ti::expr::Unaryop& unaryop, ti::CommonArgs& common) noexcept
     {
+        ti::write_log("\t\tCompiling unary operator expression");
         
+        using enum ti::UnaryOperator;
+        switch (unaryop.type)
+        {
+            case PLUS_PLUS:
+            {
+                ti::write_log("\t\t\tCompiling increment unary operator");
+                
+                ti::compile_expression(unaryop.center, common);
+                common.context.emit_adc(allocation.location, 1);
+            } break;
+                
+            case MINUS_MINUS:
+            {
+                ti::write_log("\t\t\tCompiling decrement unary operator");
+                
+                ti::compile_expression(unaryop.center, common);
+                common.context.emit_sbb(allocation.location, 1);
+            } break;
+                
+            case POSITIVE:
+            {
+                ti::write_log("\t\t\tCompiling positive unary operator");
+                
+                ti::compile_expression(unaryop.center, common);
+            } break;
+                
+            case NEGATIVE:
+            {
+                ti::write_log("\t\t\tCompiling negation unary operator");
+                
+                ti::compile_expression(unaryop.center, common);
+                
+                common.context.emit_not(common.allocation.location);
+                common.context.emit_adc(common.allocation.location, 1);
+            } break;
+        }
     }
+#undef symbols
 }
 
 namespace ti
@@ -196,14 +425,14 @@ namespace ti
     {
         return Expression
         {
-            .type = ExpresionType::BINARYOP,
+            .type = ExpressionType::BINARYOP,
             .as.binaryop.type = op,
             .as.binaryop.left = left,
             .as.binaryop.right = right,
         };
     }
     
-    Expression make_unaryop(Expression* center, UnaryOperator op) noexcept;
+    Expression make_unaryop(Expression* center, UnaryOperator op) noexcept
     {
         return Expression
         {

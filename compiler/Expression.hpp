@@ -11,7 +11,7 @@ namespace ti
 {
     struct Context;
     struct Function;
-    struct ForcedAllocation;
+    struct Allocation;
     
     enum class ExpressionType
     {
@@ -26,8 +26,6 @@ namespace ti
     
     enum class BinaryOperator
     {
-        FCALL,
-        
         EQUALS,
 
         PLUS,
@@ -120,8 +118,8 @@ namespace ti
     struct CommonArgs
     {
         Context& context;
-        Function& function;
-        ForcedAllocation& allocation;
+        Function& parent_function;
+        Allocation& allocation;
     };
     
     

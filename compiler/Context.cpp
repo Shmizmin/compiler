@@ -180,7 +180,6 @@ void ti::Context::deallocate_heap(std::uint16_t location, std::uint16_t bytes) n
 std::uint8_t ti::get_type_size(ti::CompleteType& type) noexcept
 {
     using enum ti::TypeSpecifier;
-    
     switch (type.specifier)
     {
         case BYTE: return 1; break;
@@ -191,6 +190,7 @@ std::uint8_t ti::get_type_size(ti::CompleteType& type) noexcept
 
 std::string ti::location_to_string(ti::Location location) noexcept
 {
+    using enum ti::Location;
     switch (location)
     {
         case R0:    return "r0";    break;
