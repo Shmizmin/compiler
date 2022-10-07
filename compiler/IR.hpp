@@ -149,7 +149,7 @@ namespace ti
             enum class Condition
             {
                 JEZ,
-                JCS,
+                JCC,
             } cond;
             
             std::string label;

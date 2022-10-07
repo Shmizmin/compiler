@@ -115,7 +115,7 @@ namespace ti
                             switch (command.as.instruction.as.jmp.cond)
                             {
                                 case JEZ: code.append("\tjez "); break;
-                                case JCS: code.append("\tjcs "); break;
+                                case JCC: code.append("\tjcc "); break;
                             }
                             
                             code.append(format("%s\n",

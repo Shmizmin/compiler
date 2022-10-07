@@ -68,9 +68,6 @@ namespace ti
         bool was_forced; //requires 'pop'ing old value back into reg
     };
     
-    
-    
-    
     struct Context
     {
         std::vector<Symbol> symbol_table;
@@ -93,6 +90,7 @@ namespace ti
         
         const Allocation allocate_register(void) noexcept;
         const Allocation allocate_register_forced(void) noexcept;
+        const Allocation allocate_register_forced_exclude(const Allocation&) noexcept;
         
         void deallocate_register(const Location&) noexcept;
         void deallocate_register(const Allocation&) noexcept;
@@ -101,6 +99,50 @@ namespace ti
         void deallocate_heap(std::uint16_t, std::uint16_t) noexcept;
     };
     
+    enum class AllocatorType
+    {
+        ALLOCATE,
+        ALLOCATE_FORCED,
+        ALLOCATE_FORCED_EXCLUDE,
+    };
+    
+    struct Allocator
+    {
+        Allocation allocation;
+        Context& context;
+        
+        const Location location(void) noexcept
+        {
+            return allocation.location;
+        }
+        
+        constexpr Allocator(Context& context, AllocatorType type, Allocation allocation) noexcept
+            : context(context)
+        {
+            using enum AllocatorType;
+            if (type == ALLOCATE_FORCED_EXCLUDE)
+            {
+                allocation = context.allocate_register_forced_exclude(allocation);
+            }
+        }
+        
+        constexpr Allocator(ti::Context& context, AllocatorType type) noexcept
+            : context(context)
+        {
+            using enum AllocatorType;
+            switch (type)
+            {
+                case ALLOCATE:        allocation = context.allocate_register();        break;
+                case ALLOCATE_FORCED: allocation = context.allocate_register_forced(); break;
+                default:                                                               break;
+            }
+        }
+        
+        constexpr ~Allocator(void) noexcept
+        {
+            context.deallocate_register(allocation);
+        }
+    };
     
     /*
     struct Context

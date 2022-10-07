@@ -37,11 +37,20 @@ namespace
                (f1.return_type.specifier == f2.return_type.specifier) &&
                (f1.return_type.qualifier == f2.return_type.qualifier) && args_same;
     }
+    
+    int generate_uuid(void) noexcept
+    {
+        static int uuid = 0;
+        
+        return uuid++;
+    }
+    
 }
     
 namespace
 {
 #define symbols common.context.symbol_table
+#define common2 { common.context, common.parent_function, new_allocation.allocation }
     void compile_numconst(const ti::expr::Numconst& numconst, ti::CommonArgs& common) noexcept
     {
         ti::write_log("\t\tCompiling 8-bit numeric constant expression");
@@ -171,11 +180,11 @@ namespace
                      end_label = ti::format(label_template, common.parent_function.name, "end");
         
         //add in trailling uuid
-         true_label.append(std::hash(true_label_nhash));
-        false_label.append(std::hash(true_label_nhash));
-          end_label.append(std::hash(end_label_nhash));
+         true_label.append(::generate_uuid());
+        false_label.append(::generate_uuid());
+          end_label.append(::generate_uuid());
                     
-        common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, false_label_nhash);
+        common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, false_label);
                     
         common.context.emit_label(true_label);
         ti::generate_expression(ternaryop.center, common);
@@ -228,26 +237,31 @@ namespace
                 
                 ti::compile_expression(binaryop.left, common);
                 
-                const auto new_allocation = common.context.allocate_register_forced_exclude(allocation);
+                ti::Allocator new_allocation
                 {
-                    ti::compile_expression(binaryop.right, { common.context, common.parent_function, new_allocation });
-                    common.context.emit_adc(allocation.location, new_allocation.location);
-                }
-                common.context.deallocate_register_forced(new_allocation);
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.right, common2);
+                common.context.emit_adc(common.allocation.location, new_allocation.location());
+                
             } break;
                 
             case MINUS:
             {
                 ti::write_log("\t\t\tCompiling subtraction binary operator");
                 
-                ti::compile_expression(binaryop.left, common);
-                
-                const auto new_allocation = common.context.allocate_register_forced_exclude(allocation);
+                ti::Allocator new_allocation
                 {
-                    ti::compile_expression(binaryop.right, { common.context, common.parent_function, new_allocation });
-                    common.context.emit_sbb(allocation.location, new_allocation.location);
-                }
-                common.context.deallocate_register_forced(new_allocation);
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.left, common);
+                ti::compile_expression(binaryop.right, common2);
+                
+                common.context.emit_sbb(common.allocation.location, new_allocation.location());
             } break;
                 
             case LEFT_SHIFT:
@@ -271,43 +285,164 @@ namespace
                 if (binaryop.right->type != ti::ExpressionType::NUMCONST)
                 {
                     ti::compile_expression(binaryop.left);
-                    common.context.emit_ror(allocation.location, binaryop.right->as.numconst.value);
+                    common.context.emit_ror(common.allocation.location, binaryop.right->as.numconst.value);
                 }
             } break;
                 
             case BIT_XOR:
             {
-                // TODO: this
+                ti::write_log("\t\t\tCompiling bitwise xor binary expression");
+                
+                ti::Allocator new_allocation
+                {
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.left, common);
+                ti::compile_expression(binaryop.right, common2);
+                
+                common.context.emit_xor(common.allocation.location, new_allocation.location());
             } break;
                 
             case BIT_AND:
             {
-                // TODO: this
+                ti::write_log("\t\t\tCompiling bitwise and binary expression");
+                
+                ti::Allocator new_allocation
+                {
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.left, common);
+                ti::compile_expression(binaryop.right, common2);
+                    
+                common.context.emit_and(common.allocation.location, new_allocation.location());
             } break;
                 
             case BIT_OR:
             {
-                // TODO: this
+                ti::write_log("\t\t\tCompiling bitwise or binary expression");
+                
+                ti::Allocator new_allocation
+                {
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.left, common);
+                ti::compile_expression(binaryop.right, common2);
+                
+                common.context.emit_lor(common.allocation.location, new_allocation.location());
             } break;
                 
             case EQUALS_EQUALS:
             {
-                // TODO: this
+                ti::write_log("\t\t\tCompiling equality test binary expression");
+                
+                ti::Allocator new_allocation
+                {
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.left, common);
+                ti::compile_expression(binaryop.right, common2);
+                
+                // FIXME: maybe? zero flag will be set if equal
+                common.context.emit_sbb(common.allocation.location, new_allocation.location());
             } break;
                 
             case NOT_EQUALS:
             {
-                // TODO: this
+                ti::write_log("\t\t\tCompiling non-equality test binary expression");
+                
+                ti::Allocator new_allocation
+                {
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.left, common);
+                ti::compile_expression(binaryop.right, common);
+                
+                const auto label_template = "%s_%s_%u";
+                
+                const auto oneify_label = ti::format(label_template, "oneify", common.parent_function.name, ::generate_uuid()),
+                              end_label = ti::format(label_template, "end",    common.parent_function.name, ::generate_uuid());
+                
+                // FIXME: maybe? zero flag will be set if not equal
+                common.context.emit_sbb(common.allocation.location, new_allocation.location());
+                
+                common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, oneify_label);
+                common.context.emit_and(common.allocation.location, 0);
+                common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, end_label);
+                common.context.emit_label(oneify_label);
+                common.context.emit_or(common.allocation.location, 1);
+                common.context.emit_label(end_label);
             } break;
                 
             case LESS:
             {
-                // TODO: this
+                ti::write_log("\t\t\tCompiling less-than binary expression");
+                
+                ti::Allocator new_allocation
+                {
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.left, common);
+                ti::compile_expression(binaryop.right, common);
+                
+                const auto label_template = "%s_%s_%u";
+                
+                const auto less_label = ti::format(label_template, "less", common.parent_function.name, ::generate_uuid()),
+                            end_label = ti::format(label_template, "end",  common.parent_function.name, ::generate_uuid());
+                
+                common.context.emit_sbb(common.allocation.location, new_allocation.location());
+                
+                //if carry is set, first operand is less
+                //if carry not set, first operand is greater or equal
+                
+                common.context.emit_jmp(ti::insn::Jmp::Condition::JCS, less_label);
+                common.context.emit_and(common.allocation.location, 0);
+                common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, end_label);
+                common.context.emit_label(less_label);
+                common.context.emit_or(common.allocation.location, 1);
+                common.context.emit_label(end_label);
             } break;
                 
             case GREATER:
             {
-                // TODO: this
+                ti::write_log("\t\t\tCompiling greater-than binary expression");
+                
+                ti::Allocator new_allocation
+                {
+                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
+                    common.allocation,
+                };
+                
+                ti::compile_expression(binaryop.left, common);
+                ti::compile_expression(binaryop.right, common);
+                
+                const auto label_template = "%s_%s_%u";
+                
+                const auto less_label = ti::format(label_template, "greater", common.parent_function.name, ::generate_uuid()),
+                            end_label = ti::format(label_template, "end",  common.parent_function.name, ::generate_uuid());
+                
+                common.context.emit_sbb(common.allocation.location, new_allocation.location());
+                
+                //if carry is set, first operand is less
+                //if carry not set, first operand is greater or equal
+                
+                common.context.emit_jmp(ti::insn::Jmp::Condition::JCS, less_label);
+                common.context.emit_or(common.allocation.location, 1);
+                common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, end_label);
+                common.context.emit_label(less_label);
+                common.context.emit_and(common.allocation.location, 0);
+                common.context.emit_label(end_label);
             } break;
         }
     }
