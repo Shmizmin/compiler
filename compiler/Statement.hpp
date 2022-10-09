@@ -14,7 +14,7 @@ namespace ti
     struct Function;
     
     
-    struct Variable
+    struct Var
     {
         TypeVisibility visibility;
         CompleteType type;
@@ -60,7 +60,7 @@ namespace ti
         
         struct Variable
         {
-            std::vector<Variable*> variables;
+            std::vector<Var*> variables;
         };
     }
     
@@ -70,13 +70,21 @@ namespace ti
         
         const union
         {
-            stmt::Block as_block;
-            stmt::If as_if;
-            stmt::While as_while;
-            stmt::Return as_return;
-            stmt::Variable as_variable;
-        } value;
+            stmt::Block block;
+            stmt::If ifs;
+            stmt::While whiles;
+            stmt::Return returns;
+            stmt::Variable variable;
+        } as;
     };
+    
+    Statement* make_block(std::vector<Statement*>&&) noexcept;
+    Statement* make_if(Expression*, Statement*) noexcept;
+    Statement* make_while(Expression*, Statement*) noexcept;
+    Statement* make_return(Expression*) noexcept;
+    Statement* make_variable(std::vector<Variable*>&&) noexcept;
+    
+    void compile_statement(Statement*, CommonArgs&) noexcept;
 }
 
 #endif /* Statement_hpp */

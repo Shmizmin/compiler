@@ -70,7 +70,7 @@ namespace ti
     
     struct Context
     {
-        std::vector<Symbol> symbol_table;
+        std::vector<Symbol*> symbol_table;
         std::forward_list<Command> ir_code;
         
         std::array<bool, 4> available_registers;

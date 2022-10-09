@@ -493,51 +493,51 @@ namespace
 
 namespace ti
 {
-    void compile_expression(Expression& expr, CommonArgs& common) noexcept
+    void compile_expression(Expression* expr, CommonArgs& common) noexcept
     {
         using enum ExpressionType;
-        switch (expr.type)
+        switch (expr->type)
         {
-            case NUMCONST:      return compile_numconst     (expr.as.numconst,     common); break;
-            case STRINGCONST:   return compile_stringconst  (expr.as.stringconst,  common); break;
-            case IDENTIFIER:    return compile_identifier   (expr.as.identifier,   common); break;
-            case FUNCTION_CALL: return compile_function_call(expr.as.functioncall, common); break;
-            case TERNARYOP:     return compile_ternaryop    (expr.as.ternaryop,    common); break;
-            case BINARYOP:      return compile_binaryop     (expr.as.binaryop,     common); break;
-            case UNARYOP:       return compile_unaryop      (expr.as.unaryop,      common); break;
+            case NUMCONST:      return compile_numconst     (expr->as.numconst,     common); break;
+            case STRINGCONST:   return compile_stringconst  (expr->as.stringconst,  common); break;
+            case IDENTIFIER:    return compile_identifier   (expr->as.identifier,   common); break;
+            case FUNCTION_CALL: return compile_function_call(expr->as.functioncall, common); break;
+            case TERNARYOP:     return compile_ternaryop    (expr->as.ternaryop,    common); break;
+            case BINARYOP:      return compile_binaryop     (expr->as.binaryop,     common); break;
+            case UNARYOP:       return compile_unaryop      (expr->as.unaryop,      common); break;
         }
     }
     
-    Expression make_numconst(std::uint8_t value) noexcept
+    Expression* make_numconst(std::uint8_t value) noexcept
     {
-        return Expression
+        return new Expression
         {
             .type = ExpressionType::NUMCONST,
             .as.numconst = expr::Numconst{ value },
         };
     }
     
-    Expression make_stringconst(std::string&& text) noexcept
+    Expression* make_stringconst(std::string&& text) noexcept
     {
-        return Expression
+        return new Expression
         {
             .type = ExpressionType::STRINGCONST,
             .as.stringconst = expr::Stringconst{ std::move(text) },
         };
     }
     
-    Expression make_identifier(std::string&& name) noexcept
+    Expression* make_identifier(std::string&& name) noexcept
     {
-        return Expression
+        return new Expression
         {
             .type = ExpressionType::IDENTIFIER,
             .as.identifier = expr::Identifier{ std::move(name) },
         };
     }
     
-    Expression make_function_call(std::string&& name, std::vector<Expression*>&& arguments) noexcept
+    Expression* make_function_call(std::string&& name, std::vector<Expression*>&& arguments) noexcept
     {
-        return Expression
+        return new Expression
         {
             .type = ExpressionType::FUNCTION_CALL,
             .as.functioncall.left = expr::Identifier{ std::move(name) },
@@ -545,9 +545,9 @@ namespace ti
         };
     }
     
-    Expression make_ternaryop(Expression* left, Expression* center, Expression* right) noexcept
+    Expression* make_ternaryop(Expression* left, Expression* center, Expression* right) noexcept
     {
-        return Expression
+        return new Expression
         {
             .type = ExpressionType::TERNARYOP,
             .as.ternaryop.left = left,
@@ -556,9 +556,9 @@ namespace ti
         };
     }
     
-    Expression make_binaryop(Expression* left, Expression* right, BinaryOperator op) noexcept
+    Expression* make_binaryop(Expression* left, Expression* right, BinaryOperator op) noexcept
     {
-        return Expression
+        return new Expression
         {
             .type = ExpressionType::BINARYOP,
             .as.binaryop.type = op,
@@ -567,9 +567,9 @@ namespace ti
         };
     }
     
-    Expression make_unaryop(Expression* center, UnaryOperator op) noexcept
+    Expression* make_unaryop(Expression* center, UnaryOperator op) noexcept
     {
-        return Expression
+        return new Expression
         {
             .type = ExpressionType::UNARYOP,
             .as.unaryop.type = op,
@@ -580,14 +580,7 @@ namespace ti
 
 
 
-
-
-
-
-
-
-
-
+/*
 void ti::expr::Stringconst::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
     ti::write_log("Generating code for string constant expression");
@@ -722,9 +715,7 @@ void ti::expr::Ternary::generate(ti::Context& context, ti::Function& function, c
 
 
 
-/*--------------------------------*
- | NUMCONST EXPRESSION GENERATION |
- *--------------------------------*/
+
 
 void ti::expr::Numconst::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
@@ -735,9 +726,6 @@ void ti::expr::Numconst::generate(ti::Context& context, ti::Function& function, 
 
 
 
-/*------------------------------*
- | BINARY EXPRESSION GENERATION |
- *------------------------------*/
 
 void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
@@ -768,13 +756,7 @@ void ti::expr::FCall::generate(ti::Context& context, ti::Function& function, con
     else
     {
         auto* nsym = static_cast<ti::FunctionSymbol*>(res);
-        
-        /*
-         TypeVisibility visibility;
-         CompleteType type;
-         std::string name;
-         Expression* value;
-         */
+    
         
         const auto def_num = nsym->arguments.size();
         const auto fcl_num = args.size();
@@ -1066,9 +1048,6 @@ void ti::expr::binary::Greater::generate(ti::Context& context, ti::Function& fun
 
 
 
-/*-----------------------------*
- | UNARY EXPRESSION GENERATION |
- *-----------------------------*/
 
 void ti::expr::unary::PlusPlus::generate(ti::Context& context, ti::Function& function, const ti::ForcedAllocation& allocation) noexcept
 {
@@ -1106,3 +1085,4 @@ void ti::expr::unary::Negative::generate(ti::Context& context, ti::Function& fun
     context.add_to_code(ti::format("\tnot %s\n", loc.c_str()));
     context.add_to_code(ti::format("\tadc %s, #1\n", loc.c_str()));
 }
+*/

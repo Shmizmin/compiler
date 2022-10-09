@@ -115,23 +115,15 @@ namespace ti
         } as;
     };
     
-    struct CommonArgs
-    {
-        Context& context;
-        Function& parent_function;
-        Allocation& allocation;
-    };
+    Expression* make_numconst(std::uint8_t) noexcept;
+    Expression* make_stringconst(std::string&&) noexcept;
+    Expression* make_identifier(std::string&&) noexcept;
+    Expression* make_function_call(std::string&&, std::vector<Expression*>&&) noexcept;
+    Expression* make_ternaryop(Expression*, Expression*, Expression*) noexcept;
+    Expression* make_binaryop(Expression*, Expression*, BinaryOperator) noexcept;
+    Expression* make_unaryop(Expression*, UnaryOperator) noexcept;
     
-    
-    Expression make_numconst(std::uint8_t) noexcept;
-    Expression make_stringconst(std::string&&) noexcept;
-    Expression make_identifier(std::string&&) noexcept;
-    Expression make_function_call(std::string&&, std::vector<Expression>&&) noexcept;
-    Expression make_ternaryop(Expression*, Expression*, Expression*) noexcept;
-    Expression make_binaryop(Expression*, Expression*, BinaryOperator) noexcept;
-    Expression make_unaryop(Expression*, UnaryOperator) noexcept;
-    
-    void compile_expression(Expression&, CommonArgs&) noexcept;
+    void compile_expression(Expression*, CommonArgs&) noexcept;
 }
 
 #endif /* Expression_hpp */

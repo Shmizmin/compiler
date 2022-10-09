@@ -3,6 +3,10 @@
 
 namespace ti
 {
+    struct Context;
+    struct Function;
+    struct Allocation;
+    
     enum class TypeVisibility
     {
         LOCAL,
@@ -24,6 +28,14 @@ namespace ti
     {
         TypeSpecifier specifier;
         TypeQualifier qualifier;
+    };
+    
+    
+    struct CommonArgs
+    {
+        Context& context;
+        Function& parent_function;
+        Allocation& allocation;
     };
 }
 
