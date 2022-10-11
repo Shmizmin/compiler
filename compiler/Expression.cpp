@@ -104,15 +104,15 @@ namespace
     {
         ti::write_log("\t\tCompiling identifier expression");
             
-        for (auto&& symbol : common.context.symbol_table)
+        for (const auto symbol : common.context.symbol_table)
         {
             //add in error checking and messages for each specific case here
-            if (symbol.defined &&
-                symbol.type == ti::SymbolType::VARIABLE &&
-                symbol.name == identifier.name)
+            if (symbol->defined &&
+                symbol->type == ti::SymbolType::VARIABLE &&
+                symbol->name == identifier.name)
             {
-                if (symbol.as.variable.visibility == ti::TypeVisibility::LOCAL &&
-                    !funcs_equal(symbol.as.variable.parent_function, common.parent_function))
+                if (symbol->as.variable.visibility == ti::TypeVisibility::LOCAL &&
+                    !funcs_equal(symbol->as.variable.parent_function, common.parent_function))
                 {
                     //throw error maybe?
                 }
@@ -128,25 +128,24 @@ namespace
     {
         ti::write_log("\t\tCompiling function call expression");
         
-        auto& symbols = common.context.symbol_table;
-        
-        for (const auto&& symbol : symbols)
+        for (const auto symbol : symbols)
         {
-            if (auto defined_arity = symbol.as.function.arguments.size();
-                     defined_arity == function_call.args.size() &&
-                     symbol.defined &&
-                     symbol.type == ti::SymbolType::FUNCTION &&
-                     symbol.name == function_call.left.name)
+            auto defined_arity = symbol->as.function.arguments.size();
+            
+            if (defined_arity == function_call.args.size() &&
+                symbol->defined &&
+                symbol->type == ti::SymbolType::FUNCTION &&
+                symbol->name == function_call.left.name)
             {
                 //found the function we were looking for
                 for (auto i = 0u; i < defined_arity; ++i)
                 {
-                    for (auto&& argument_symbol : symbols)
+                    for (const auto argument_symbol : symbols)
                     {
                         // TODO: verify that we dont need to check other fields of the 'Symbol' struct
-                        if (argument_symbol.name == ti::format("%s_%s", function_call.left.name, symbol.as.function.arguments[i].name))
+                        if (argument_symbol->name == ti::format("%s_%s", function_call.left.name, symbol->as.function.arguments[i].name))
                         {
-                            argument_symbol.defined = true;
+                            argument_symbol->defined = true;
                             
                             ti::compile_expression(symbol.as.function.arguments[i], common);
                             
@@ -159,7 +158,6 @@ namespace
                 common.context.emit_call(allocation.location, ti::format("function_start_%s", symbol.name));
             }
         }
-        
     }
     
     void compile_ternaryop(const ti::expr::Ternaryop& ternaryop, ti::CommonArgs& common) noexcept
@@ -172,14 +170,12 @@ namespace
         //assume it is a register for now
         common.context.emit_updateflags(common.allocation.location);
                    
-        // ternary_funcname_true/false_HASH
         const auto label_template = "ternary_%s_%s_";
                     
         const auto  true_label = ti::format(label_template, common.parent_function.name, "true"),
                    false_label = ti::format(label_template, common.parent_function.name, "false"),
                      end_label = ti::format(label_template, common.parent_function.name, "end");
         
-        //add in trailling uuid
          true_label.append(::generate_uuid());
         false_label.append(::generate_uuid());
           end_label.append(::generate_uuid());
@@ -189,7 +185,6 @@ namespace
         common.context.emit_label(true_label);
         ti::generate_expression(ternaryop.center, common);
                     
-        //clear the zero flag & jump (basically unconditional jump)
         common.context.emit_lor(common.allocation.location, 1);
         common.context.emit_jmp(ti::insn::Jmp::Condtion::JEZ, end_label);
         

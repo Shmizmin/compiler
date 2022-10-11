@@ -6,6 +6,8 @@
 #include <array>
 #include <string>
 #include <optional>
+#include <ciso646>
+
 
 #include "Types.hpp"
 #include "IR.hpp"
@@ -52,21 +54,7 @@ namespace ti
 
     
     
-    enum class Location
-    {
-        R0,
-        R1,
-        R2,
-        R3,
-        STACK,
-        HEAP,
-    };
     
-    struct Allocation
-    {
-        Location location;
-        bool was_forced; //requires 'pop'ing old value back into reg
-    };
     
     struct Context
     {
@@ -99,48 +87,71 @@ namespace ti
         void deallocate_heap(std::uint16_t, std::uint16_t) noexcept;
     };
     
-    enum class AllocatorType
+    
+
+    
+    enum RegisterType
     {
-        ALLOCATE,
-        ALLOCATE_FORCED,
-        ALLOCATE_FORCED_EXCLUDE,
+        R0,
+        R1,
+        R2,
+        R3,
     };
     
-    struct Allocator
+    struct RegisterAllocation
     {
-        Allocation allocation;
+        RegisterType location;
         Context& context;
         
-        const Location location(void) noexcept
-        {
-            return allocation.location;
-        }
-        
-        constexpr Allocator(Context& context, AllocatorType type, Allocation allocation) noexcept
+        RegisterAllocation(Context& context) noexcept
             : context(context)
         {
-            using enum AllocatorType;
-            if (type == ALLOCATE_FORCED_EXCLUDE)
-            {
-                allocation = context.allocate_register_forced_exclude(allocation);
-            }
+            location = context.allocate_register();
         }
+
+        ~RegisterAllocation(void) noexcept
+        {
+            context.deallocate_register(location);
+        }
+    };
+    
+    struct ForcedRegisterAllocation
+    {
+        RegisterType location;
+        Context& context;
         
-        constexpr Allocator(ti::Context& context, AllocatorType type) noexcept
+        ForcedRegisterAllocation(Context& context) noexcept
             : context(context)
         {
-            using enum AllocatorType;
-            switch (type)
-            {
-                case ALLOCATE:        allocation = context.allocate_register();        break;
-                case ALLOCATE_FORCED: allocation = context.allocate_register_forced(); break;
-                default:                                                               break;
-            }
+            location = context.allocate_register_forced();
         }
         
-        constexpr ~Allocator(void) noexcept
+        ForcedRegisterAllocation(Context& context, RegisterType exclude) noexcept
+            : context(context)
         {
-            context.deallocate_register(allocation);
+            location = context.allocate_register_forced_exclude(exclude);
+        }
+        
+        
+        ~ForcedRegisterAllocation(void) noexcept
+        {
+            context.deallocate_register_forced(location);
+        }
+    };
+    
+    struct HeapAllocation
+    {
+        std::uint16_t address, size;
+        
+        HeapAllocation(Context& context, std::uint16_t size) noexcept
+            : context(context), size(size)
+        {
+            address = context.allocate_heap(size);
+        }
+        
+        ~HeapAllocation(void) noexcept
+        {
+            context.deallocate_heap(address, size);
         }
     };
     
@@ -187,7 +198,7 @@ namespace ti
         
     };*/
     
-    std::uint8_t get_type_size(CompleteType&) noexcept;
+    std::uint8_t get_size_by_type(CompleteType) noexcept;
     std::string&& location_to_string(Location) noexcept;
     std::string&& expression_type_to_string(ExpressionType) noexcept;
 }

@@ -157,6 +157,7 @@ namespace
             
             if (!found)
             {
+                
                 std::fprintf(stderr, "[Error] Macro %s is undefined\nExiting...\n", macro.name.c_str());
                 std::exit(1);
             }
@@ -181,7 +182,7 @@ namespace
                     
                 }*/
                 
-                for (auto i = 0; i < args_delim.size(); ++i)
+                for (auto i = 0u; i < args_delim.size(); ++i)
                 {
                     ::replace(copy, std::string("[") + defined_macro.args[i] + std::string("]"), args_delim[i]);
                 }
@@ -193,14 +194,14 @@ namespace
 }
 
 
-namespace cl
+namespace ti
 {
     void preprocess(std::string& code, std::string_view parent_filepath) noexcept
     {
         Context context{ {}, {} };
         
-        ::preprocess_include(context, code, parent_filepath);
-        ::preprocess_definition(context, code);
+        ::preprocess_include         (context, code, parent_filepath);
+        ::preprocess_definition      (context, code);
         ::preprocess_macro_definition(context, code);
         ::preprocess_macro_invokation(context, code);
     }

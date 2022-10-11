@@ -12,7 +12,7 @@ namespace
     {
         ti::write_log("Compiling block statement");
         
-        for (const auto&& statement : block.statements)
+        for (const auto statement : block.statements)
         {
             ti::compile_statement(statement, common);
         }
@@ -23,6 +23,14 @@ namespace
         ti::write_log("Compiling if statement");
         
         const auto label_end = ti::format("if_end_%s_%s", common.parent_function.name, ti::generate_uuid());
+        
+        {
+            ti::ForcedRegisterAllocation new_allocation
+            {
+                
+            };
+            
+        }
         
         {
             ti::Allocator new_allocation
@@ -90,7 +98,16 @@ namespace
             
             
             const auto address = common.context.allocate_heap(ti::get_size_by_type(variable->type));
-            common.context.symbol_table{};
+            common.context.symbol_table.emplace_back(new ti::Symbol
+            {
+                .type = ti::SymbolType::VARIABLE,
+                .name = name,
+                .defined = defined,
+                .as.variable = ti::sym::Variable
+                {
+                    .address = 
+                },
+            });
         }
     }
 }
