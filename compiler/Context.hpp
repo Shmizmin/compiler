@@ -13,6 +13,8 @@
 #include "IR.hpp"
 #include "Expression.hpp"
 
+#define common2 { common.context, common.parent_function, new_allocation.allocation }
+
 namespace ti
 {
     struct Argument;

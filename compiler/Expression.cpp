@@ -50,12 +50,11 @@ namespace
 namespace
 {
 #define symbols common.context.symbol_table
-#define common2 { common.context, common.parent_function, new_allocation.allocation }
     void compile_numconst(const ti::expr::Numconst& numconst, ti::CommonArgs& common) noexcept
     {
         ti::write_log("\t\tCompiling 8-bit numeric constant expression");
         
-        common.context.emit_ldb(common.allocation.location, numconst.value);
+        common.context.emit_ldb(common.allocation, numconst.value);
     }
     
     void compile_stringconst(const ti::expr::Stringconst& stringconst, ti::CommonArgs& common) noexcept
@@ -66,38 +65,15 @@ namespace
         
         // .org ptr
         common.context.emit_org(ptr);
-        /*common.context.add_command(ti::Directive
-        {
-            .type = ti::DirectiveType::ORIGIN,
-            .as.origin.address = ptr,
-        });*/
         
         // .ascii "text"
         common.context.emit_ascii(stringconst.text);
-        /*common.context.add_command(ti::Directive
-        {
-            .type = ti::DirectiveType::ASCII,
-            .as.ascii.text = stringconst.text,
-        });*/
-        
-        
+
         // push rx
         common.context.emit_push(ptr & 0x00FF);
-        /*common.context.add_command(ti::Instruction
-        {
-            .type = ti::InstructionType::STACK,
-            .as.stack.dir = ti::insn::Stack::Direction::PUSH,
-            .as.stack.data = (ptr & 0x00FF),
-        });*/
         
         // push rx
         common.context.emit_push(ptr & 0xFF00);
-        /*common.context.add_command(ti::Instruction
-        {
-            .type = ti::InstructionType::STACK,
-            .as.stack.dir = ti::insn::Stack::Direction::PUSH,
-            .as.stack.data = (ptr & 0xFF00),
-        });*/
     }
     
     void compile_identifier(const ti::expr::Identifier& identifier, ti::CommonArgs& common) noexcept
@@ -232,14 +208,10 @@ namespace
                 
                 ti::compile_expression(binaryop.left, common);
                 
-                ti::Allocator new_allocation
-                {
-                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
-                    common.allocation,
-                };
+                ti::ForcedRegisterAllocation new_allocation{ context, common.allocation };
                 
                 ti::compile_expression(binaryop.right, common2);
-                common.context.emit_adc(common.allocation.location, new_allocation.location());
+                common.context.emit_adc(common.allocation, new_allocation.location);
                 
             } break;
                 
@@ -247,16 +219,12 @@ namespace
             {
                 ti::write_log("\t\t\tCompiling subtraction binary operator");
                 
-                ti::Allocator new_allocation
-                {
-                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
-                    common.allocation,
-                };
+                ti::ForcedRegisterAllocation new_allocation{ context, common.allocation };
                 
                 ti::compile_expression(binaryop.left, common);
                 ti::compile_expression(binaryop.right, common2);
                 
-                common.context.emit_sbb(common.allocation.location, new_allocation.location());
+                common.context.emit_sbb(common.allocation, new_allocation.location);
             } break;
                 
             case LEFT_SHIFT:
@@ -265,10 +233,10 @@ namespace
                 
                 //once constant expressions are implemented, more than just numbers can be on right hand side
                 //ie [5 + 1 << 3] may be considered a valid rvalue
-                if (binaryop.right->type != ti::ExpressionType::NUMCONST)
+                if (binaryop.right->type == ti::ExpressionType::NUMCONST)
                 {
                     ti::compile_expression(binaryop.left);
-                    common.context.emit_rol(allocation.location, binaryop.right->as.numconst.value);
+                    common.context.emit_rol(common.allocation, binaryop.right->as.numconst.value);
                 }
             } break;
                 
@@ -277,10 +245,10 @@ namespace
                 ti::write_log("\t\t\tCompiling right shift binary operator");
                 
                 //see left shift for later improvements
-                if (binaryop.right->type != ti::ExpressionType::NUMCONST)
+                if (binaryop.right->type == ti::ExpressionType::NUMCONST)
                 {
                     ti::compile_expression(binaryop.left);
-                    common.context.emit_ror(common.allocation.location, binaryop.right->as.numconst.value);
+                    common.context.emit_ror(common.allocation, binaryop.right->as.numconst.value);
                 }
             } break;
                 
@@ -288,48 +256,36 @@ namespace
             {
                 ti::write_log("\t\t\tCompiling bitwise xor binary expression");
                 
-                ti::Allocator new_allocation
-                {
-                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
-                    common.allocation,
-                };
+                ti::ForcedRegisterAllocation new_allocation{ context, common.allocation };
                 
                 ti::compile_expression(binaryop.left, common);
                 ti::compile_expression(binaryop.right, common2);
                 
-                common.context.emit_xor(common.allocation.location, new_allocation.location());
+                common.context.emit_xor(common.allocation, new_allocation.location);
             } break;
                 
             case BIT_AND:
             {
                 ti::write_log("\t\t\tCompiling bitwise and binary expression");
                 
-                ti::Allocator new_allocation
-                {
-                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
-                    common.allocation,
-                };
+                ti::ForcedRegisterAllocation new_allocation{ context, common.allocation };
                 
                 ti::compile_expression(binaryop.left, common);
                 ti::compile_expression(binaryop.right, common2);
                     
-                common.context.emit_and(common.allocation.location, new_allocation.location());
+                common.context.emit_and(common.allocation, new_allocation.location);
             } break;
                 
             case BIT_OR:
             {
                 ti::write_log("\t\t\tCompiling bitwise or binary expression");
                 
-                ti::Allocator new_allocation
-                {
-                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
-                    common.allocation,
-                };
+                ti::ForcedRegisterAllocation new_allocation{ context, common.allocation };
                 
                 ti::compile_expression(binaryop.left, common);
                 ti::compile_expression(binaryop.right, common2);
                 
-                common.context.emit_lor(common.allocation.location, new_allocation.location());
+                common.context.emit_lor(common.allocation, new_allocation.location);
             } break;
                 
             case EQUALS_EQUALS:
@@ -346,18 +302,14 @@ namespace
                 ti::compile_expression(binaryop.right, common2);
                 
                 // FIXME: maybe? zero flag will be set if equal
-                common.context.emit_sbb(common.allocation.location, new_allocation.location());
+                common.context.emit_sbb(common.allocation, new_allocation.location);
             } break;
                 
             case NOT_EQUALS:
             {
                 ti::write_log("\t\t\tCompiling non-equality test binary expression");
                 
-                ti::Allocator new_allocation
-                {
-                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
-                    common.allocation,
-                };
+                ti::ForcedRegisterAllocation new_allocation{ context, common.allocation };
                 
                 ti::compile_expression(binaryop.left, common);
                 ti::compile_expression(binaryop.right, common);
@@ -368,7 +320,7 @@ namespace
                               end_label = ti::format(label_template, "end",    common.parent_function.name, ::generate_uuid());
                 
                 // FIXME: maybe? zero flag will be set if not equal
-                common.context.emit_sbb(common.allocation.location, new_allocation.location());
+                common.context.emit_sbb(common.allocation, new_allocation.location);
                 
                 common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, oneify_label);
                 common.context.emit_and(common.allocation.location, 0);
@@ -381,12 +333,8 @@ namespace
             case LESS:
             {
                 ti::write_log("\t\t\tCompiling less-than binary expression");
-                
-                ti::Allocator new_allocation
-                {
-                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
-                    common.allocation,
-                };
+
+                ti::ForcedRegisterAllocation new_allocation{ context, common.allocation };
                 
                 ti::compile_expression(binaryop.left, common);
                 ti::compile_expression(binaryop.right, common);
@@ -396,7 +344,7 @@ namespace
                 const auto less_label = ti::format(label_template, "less", common.parent_function.name, ::generate_uuid()),
                             end_label = ti::format(label_template, "end",  common.parent_function.name, ::generate_uuid());
                 
-                common.context.emit_sbb(common.allocation.location, new_allocation.location());
+                common.context.emit_sbb(common.allocation, new_allocation.location);
                 
                 //if carry is set, first operand is less
                 //if carry not set, first operand is greater or equal
@@ -413,11 +361,7 @@ namespace
             {
                 ti::write_log("\t\t\tCompiling greater-than binary expression");
                 
-                ti::Allocator new_allocation
-                {
-                    ti::AllocatorType::ALLOCATE_FORCED_EXCLUDE,
-                    common.allocation,
-                };
+                ti::ForcedRegisterAllocation new_allocation{ context, common.allocation };
                 
                 ti::compile_expression(binaryop.left, common);
                 ti::compile_expression(binaryop.right, common);
@@ -427,7 +371,7 @@ namespace
                 const auto less_label = ti::format(label_template, "greater", common.parent_function.name, ::generate_uuid()),
                             end_label = ti::format(label_template, "end",  common.parent_function.name, ::generate_uuid());
                 
-                common.context.emit_sbb(common.allocation.location, new_allocation.location());
+                common.context.emit_sbb(common.allocation, new_allocation.location);
                 
                 //if carry is set, first operand is less
                 //if carry not set, first operand is greater or equal

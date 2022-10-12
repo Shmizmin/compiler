@@ -25,23 +25,11 @@ namespace
         const auto label_end = ti::format("if_end_%s_%s", common.parent_function.name, ti::generate_uuid());
         
         {
-            ti::ForcedRegisterAllocation new_allocation
-            {
-                
-            };
-            
-        }
-        
-        {
-            ti::Allocator new_allocation
-            {
-                common.context,
-                ti::AllocatorType::ALLOCATE_FORCED,
-            };
+            ti::ForcedRegisterAllocation new_allocation{ common.context };
             
             ti::compile_expression(ifs.condition, common2);
         
-            common.context.emit_adc(new_allocation.location(), 0);
+            common.context.emit_adc(new_allocation.location, 0);
             common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, label_end);
         }
         
@@ -65,14 +53,14 @@ namespace
         
         if (whiles.condition->type == ti::ExpressionType::IDENTIFIER)
         {
-            common.context.emit_adc(common.allocation.location(), 0);
+            common.context.emit_adc(common.allocation, 0);
         }
         
         common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, oneify_label);
-        common.context.emit_and(new_allocation.location(), 0);
+        common.context.emit_and(new_allocation.location, 0);
         common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, end_label);
         common.context.emit_label(oneify_label);
-        common.context.emit_or(new_allocation.location(), 1);
+        common.context.emit_or(new_allocation.location, 1);
         common.context.emit_label(end_label);
     }
     
@@ -82,8 +70,8 @@ namespace
         
         ti::compile_expression(returns.value, common);
         
-        common.context.emit_push(common.allocation.location);
-        common.context.emit_and(common.allocation.location, 0);
+        common.context.emit_push(common.allocation);
+        common.context.emit_and(common.allocation, 0);
         common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, ti::format("function_end_%s", common.parent_function.name));
     }
     
@@ -96,7 +84,6 @@ namespace
             const auto& name = variable->name;
             const auto defined = (variable->value != nullptr);
             
-            
             const auto address = common.context.allocate_heap(ti::get_size_by_type(variable->type));
             common.context.symbol_table.emplace_back(new ti::Symbol
             {
@@ -105,9 +92,20 @@ namespace
                 .defined = defined,
                 .as.variable = ti::sym::Variable
                 {
-                    .address = 
+                    .address = address,
+                    .visibility = variable->visibility,
+                    .parent_function = common.parent_function,
                 },
             });
+            
+            if (defined)
+            {
+                ti::RegisterAllocation new_allocation{ context };
+                
+                ti::generate_expression(variable->value, common2);
+                
+                common.context.emit_stb(address, new_allocation.location);
+            }
         }
     }
 }
