@@ -5,214 +5,192 @@
 #include <algorithm>
 
 
-void ti::Context::add_to_symbol_table(ti::Symbol* symbol) noexcept
+namespace ti
 {
-    if (std::find_if(symbol_table.begin(), symbol_table.end(), [&](ti::Symbol* s)
-        {
-            return (s->name == symbol->name);
-        }) != std::end(symbol_table))
+    int generate_uuid(void) noexcept
     {
-        //duplicate symbol name
-        ti::throw_error("Duplicate identifier %s", symbol->name.c_str());
+        static int uuid = 0;
+        return uuid++;
     }
     
-    symbol_table.emplace_back(symbol);
-}
-
-
-void ti::Context::add_to_code(const std::string& code) noexcept
-{
-    counter++;
-    code_segment.append(code);
-}
-
-void ti::Context::add_to_end(const std::string& code) noexcept
-{
-    end_segment.append(code);
-}
-
-const ti::ForcedAllocation ti::Context::allocate_forced(void) noexcept
-{
-    auto alloc = allocate();
-    auto was_forced = false;
     
-    if (alloc == STACK)
+    void Context::add_to_symbol_table(Symbol* symbol) noexcept
     {
-        //no free registers
-        add_to_code("\tpush r0\n");
-        alloc = R0;
-        was_forced = true;
-    }
-    
-    return { alloc, was_forced };
-}
-
-//parameter allocation is location to exclude allocating
-const ti::ForcedAllocation ti::Context::allocate_forced(const ti::ForcedAllocation& allocation) noexcept
-{
-    auto alloc = allocate();
-    auto was_forced = false;
-    
-    if (alloc == STACK)
-    {
-        switch (allocation.location)
+        bool found = false;
+        for (const auto s : symbol_table)
         {
-            case R0: alloc = R1; break;
-            case R1: alloc = R2; break;
-            case R2: alloc = R3; break;
-            case R3: alloc = R0; break;
-            default: ti::throw_error("Allocation exclusion had an illegal allocation location"); break;
+            //when comparing, we only look at name
+            //this means that a function and variable cannot share the same identifier token
+            if (s->name == s->name)
+            {
+                found = true;
+            }
         }
         
-        add_to_code(ti::format("\tpush %s\n", ti::location_to_string(alloc).c_str()));
-        was_forced = true;
-    }
-    
-    return { alloc, was_forced };
-}
-
-void ti::Context::deallocate_forced(const ti::ForcedAllocation& alloc) noexcept
-{
-    if (alloc.was_forced)
-    {
-        add_to_code(ti::format("\tpop %s\n", ti::location_to_string(alloc.location).c_str()));
-    }
-    else
-    {
-        deallocate(alloc.location);
-    }
-}
-
-const ti::Location ti::Context::allocate(void) noexcept
-{
-    if (available_registers[0])
-    {
-        available_registers[0] = false;
-        return R0;
-    }
-    else if (available_registers[1])
-    {
-        available_registers[1] = false;
-        return R1;
-    }
-    else if (available_registers[2])
-    {
-        available_registers[2] = false;
-        return R2;
-    }
-    else if (available_registers[3])
-    {
-        available_registers[3] = false;
-        return R3;
-    }
-    else // stack should always be available
-        return STACK;
-}
-
-void ti::Context::deallocate(const ti::Location& location) noexcept
-{
-    switch (location)
-    {
-        case R0: available_registers[0] = true; break;
-        case R1: available_registers[1] = true; break;
-        case R2: available_registers[2] = true; break;
-        case R3: available_registers[3] = true; break;
-        default: ti::throw_error("Illegal deallocation location"); break;
-    }
-}
-
-std::uint16_t ti::Context::allocate_heap(std::uint16_t bytes) noexcept
-{
-    const auto size = bytes;
-    const auto length = available_heap.size();
-    
-    std::uint16_t cvt = 0;
-    auto avail = true;
-    for (auto i = 0; i < length; ++i)
-    {
-        //potential heap address
-        cvt = static_cast<std::uint16_t>(i);
-        
-        for (auto j = 0; j < size; ++j)
+        if (!found)
         {
-            if (!available_heap[i + j])
-                avail = false;
+            symbol_table.emplace_back(symbol);
+        }
+    }
+    
+    std::optional<RegisterType> Context::allocate_register(void) noexcept
+    {
+        using enum RegisterType;
+        if (available_registers[0])
+        {
+            available_registers[0] = false;
+            return { R0 };
+        }
+        else if (available_registers[1])
+        {
+            available_registers[1] = false;
+            return { R1 };
+        }
+        else if (available_registers[2])
+        {
+            available_registers[2] = false;
+            return { R2 };
+        }
+        else if (available_registers[3])
+        {
+            available_registers[3] = false;
+            return { R3 };
+        }
+        else
+        {
+            return std::nullopt;
+        }
+    }
+    
+    RegisterType Context::allocate_register_forced(void) noexcept
+    {
+        auto new_allocation = allocate_register();
+        
+        if (!new_allocation.has_value())
+        {
+            emit_push(RegisterType::R0);
+            new_allocation.value() = RegisterType::R0;
+            available_registers[0] = false;
         }
         
-        if (avail)
+        return new_allocation.value();
+    }
+    
+    RegisterType Context::allocate_register_forced_exclude(RegisterType exclude) noexcept
+    {
+        auto new_allocation = allocate_register();
+        
+        if (!new_allocation.has_value())
         {
-            for (auto k = 0; k < size; ++k)
-                available_heap[cvt + k] = false;
+            auto& value = new_allocation.value();
             
-            return cvt;
+            using enum RegisterType;
+            switch (value)
+            {
+                case R0: value = R1; available_registers[1] = false; break;
+                case R1: value = R2; available_registers[2] = false; break;
+                case R2: value = R3; available_registers[3] = false; break;
+                case R3: value = R0; available_registers[0] = false; break;
+            }
+            
+            emit_push(value);
         }
         
-        avail = true;
+        return new_allocation.value();
     }
     
-    if (avail)
+    void Context::deallocate_register(RegisterType location) noexcept
     {
-        return cvt;
-    }
-    else
-    {
-        //no successful allocation was made
-        ti::throw_error("No contiguous heap region large enough allocate %u bytes", size);
-    }
-}
-
-void ti::Context::deallocate_heap(std::uint16_t location, std::uint16_t bytes) noexcept
-{
-    if (location < 0x4000 && location < available_heap.size())
-    {
-        for (auto i = location; i < location + bytes; ++i)
+        using enum RegisterType;
+        switch (location)
         {
-            available_heap[i] = true;
+            case R0: available_registers[0] = true; break;
+            case R1: available_registers[1] = true; break;
+            case R2: available_registers[2] = true; break;
+            case R3: available_registers[3] = true; break;
         }
     }
-    else
+    
+    void Context::deallocate_register_forced(RegisterType location) noexcept
     {
-        ti::throw_error("Address %u is outside the heap region and cannot be deallocated", location);
+        emit_pop(location);
+        deallocate_register(location);
     }
+    
+    std::uint16_t Context::allocate_heap(std::uint16_t bytes) noexcept
+    {
+        for (auto i = 0u; i < available_heap.size(); ++i)
+        {
+            auto available = true;
+            
+            for (auto j = 0u; j < bytes; ++j)
+            {
+                if (!available_heap[i + j])
+                    available = false;
+            }
+            
+            if (available)
+            {
+                for (auto k = 0u; k < bytes; ++k)
+                    available_heap[i + k] = false;
+                
+                return static_cast<std::uint16_t>(i);
+            }
+            
+            //else throw error
+        }
+    }
+    
+    void Context::deallocate_heap(std::uint16_t address, std::uint16_t bytes) noexcept
+    {
+        for (auto i = address; i < address + bytes; ++i)
+            available_heap[i] = true;
+    }
+    
+    
+    void Context::emit_label(std::string&& name) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::LABEL,
+            .as.label.name = std::move(name),
+        });
+    }
+    
+    void Context::emit_ascii(std::string&& name) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::DIRECTIVE,
+            .as.directive.type = DirectiveType::ASCII,
+            .as.directive.as.ascii.text = std::move(name),
+        });
+    }
+    
 }
 
-
-std::uint8_t ti::get_type_size(ti::CompleteType& type) noexcept
+namespace ti
 {
-    using enum ti::TypeSpecifier;
-    switch (type.specifier)
+    std::uint8_t get_size_by_type(CompleteType type) noexcept
     {
-        case BYTE: return 1; break;
-        case VOID: ti::throw_error("Type \'void\' is unsized");          break;
-        default:   ti::throw_error("Unknown type to query the size of"); break;
+        using enum TypeSpecifier;
+        switch (type.specifier)
+        {
+            case BYTE: return 1; break;
+            case VOID: throw_error("Type \'void\' is unsized");          break;
+            default:   throw_error("Unknown type to query the size of"); break;
+        }
     }
-}
-
-std::string ti::location_to_string(ti::Location location) noexcept
-{
-    using enum ti::Location;
-    switch (location)
+    
+    std::string regtype_to_string(RegisterType regtype) noexcept
     {
-        case R0:    return "r0";    break;
-        case R1:    return "r1";    break;
-        case R2:    return "r2";    break;
-        case R3:    return "r3";    break;
-        case STACK: return "stack"; break;
-        default: ti::throw_error("Unknown location to convert to string"); break;
-    }
-}
-
-std::string ti::expression_type_to_string(ti::ExpressionType type) noexcept
-{
-    using enum ti::ExpressionType;
-    switch (type)
-    {
-        case NUMCONST:    return "numeric constant"; break;
-        case STRINGCONST: return "string constant";  break;
-        case IDENTIFIER:  return "identifier";       break;
-        case TERNARYOP:   return "ternary operator"; break;
-        case BINARYOP:    return "binary operator";  break;
-        case UNARYOP:     return "unary operator";   break;
-        default: ti::throw_error("Unknown expresion type to convert to string"); break;
+        using enum RegisterType;
+        switch (regtype)
+        {
+            case R0: return "r0"; break;
+            case R1: return "r1"; break;
+            case R2: return "r2"; break;
+            case R3: return "r3"; break;
+        }
     }
 }

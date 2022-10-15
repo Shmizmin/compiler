@@ -23,7 +23,7 @@ namespace
 namespace ti
 {
     template<typename... T>
-    [[noreturn]] void throw_error(const char* msg, T&&... t) noexcept
+    [[noreturn]] inline void throw_error(const char* msg, T&&... t) noexcept
     {
         ::log_internal("[Error] ", "\nExiting...\n", msg, t...);
         
@@ -31,13 +31,13 @@ namespace ti
     }
 
     template<typename... T>
-    void throw_warning(const char* msg, T&&... t) noexcept
+    inline void throw_warning(const char* msg, T&&... t) noexcept
     {
         ::log_internal("[Warning] ", "\n", msg, t...);
     }
 
     template<typename... T>
-    void write_log(const char* msg, T&&... t) noexcept
+    inline void write_log(const char* msg, T&&... t) noexcept
     {
         ::log_internal("[Log] ", "\n", msg, t...);
     }

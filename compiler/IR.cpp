@@ -1,5 +1,6 @@
 #include "IR.hpp"
-//#include "Utility.hpp"
+#include "Central.hpp"
+#include "Error.hpp"
 
 namespace ti
 {
@@ -18,10 +19,10 @@ namespace ti
                     using enum DirectiveType;
                     switch (command.as.directive.type)
                     {
-                        case ORIGIN: code.append(ti::format(".org %u",       command.as.directive.as.origin.address));      break;
-                        case   BYTE: code.append(ti::format(".byte $u",      command.as.directive.as.word.value));          break;
-                        case   WORD: code.append(ti::format(".word %u",      command.as.directive.as.word.value));          break;
-                        case  ASCII: code.append(ti::format(".ascii \"%s\"", command.as.directive.as.ascii.text.c_str()));  break;
+                        case ORIGIN: code.append(ti::format(".org %u",       command.as.directive.as.origin.address));     break;
+                        case   BYTE: code.append(ti::format(".byte $u",      command.as.directive.as.word.value));         break;
+                        case   WORD: code.append(ti::format(".word %u",      command.as.directive.as.word.value));         break;
+                        case  ASCII: code.append(ti::format(".ascii \"%s\"", command.as.directive.as.ascii.text.c_str())); break;
                     }
                 } break;
                     
@@ -122,7 +123,7 @@ namespace ti
                                 command.as.instruction.as.jmp.label));
                         } break;
                             
-                        case STACK
+                        case STACK:
                         {
                             using enum insn::Stack::Direction;
                             using enum insn::Stack::Data;
@@ -143,7 +144,7 @@ namespace ti
                             }
                         } break;
                             
-                        case DEREF
+                        case DEREF:
                         {
                             using enum insn::Deref::Operation;
                             switch (command.as.instruction.as.deref.op)

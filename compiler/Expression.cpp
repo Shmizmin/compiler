@@ -37,14 +37,6 @@ namespace
                (f1.return_type.specifier == f2.return_type.specifier) &&
                (f1.return_type.qualifier == f2.return_type.qualifier) && args_same;
     }
-    
-    int generate_uuid(void) noexcept
-    {
-        static int uuid = 0;
-        
-        return uuid++;
-    }
-    
 }
     
 namespace
@@ -94,7 +86,7 @@ namespace
                 }
                 
                 //found the variable we were looking for
-                common.context.emit_ldb(common.allocation.location, symbol. as.variable.address);
+                common.context.emit_ldb(common.allocation, symbol->as.variable.address);
                 return;
             }
         }
@@ -123,15 +115,15 @@ namespace
                         {
                             argument_symbol->defined = true;
                             
-                            ti::compile_expression(symbol.as.function.arguments[i], common);
+                            ti::compile_expression(symbol->as.function.arguments[i], common);
                             
-                            common.context.emit_stb(argument_symbol.as.variable.address, common.allocation.location);
+                            common.context.emit_stb(argument_symbol->as.variable.address, common.allocation);
                         }
                     }
                 }
                 
                 //first arg is call_rx (return location of function)
-                common.context.emit_call(allocation.location, ti::format("function_start_%s", symbol.name));
+                common.context.emit_call(common.allocation, ti::format("function_start_%s", symbol->name));
             }
         }
     }
@@ -144,7 +136,7 @@ namespace
                     
         //verify that we can perform a conditional jump on the expression with valid flags
         //assume it is a register for now
-        common.context.emit_updateflags(common.allocation.location);
+        common.context.emit_updateflags(common.allocation);
                    
         const auto label_template = "ternary_%s_%s_";
                     

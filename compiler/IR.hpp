@@ -225,7 +225,7 @@ namespace ti
         } as;
     };
     
-    std::vector<std::uint8_t> generate_commands(const std::vector<Command>&) noexcept;
+    std::string generate_commands(const std::vector<Command>&) noexcept;
 }
 
 

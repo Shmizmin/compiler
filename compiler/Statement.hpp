@@ -82,7 +82,7 @@ namespace ti
     Statement* make_if(Expression*, Statement*) noexcept;
     Statement* make_while(Expression*, Statement*) noexcept;
     Statement* make_return(Expression*) noexcept;
-    Statement* make_variable(std::vector<Variable*>&&) noexcept;
+    Statement* make_variable(std::vector<Var*>&&) noexcept;
     
     void compile_statement(Statement*, CommonArgs&) noexcept;
 }

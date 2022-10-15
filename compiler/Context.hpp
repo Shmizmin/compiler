@@ -2,7 +2,8 @@
 #define Context_hpp
 
 #include <vector>
-#include <forward_list>
+#include <list>
+#include <optional>
 #include <array>
 #include <string>
 #include <optional>
@@ -13,7 +14,7 @@
 #include "IR.hpp"
 #include "Expression.hpp"
 
-#define common2 { common.context, common.parent_function, new_allocation.allocation }
+#define common2 { common.context, common.parent_function, new_allocation.location }
 
 namespace ti
 {
@@ -55,13 +56,15 @@ namespace ti
     
 
     
+    int generate_uuid(void) noexcept;
     
     
+    enum class RegisterType;
     
     struct Context
     {
         std::vector<Symbol*> symbol_table;
-        std::forward_list<Command> ir_code;
+        std::list<Command*> ir_code;
         
         std::array<bool, 4> available_registers;
         std::array<bool, 0x4000> available_heap;
@@ -78,21 +81,27 @@ namespace ti
                 byte = true;
         }
         
-        const Allocation allocate_register(void) noexcept;
-        const Allocation allocate_register_forced(void) noexcept;
-        const Allocation allocate_register_forced_exclude(const Allocation&) noexcept;
+        void add_to_symbol_table(Symbol*) noexcept;
         
-        void deallocate_register(const Location&) noexcept;
-        void deallocate_register(const Allocation&) noexcept;
+        std::optional<RegisterType> allocate_register(void) noexcept;
+        RegisterType allocate_register_forced(void) noexcept;
+        RegisterType allocate_register_forced_exclude(RegisterType) noexcept;
+        
+        void deallocate_register(RegisterType) noexcept;
+        void deallocate_register_forced(RegisterType) noexcept;
         
         std::uint16_t allocate_heap(std::uint16_t) noexcept;
         void deallocate_heap(std::uint16_t, std::uint16_t) noexcept;
+        
+        
+        void emit_label(std::string&&) noexcept;
+        void emit_ascii(std::string&&) noexcept;
     };
     
     
 
     
-    enum RegisterType
+    enum class RegisterType
     {
         R0,
         R1,
@@ -108,7 +117,7 @@ namespace ti
         RegisterAllocation(Context& context) noexcept
             : context(context)
         {
-            location = context.allocate_register();
+            location = context.allocate_register().value();
         }
 
         ~RegisterAllocation(void) noexcept
@@ -144,6 +153,7 @@ namespace ti
     struct HeapAllocation
     {
         std::uint16_t address, size;
+        Context& context;
         
         HeapAllocation(Context& context, std::uint16_t size) noexcept
             : context(context), size(size)
@@ -201,8 +211,7 @@ namespace ti
     };*/
     
     std::uint8_t get_size_by_type(CompleteType) noexcept;
-    std::string&& location_to_string(Location) noexcept;
-    std::string&& expression_type_to_string(ExpressionType) noexcept;
+    std::string regtype_to_string(RegisterType) noexcept;
 }
 
 

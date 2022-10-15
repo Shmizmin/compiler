@@ -163,7 +163,7 @@ namespace ti
         };
     }
     
-    Statement* make_variable(std::vector<Variable*>&& vars) noexcept
+    Statement* make_variable(std::vector<Var*>&& vars) noexcept
     {
         return new Statement
         {
