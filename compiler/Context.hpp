@@ -96,6 +96,9 @@ namespace ti
         
         void emit_label(std::string&&) noexcept;
         void emit_ascii(std::string&&) noexcept;
+        
+        void emit_jmp(insn::Jmp::Condition, const std::string&) noexcept;
+        void emit_adc(RegisterType, std::uint8_t) noexcept;
     };
     
     

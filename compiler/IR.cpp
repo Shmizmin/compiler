@@ -120,7 +120,7 @@ namespace ti
                             }
                             
                             code.append(format("%s\n",
-                                command.as.instruction.as.jmp.label));
+                                command.as.instruction.as.jmp.label.c_str()));
                         } break;
                             
                         case STACK:

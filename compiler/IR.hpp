@@ -37,7 +37,7 @@ namespace ti
         
         struct Ascii
         {
-            std::string text;
+            std::string text{};
         };
     }
     
@@ -152,7 +152,7 @@ namespace ti
                 JCC,
             } cond;
             
-            std::string label;
+            std::string label{};
         };
         
         struct Stack
@@ -200,7 +200,7 @@ namespace ti
     
     struct Label
     {
-        std::string name;
+        std::string name{};
     };
     
     

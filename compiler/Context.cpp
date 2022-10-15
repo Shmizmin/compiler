@@ -167,6 +167,31 @@ namespace ti
         });
     }
     
+    void Context::emit_jmp(ti::insn::Jmp::Condition condition, const td::string& label) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::INSTRUCTION,
+            .as.instruction.type = InstructionType::JMP,
+            .as.instruction.as.jmp.cond = condition,
+            .as.isntruction.as.jmp.label = label,
+        });
+    }
+    
+    void Context::emit_adc(RegisterType location, std::uint8_t value) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::INSTRUCTION,
+            .as.instruction.type = InstructionType::MATH,
+            .as.instruction.as.math.op = insn::Math::Operation::ADC,
+            .as.instruction.as.math.op1 = Operand
+            {
+                .type = OperandType::
+            },
+        });
+    }
+    
 }
 
 namespace ti

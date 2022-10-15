@@ -27,7 +27,9 @@ namespace
         {
             ti::ForcedRegisterAllocation new_allocation{ common.context };
             
-            ti::compile_expression(ifs.condition, common2);
+            ti::CommonArgs args common2;
+            
+            ti::compile_expression(ifs.condition, args);
         
             common.context.emit_adc(new_allocation.location, 0);
             common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, label_end);
