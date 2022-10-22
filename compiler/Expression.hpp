@@ -101,9 +101,9 @@ namespace ti
         
     struct Expression
     {
-        const ExpressionType type;
+        ExpressionType type;
         
-        const union
+        union
         {
             expr::Numconst numconst;
             expr::Stringconst stringconst;
@@ -126,4 +126,4 @@ namespace ti
     void compile_expression(Expression*, CommonArgs&) noexcept;
 }
 
-#endif /* Expression_hpp */
+#endif

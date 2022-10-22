@@ -1,47 +1,31 @@
 #ifndef Error_hpp
 #define Error_hpp
 
-#include <cstdio>
-#include <cstdarg>
 #include <cstdlib>
-
-namespace
-{
-    void log_internal(const char* head, const char* tail, const char* msg, ...) noexcept
-    {
-        std::va_list args;
-        va_start(args, msg);
-        
-        std::fprintf(stderr, "%s", head);
-        std::vfprintf(stderr, msg, args);
-        std::fprintf(stderr, "%s", tail);
-        
-        va_end(args);
-    }
-}
+#include <iostream>
+#include "fmt/format.h"
 
 namespace ti
 {
     template<typename... T>
-    [[noreturn]] inline void throw_error(const char* msg, T&&... t) noexcept
+    [[noreturn]] inline void throw_error(std::string&& msg) noexcept
     {
-        ::log_internal("[Error] ", "\nExiting...\n", msg, t...);
-        
+        std::cerr << fmt::format("[Error] {}\nExiting...\n", std::move(msg));
         std::exit(EXIT_FAILURE);
     }
 
     template<typename... T>
-    inline void throw_warning(const char* msg, T&&... t) noexcept
+    inline void throw_warning(std::string&& msg) noexcept
     {
-        ::log_internal("[Warning] ", "\n", msg, t...);
+        std::cerr << fmt::format("[Warning] {}\nExiting...\n", std::move(msg));
     }
 
     template<typename... T>
-    inline void write_log(const char* msg, T&&... t) noexcept
+    inline void write_log(std::string&& msg) noexcept
     {
-        ::log_internal("[Log] ", "\n", msg, t...);
+        std::clog << fmt::format("[Log] {}\n", std::move(msg));
     }
 
 }
 
-#endif /* Error_hpp */
+#endif

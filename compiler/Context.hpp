@@ -32,12 +32,12 @@ namespace ti
         {
             std::uint16_t address;
             TypeVisibility visibility;
-            Function& parent_function;
+            Function* parent_function;
         };
         
         struct Function
         {
-            std::vector<Argument> arguments;
+            std::vector<Argument> arguments{};
         };
     }
     
@@ -47,7 +47,7 @@ namespace ti
         std::string name;
         bool defined;
         
-        const union
+        union
         {
             sym::Variable variable;
             sym::Function function;
@@ -94,23 +94,41 @@ namespace ti
         void deallocate_heap(std::uint16_t, std::uint16_t) noexcept;
         
         
-        void emit_label(std::string&&) noexcept;
-        void emit_ascii(std::string&&) noexcept;
+        void emit_label(const std::string&) noexcept;
+        void emit_ascii(const std::string&) noexcept;
+        void emit_org(std::uint16_t) noexcept;
         
         void emit_jmp(insn::Jmp::Condition, const std::string&) noexcept;
+        
         void emit_adc(RegisterType, std::uint8_t) noexcept;
+        void emit_adc(RegisterType, RegisterType) noexcept;
+        
+        void emit_sbb(RegisterType, std::uint8_t) noexcept;
+        void emit_sbb(RegisterType, RegisterType) noexcept;
+        
+        void emit_and(RegisterType, std::uint8_t) noexcept;
+        void emit_and(RegisterType, RegisterType) noexcept;
+        
+        void emit_lor(RegisterType, std::uint8_t) noexcept;
+        void emit_lor(RegisterType, RegisterType) noexcept;
+        
+        void emit_rol(RegisterType, std::uint8_t) noexcept;
+        void emit_ror(RegisterType, std::uint8_t) noexcept;
+        
+        void emit_not(RegisterType) noexcept;
+        
+        void emit_xor(RegisterType, RegisterType) noexcept;
+        
+        void emit_stb(std::uint16_t, RegisterType) noexcept;
+        void emit_mvb(RegisterType, RegisterType) noexcept;
+        void emit_ldb(RegisterType, std::uint8_t) noexcept;
+        
+        void emit_call(RegisterType, std::string&&) noexcept;
+        
+        void emit_push(RegisterType) noexcept;
+        void emit_pop(RegisterType) noexcept;
     };
     
-    
-
-    
-    enum class RegisterType
-    {
-        R0,
-        R1,
-        R2,
-        R3,
-    };
     
     struct RegisterAllocation
     {
@@ -170,53 +188,8 @@ namespace ti
         }
     };
     
-    /*
-    struct Context
-    {
-        std::vector<Symbol*> symbol_table;
-        std::string code_segment;
-        std::string end_segment;
-        std::array<bool, 4> available_registers;
-        std::array<bool, 0x4000> available_heap;
-        std::uint32_t counter;
-        std::uint16_t stack_pointer;
-        
-        Context(void)
-        {
-            symbol_table = {};
-            code_segment = "";
-            
-            for (auto&& r : available_registers)
-                r = true;
-            
-            for (auto&& h : available_heap)
-                h = true;
-            
-            counter = 0u;
-            stack_pointer = 0x7FFF;
-        }
-
-        void add_to_symbol_table(Symbol*) noexcept;
-        
-        void add_to_code(const std::string&) noexcept;
-        void add_to_end(const std::string&) noexcept;
-        
-        const ForcedAllocation allocate_forced(void) noexcept;
-        const ForcedAllocation allocate_forced(const ForcedAllocation&) noexcept;
-        void deallocate_forced(const ForcedAllocation&) noexcept;
-        
-        const Location allocate(void) noexcept;
-        void deallocate(const Location&) noexcept;
-        
-        std::uint16_t allocate_heap(std::uint16_t) noexcept;
-        void deallocate_heap(std::uint16_t, std::uint16_t) noexcept;
-        
-    };*/
-    
     std::uint8_t get_size_by_type(CompleteType) noexcept;
     std::string regtype_to_string(RegisterType) noexcept;
 }
 
-
-
-#endif /* Context_hpp */
+#endif

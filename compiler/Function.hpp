@@ -26,8 +26,8 @@ namespace ti
     
     struct Program
     {
-        std::vector<Function> functions;
+        std::vector<Function*> functions;
     };
 }
 
-#endif /* Function_hpp */
+#endif

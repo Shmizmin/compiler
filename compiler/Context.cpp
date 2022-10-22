@@ -1,6 +1,8 @@
 #include "Context.hpp"
 #include "Error.hpp"
 #include "Central.hpp"
+#include "Types.hpp"
+#include "fmt/format.h"
 
 #include <algorithm>
 
@@ -91,6 +93,7 @@ namespace ti
                 case R1: value = R2; available_registers[2] = false; break;
                 case R2: value = R3; available_registers[3] = false; break;
                 case R3: value = R0; available_registers[0] = false; break;
+                default:                                             break;
             }
             
             emit_push(value);
@@ -108,6 +111,7 @@ namespace ti
             case R1: available_registers[1] = true; break;
             case R2: available_registers[2] = true; break;
             case R3: available_registers[3] = true; break;
+            default:                                break;
         }
     }
     
@@ -119,10 +123,9 @@ namespace ti
     
     std::uint16_t Context::allocate_heap(std::uint16_t bytes) noexcept
     {
+        auto available = true;
         for (auto i = 0u; i < available_heap.size(); ++i)
         {
-            auto available = true;
-            
             for (auto j = 0u; j < bytes; ++j)
             {
                 if (!available_heap[i + j])
@@ -137,7 +140,14 @@ namespace ti
                 return static_cast<std::uint16_t>(i);
             }
             
-            //else throw error
+            else
+                available = true;
+            
+        }
+        
+        if (!available)
+        {
+            ti::throw_error(fmt::format("No contiguous heap region of {} bytes available", bytes));
         }
     }
     
@@ -148,7 +158,7 @@ namespace ti
     }
     
     
-    void Context::emit_label(std::string&& name) noexcept
+    void Context::emit_label(const std::string& name) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -157,7 +167,7 @@ namespace ti
         });
     }
     
-    void Context::emit_ascii(std::string&& name) noexcept
+    void Context::emit_ascii(const std::string& name) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -167,7 +177,7 @@ namespace ti
         });
     }
     
-    void Context::emit_jmp(ti::insn::Jmp::Condition condition, const td::string& label) noexcept
+    void Context::emit_jmp(ti::insn::Jmp::Condition condition, const std::string& label) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -187,11 +197,56 @@ namespace ti
             .as.instruction.as.math.op = insn::Math::Operation::ADC,
             .as.instruction.as.math.op1 = Operand
             {
-                .type = OperandType::
+                .type = OperandType::REG,
+                .as.reg.location = location,
+            },
+            .as.instruction.as.math.op2 = Operand
+            {
+                .type = OperandType::IMM,
+                .as.imm.value = value,
             },
         });
     }
     
+    void Context::emit_and(RegisterType location, std::uint8_t value) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::INSTRUCTION,
+            .as.instruction.type = InstructionType::MATH,
+            .as.instruction.as.math.op = insn::Math::Operation::LAND,
+            .as.instruction.as.math.op1 = Operand
+            {
+                .type = OperandType::REG,
+                .as.reg.location = location,
+            },
+            .as.instruction.as.math.op2 = Operand
+            {
+                .type = OperandType::IMM,
+                .as.imm.value = value,
+            },
+        });
+    }
+    
+    void Context::emit_lor(RegisterType location, std::uint8_t value) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::INSTRUCTION,
+            .as.instruction.type = InstructionType::MATH,
+            .as.instruction.as.math.op = insn::Math::Operation::LOR,
+            .as.instruction.as.math.op1 = Operand
+            {
+                .type = OperandType::REG,
+                .as.reg.location = location,
+            },
+            .as.instruction.as.math.op2 = Operand
+            {
+                .type = OperandType::IMM,
+                .as.imm.value = value,
+            },
+        });
+    }
 }
 
 namespace ti
@@ -212,10 +267,12 @@ namespace ti
         using enum RegisterType;
         switch (regtype)
         {
-            case R0: return "r0"; break;
-            case R1: return "r1"; break;
-            case R2: return "r2"; break;
-            case R3: return "r3"; break;
+            case R0: return "r0";    break;
+            case R1: return "r1";    break;
+            case R2: return "r2";    break;
+            case R3: return "r3";    break;
+            case RF: return "flags"; break;
+            case IP: return "ip";    break;
         }
     }
 }

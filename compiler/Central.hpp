@@ -14,15 +14,12 @@ namespace ti
     struct Parameters
     {
         std::string file_name;
+        bool optimize_ast, optimize_ir;
     };
     
-    void generate_program(Program&, Parameters&) noexcept;
-    void generate_function(Context&, Function&) noexcept;
-    void generate_statement(Context&, Function&, Statement*) noexcept;
-    void generate_expression(Context&, Function&, Expression*) noexcept;
-    
-    void optimize(std::string&) noexcept;
-    
+    void compile_program(Program&, Parameters&) noexcept;
+    void compile_function(Context&, Function*) noexcept;
+
     //reformatted from https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
     template<typename... T>
     std::string format(const std::string& format, T&&... t)
@@ -45,4 +42,5 @@ namespace ti
 
 }
 
-#endif /* Central_hpp */
+#endif
+*

@@ -5,7 +5,7 @@ namespace ti
 {
     struct Context;
     struct Function;
-    struct Allocation;
+    enum class RegisterType;
     
     enum class TypeVisibility
     {
@@ -30,13 +30,22 @@ namespace ti
         TypeQualifier qualifier;
     };
     
-    
     struct CommonArgs
     {
         Context& context;
         Function& parent_function;
-        Allocation& allocation;
+        RegisterType& allocation;
+    };
+    
+    enum class RegisterType
+    {
+        R0,
+        R1,
+        R2,
+        R3,
+        RF,
+        IP,
     };
 }
 
-#endif /* types_h */
+#endif

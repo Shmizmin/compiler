@@ -6,15 +6,15 @@
 %define api.value.type variant
 %define parse.assert
 
-%code requires {
+%code requires
+{
 #include <string>
 #include <vector>
 #include <cstdint>
 #include <cstdlib>
-  class driver;
+  class Driver;
 
 #include "Types.hpp"
-//#include "Driver.hpp"
 #include "Context.hpp"
 #include "Central.hpp"
 #include "Function.hpp"
@@ -25,7 +25,7 @@
 }
 
 // The parsing context.
-%param { driver& drv }
+%param { Driver& driver }
 
 %locations
 
@@ -33,7 +33,8 @@
 %define parse.error verbose
 %define parse.lac full
 
-%code {
+%code
+{
 #include "Types.hpp"
 #include "Driver.hpp"
 #include "Context.hpp"
@@ -295,6 +296,8 @@ expect_rbrace
 
 
 // statements
+
+// FIXME: a
 statement
 : "{" statements_opt "}"               { $$ = new ti::stmt::Block{ $2 }; }
 | "if" "(" expression ")" statement    { $$ = new ti::stmt::If{ $3, $5 }; }
@@ -317,6 +320,8 @@ statements_opt
 
 
 // expressions
+
+// FIXME: a
 expression
 : "(" expression ")"                        { $$ = $2; }
 | NUMCONST                                  { $$ = new ti::expr::Numconst{ $1 }; }
@@ -350,7 +355,7 @@ expression_opt
 
 %%
 
-void yy::parser::error(const location_type& l, const std::string& m)
+void yy::Parser::error(const location_type& l, const std::string& m)
 {
     std::cerr << l << ": " << m << '\n';
 }

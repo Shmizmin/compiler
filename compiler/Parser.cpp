@@ -42,7 +42,7 @@
 
 
 // Unqualified %code blocks.
-#line 36 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 37 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 
 #include "Types.hpp"
 #include "Driver.hpp"
@@ -147,7 +147,7 @@ namespace yy {
 #line 148 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
 
   /// Build a parser object.
-  parser::parser (driver& drv_yyarg)
+  parser::parser (Driver& driver_yyarg)
 #if YYDEBUG
     : yydebug_ (false),
       yycdebug_ (&std::cerr),
@@ -155,7 +155,7 @@ namespace yy {
     :
 #endif
       yy_lac_established_ (false),
-      drv (drv_yyarg)
+      driver (driver_yyarg)
   {}
 
   parser::~parser ()
@@ -718,7 +718,7 @@ namespace yy {
         try
 #endif // YY_EXCEPTIONS
           {
-            symbol_type yylookahead (yylex (drv));
+            symbol_type yylookahead (yylex (driver));
             yyla.move (yylookahead);
           }
 #if YY_EXCEPTIONS
@@ -887,7 +887,7 @@ namespace yy {
           switch (yyn)
             {
   case 2: // translation_unit: definitions_opt "end of file"
-#line 141 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 142 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
     auto program = ti::Program{ yystack_[1].value.as < std::vector<ti::Function> > () };
     auto parameters = ti::Parameters{ driver.file };
@@ -898,19 +898,19 @@ namespace yy {
     break;
 
   case 3: // definitions_opt: %empty
-#line 151 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 152 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
               { yylhs.value.as < std::vector<ti::Function> > () = {}; }
 #line 904 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 4: // definitions_opt: definitions
-#line 152 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 153 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
               { yylhs.value.as < std::vector<ti::Function> > () = yystack_[0].value.as < std::vector<ti::Function> > (); }
 #line 910 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 5: // definitions: definitions definition
-#line 157 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 158 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
     auto& vec = yystack_[1].value.as < std::vector<ti::Function> > ();
     vec.emplace_back(yystack_[0].value.as < ti::Function > ());
@@ -920,7 +920,7 @@ namespace yy {
     break;
 
   case 6: // definitions: definition
-#line 163 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 164 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
     yylhs.value.as < std::vector<ti::Function> > () = std::vector<ti::Function>();
     yylhs.value.as < std::vector<ti::Function> > ().emplace_back(yystack_[0].value.as < ti::Function > ());
@@ -929,79 +929,79 @@ namespace yy {
     break;
 
   case 7: // definition: function_declarator
-#line 170 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 171 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                       { yylhs.value.as < ti::Function > () = yystack_[0].value.as < ti::Function > (); }
 #line 935 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 8: // type_specifier: "byte"
-#line 177 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 178 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
          { yylhs.value.as < ti::TypeSpecifier > () = ti::TypeSpecifier::BYTE; }
 #line 941 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 9: // type_specifier: "void"
-#line 178 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 179 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
          { yylhs.value.as < ti::TypeSpecifier > () = ti::TypeSpecifier::VOID; }
 #line 947 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 10: // type_qualifier: "val"
-#line 182 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 183 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
         { yylhs.value.as < ti::TypeQualifier > () = ti::TypeQualifier::VAL; }
 #line 953 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 11: // type_visibility: "local"
-#line 186 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 187 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
            { yylhs.value.as < ti::TypeVisibility > () = ti::TypeVisibility::LOCAL; }
 #line 959 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 12: // type_visibility: "global"
-#line 187 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 188 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
            { yylhs.value.as < ti::TypeVisibility > () = ti::TypeVisibility::GLOBAL; }
 #line 965 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 13: // complete_type: type_specifier type_qualifier
-#line 191 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 192 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                 { yylhs.value.as < ti::CompleteType > () = ti::CompleteType{ yystack_[1].value.as < ti::TypeSpecifier > (), yystack_[0].value.as < ti::TypeQualifier > () }; }
 #line 971 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 14: // function_declarator: "proto" function_header ";"
-#line 198 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 199 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                               { yylhs.value.as < ti::Function > () = yystack_[1].value.as < ti::Function > (); }
 #line 977 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 15: // function_declarator: function_header statement
-#line 199 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 200 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                               { auto a = yystack_[1].value.as < ti::Function > (); a.body = yystack_[0].value.as < ti::Statement* > (); yylhs.value.as < ti::Function > () = a; }
 #line 983 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 16: // function_header: "function" complete_type IDENTIFIER "=" "(" fdecl_args_opt ")"
-#line 203 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 204 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                                                  { yylhs.value.as < ti::Function > () = ti::Function{ yystack_[4].value.as < std::string > (), yystack_[5].value.as < ti::CompleteType > (), yystack_[1].value.as < std::vector<ti::Argument> > (), NULL }; }
 #line 989 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 17: // fdecl_args_opt: %empty
-#line 208 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 209 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                  { yylhs.value.as < std::vector<ti::Argument> > () = {}; }
 #line 995 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 18: // fdecl_args_opt: fdecl_args
-#line 209 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 210 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                  { yylhs.value.as < std::vector<ti::Argument> > () = yystack_[0].value.as < std::vector<ti::Argument> > (); }
 #line 1001 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 19: // fdecl_args: complete_type IDENTIFIER
-#line 214 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 215 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
     {
         yylhs.value.as < std::vector<ti::Argument> > () = std::vector<ti::Argument>();
         yylhs.value.as < std::vector<ti::Argument> > ().emplace_back(ti::Argument{ yystack_[0].value.as < std::string > (), yystack_[1].value.as < ti::CompleteType > () });
@@ -1010,7 +1010,7 @@ namespace yy {
     break;
 
   case 20: // fdecl_args: fdecl_args "," complete_type IDENTIFIER
-#line 219 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 220 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
     {
         auto& vec = yystack_[3].value.as < std::vector<ti::Argument> > ();
         vec.emplace_back(ti::Argument{ yystack_[0].value.as < std::string > (), yystack_[1].value.as < ti::CompleteType > () });
@@ -1020,19 +1020,19 @@ namespace yy {
     break;
 
   case 21: // fcall_args_opt: %empty
-#line 229 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 230 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                  { yylhs.value.as < std::vector<ti::Expression*> > () = {}; }
 #line 1026 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 22: // fcall_args_opt: fcall_args
-#line 230 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 231 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                  { yylhs.value.as < std::vector<ti::Expression*> > () = yystack_[0].value.as < std::vector<ti::Expression*> > (); }
 #line 1032 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 23: // fcall_args: expression
-#line 235 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 236 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
     {
         yylhs.value.as < std::vector<ti::Expression*> > () = std::vector<ti::Expression*>();
         yylhs.value.as < std::vector<ti::Expression*> > ().emplace_back(yystack_[0].value.as < ti::Expression* > ());
@@ -1041,7 +1041,7 @@ namespace yy {
     break;
 
   case 24: // fcall_args: fcall_args "," expression
-#line 240 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 241 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
     {
         auto& vec = yystack_[2].value.as < std::vector<ti::Expression*> > ();
         vec.emplace_back(yystack_[0].value.as < ti::Expression* > ());
@@ -1051,7 +1051,7 @@ namespace yy {
     break;
 
   case 25: // variable_declarator: variable_declarator_i
-#line 254 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 255 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
     yylhs.value.as < std::vector<ti::Variable*> > () = std::vector<ti::Variable*>();
     yylhs.value.as < std::vector<ti::Variable*> > ().emplace_back(yystack_[0].value.as < ti::Variable* > ());
@@ -1060,7 +1060,7 @@ namespace yy {
     break;
 
   case 26: // variable_declarator: variable_declarator "," variable_declarator_i
-#line 259 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 260 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
     auto& vec = yystack_[2].value.as < std::vector<ti::Variable*> > ();
     vec.emplace_back(yystack_[0].value.as < ti::Variable* > ());
@@ -1070,7 +1070,7 @@ namespace yy {
     break;
 
   case 27: // variable_declarator_i: type_visibility complete_type IDENTIFIER "=" expression
-#line 268 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 269 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
     yylhs.value.as < ti::Variable* > () = new ti::Variable{ yystack_[4].value.as < ti::TypeVisibility > (), yystack_[3].value.as < ti::CompleteType > (), yystack_[2].value.as < std::string > (), yystack_[0].value.as < ti::Expression* > () };
 }
@@ -1078,7 +1078,7 @@ namespace yy {
     break;
 
   case 28: // variable_declarator_i: type_visibility complete_type IDENTIFIER
-#line 272 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 273 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 {
     yylhs.value.as < ti::Variable* > () = new ti::Variable{ yystack_[2].value.as < ti::TypeVisibility > (), yystack_[1].value.as < ti::CompleteType > (), yystack_[0].value.as < std::string > (), NULL };
 }
@@ -1086,205 +1086,205 @@ namespace yy {
     break;
 
   case 29: // statement: "{" statements_opt "}"
-#line 299 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 300 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::Block{ yystack_[1].value.as < std::vector<ti::Statement*> > () }; }
 #line 1092 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 30: // statement: "if" "(" expression ")" statement
-#line 300 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 301 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::If{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Statement* > () }; }
 #line 1098 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 31: // statement: "while" "(" expression ")" statement
-#line 301 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 302 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::While{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Statement* > () }; }
 #line 1104 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 32: // statement: "return" expression_opt ";"
-#line 302 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 303 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::Return{ yystack_[1].value.as < ti::Expression* > () }; }
 #line 1110 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 33: // statement: ";"
-#line 303 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
-                                       { yylhs.value.as < ti::Statement* > () = new ti::stmt::Null{}; }
+#line 304 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+                                       { yylhs.value.as < ti::Statement* > () = nullptr; }
 #line 1116 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 34: // statement: variable_declarator ";"
-#line 304 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 305 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                        { yylhs.value.as < ti::Statement* > () = new ti::stmt::Variable{ yystack_[1].value.as < std::vector<ti::Variable*> > () }; }
 #line 1122 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 35: // statements: statements statement
-#line 308 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 309 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                        { auto& vec = yystack_[1].value.as < std::vector<ti::Statement*> > (); vec.emplace_back(yystack_[0].value.as < ti::Statement* > ()); yylhs.value.as < std::vector<ti::Statement*> > () = vec; }
 #line 1128 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 36: // statements: statement
-#line 309 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 310 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                        { yylhs.value.as < std::vector<ti::Statement*> > () = std::vector<ti::Statement*>(); yylhs.value.as < std::vector<ti::Statement*> > ().emplace_back(yystack_[0].value.as < ti::Statement* > ()); }
 #line 1134 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 37: // statements_opt: %empty
-#line 313 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 314 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
              { yylhs.value.as < std::vector<ti::Statement*> > () = {}; }
 #line 1140 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 38: // statements_opt: statements
-#line 314 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 315 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
              { yylhs.value.as < std::vector<ti::Statement*> > () = yystack_[0].value.as < std::vector<ti::Statement*> > (); }
 #line 1146 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 39: // expression: "(" expression ")"
-#line 321 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 322 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = yystack_[1].value.as < ti::Expression* > (); }
 #line 1152 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 40: // expression: NUMCONST
-#line 322 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 323 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::Numconst{ yystack_[0].value.as < std::uint8_t > () }; }
 #line 1158 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 41: // expression: STRINGCONST
-#line 323 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 324 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::Stringconst{ yystack_[0].value.as < std::string > () }; }
 #line 1164 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 42: // expression: IDENTIFIER
-#line 324 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 325 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::Identifier{ yystack_[0].value.as < std::string > () }; }
 #line 1170 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 43: // expression: IDENTIFIER "(" fcall_args_opt ")"
-#line 325 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 326 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::FCall{ new ti::expr::Identifier{ yystack_[3].value.as < std::string > () }, yystack_[1].value.as < std::vector<ti::Expression*> > () }; }
 #line 1176 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 44: // expression: IDENTIFIER "=" expression
-#line 326 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 327 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Equals{ new ti::expr::Identifier{ yystack_[2].value.as < std::string > () }, yystack_[0].value.as < ti::Expression* > () }; }
 #line 1182 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 45: // expression: expression "+" expression
-#line 327 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 328 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Plus{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1188 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 46: // expression: expression "-" expression
-#line 328 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 329 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Minus{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1194 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 47: // expression: expression "<<" expression
-#line 329 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 330 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::LeftShift{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1200 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 48: // expression: expression ">>" expression
-#line 330 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 331 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::RightShift{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1206 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 49: // expression: expression "^" expression
-#line 331 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 332 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::BitXor{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1212 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 50: // expression: expression "&" expression
-#line 332 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 333 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::BitAnd{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1218 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 51: // expression: expression "|" expression
-#line 333 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 334 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::BitOr{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1224 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 52: // expression: expression "++"
-#line 334 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 335 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::unary::PlusPlus{ yystack_[1].value.as < ti::Expression* > () }; }
 #line 1230 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 53: // expression: expression "--"
-#line 335 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 336 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::unary::MinusMinus{ yystack_[1].value.as < ti::Expression* > () }; }
 #line 1236 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 54: // expression: expression "==" expression
-#line 336 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 337 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::EqualsEquals{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1242 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 55: // expression: expression "!=" expression
-#line 337 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 338 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::NotEquals{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1248 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 56: // expression: "+" expression
-#line 338 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 339 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::unary::Positive{ yystack_[0].value.as < ti::Expression* > () }; }
 #line 1254 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 57: // expression: "-" expression
-#line 339 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 340 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::unary::Negative{ yystack_[0].value.as < ti::Expression* > () }; }
 #line 1260 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 58: // expression: expression "?" expression ":" expression
-#line 340 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 341 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::Ternary{ yystack_[4].value.as < ti::Expression* > (), yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1266 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 59: // expression: expression "<" expression
-#line 341 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 342 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Less{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1272 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 60: // expression: expression ">" expression
-#line 342 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 343 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
                                             { yylhs.value.as < ti::Expression* > () = new ti::expr::binary::Greater{ yystack_[2].value.as < ti::Expression* > (), yystack_[0].value.as < ti::Expression* > () }; }
 #line 1278 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 61: // expression_opt: %empty
-#line 346 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 347 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
              { yylhs.value.as < ti::Expression* > () = NULL; }
 #line 1284 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
 
   case 62: // expression_opt: expression
-#line 347 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 348 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
              { yylhs.value.as < ti::Expression* > () = yystack_[0].value.as < ti::Expression* > (); }
 #line 1290 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
     break;
@@ -1953,13 +1953,13 @@ namespace yy {
   const short
   parser::yyrline_[] =
   {
-       0,   140,   140,   151,   152,   156,   162,   170,   177,   178,
-     182,   186,   187,   191,   198,   199,   203,   208,   209,   213,
-     218,   229,   230,   234,   239,   253,   258,   267,   271,   299,
-     300,   301,   302,   303,   304,   308,   309,   313,   314,   321,
-     322,   323,   324,   325,   326,   327,   328,   329,   330,   331,
-     332,   333,   334,   335,   336,   337,   338,   339,   340,   341,
-     342,   346,   347
+       0,   141,   141,   152,   153,   157,   163,   171,   178,   179,
+     183,   187,   188,   192,   199,   200,   204,   209,   210,   214,
+     219,   230,   231,   235,   240,   254,   259,   268,   272,   300,
+     301,   302,   303,   304,   305,   309,   310,   314,   315,   322,
+     323,   324,   325,   326,   327,   328,   329,   330,   331,   332,
+     333,   334,   335,   336,   337,   338,   339,   340,   341,   342,
+     343,   347,   348
   };
 
   void
@@ -1993,10 +1993,10 @@ namespace yy {
 } // yy
 #line 1995 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.cpp"
 
-#line 351 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
+#line 352 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 
 
-void yy::parser::error(const location_type& l, const std::string& m)
+void yy::Parser::error(const location_type& l, const std::string& m)
 {
     std::cerr << l << ": " << m << '\n';
 }

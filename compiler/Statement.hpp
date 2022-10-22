@@ -14,7 +14,7 @@ namespace ti
     struct Function;
     
     
-    struct Var
+    struct Variable
     {
         TypeVisibility visibility;
         CompleteType type;
@@ -58,23 +58,23 @@ namespace ti
             Expression* value;
         };
         
-        struct Variable
+        struct Variables
         {
-            std::vector<Var*> variables;
+            std::vector<Variable*> variables;
         };
     }
     
     struct Statement
     {
-        const StatementType type;
+        StatementType type;
         
-        const union
+        union
         {
             stmt::Block block;
             stmt::If ifs;
             stmt::While whiles;
             stmt::Return returns;
-            stmt::Variable variable;
+            stmt::Variables variable;
         } as;
     };
     
@@ -82,9 +82,9 @@ namespace ti
     Statement* make_if(Expression*, Statement*) noexcept;
     Statement* make_while(Expression*, Statement*) noexcept;
     Statement* make_return(Expression*) noexcept;
-    Statement* make_variable(std::vector<Var*>&&) noexcept;
+    Statement* make_variable(std::vector<Variable*>&&) noexcept;
     
     void compile_statement(Statement*, CommonArgs&) noexcept;
 }
 
-#endif /* Statement_hpp */
+#endif

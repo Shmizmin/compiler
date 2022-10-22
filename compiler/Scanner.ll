@@ -33,7 +33,7 @@ blank [ \t]
 %%
     
 %{
-    yy::location& loc = drv.location;
+    yy::location& loc = driver.location;
     loc.step();
 %}
 
@@ -106,7 +106,7 @@ blank [ \t]
 
 %%
 
-void driver::scan_begin(void)
+void Driver::scan_begin(void)
 {
     yy_flex_debug = trace_scanning;
     
@@ -114,14 +114,14 @@ void driver::scan_begin(void)
     {
         yyin = stdin;
     }
-    else if (!(yyin = fopen (file.c_str (), "r")))
+    else if (!(yyin = std::fopen(file.c_str(), "r")))
     {
-        std::cerr << "cannot open " << file << ": " << strerror(errno) << '\n';
+        std::cerr << "cannot open " << file << ": " << std::strerror(errno) << '\n';
         std::exit(EXIT_FAILURE);
     }
 }
 
-void driver::scan_end(void)
+void Driver::scan_end(void)
 {
-    fclose(yyin);
+    std::fclose(yyin);
 }

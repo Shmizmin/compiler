@@ -1,5 +1,7 @@
 #include "Central.hpp"
 #include "Error.hpp"
+#include "fmt/format.h"
+#include "IR.hpp"
 
 #include <fstream>
 #include <cstdio>
@@ -10,7 +12,7 @@
 
 namespace
 {
-    void replace(std::string& str, const std::string& from, const std::string& to)
+    void replace(std::string& str, const std::string& from, const std::string& to) noexcept
     {
         if(from.empty()) return;
         std::size_t start_pos = 0;
@@ -20,119 +22,133 @@ namespace
             start_pos += to.length();
         }
     }
-}
-
-
-void ti::generate_program(ti::Program& program, ti::Parameters& parameters) noexcept
-{
-    auto context = ti::Context{};
     
-    context.add_to_code(".begin\n");
-    context.add_to_code(".include \"def.s\"\n");
-    
-    if (std::find_if(program.functions.begin(), program.functions.end(), [&](Function f)
-        {
-            return f.name == "main";
-        }) == std::end(program.functions))
+    void optimize_ast(ti::Context& context) noexcept
     {
-        //no main function
-        ti::throw_error("No 'main' function was defined");
+        
     }
     
-    
-    std::for_each(program.functions.begin(), program.functions.end(), [&](Function& f)
+    void optimize_ir(ti::Context& context) noexcept
     {
-        ti::generate_function(context, f);
-    });
-    
-    context.add_to_code(context.end_segment);
-    
-    context.add_to_code(".end\n");
-    
-    ti::optimize(context.code_segment);
-    
-    const auto path = parameters.file_name + ".s";
-    
-    auto file = std::fopen(path.c_str(), "w");
-    
-    std::fwrite(context.code_segment.data(), sizeof(context.code_segment[0]), context.code_segment.size(), file);
-    
-    std::fclose(file);
-}
-
-
-void ti::optimize(std::string& code) noexcept
-{
-    //tail jump elimination
-    {
-        std::regex rx(R"(\tjmp\(function_end_([a-zA-Z][a-zA-Z_0-9]*)\)\n@function_end_\1:)");
-        std::smatch matches;
-        
-        while (std::regex_search(code, matches, rx))
+        /*tail jump elimination
         {
-            ::replace(code, matches[0].str(), ti::format("@function_end_%s:", matches[1].str().c_str()));
-        }
-    }
-    
-}
-
-void ti::generate_function(ti::Context& context, ti::Function& function) noexcept
-{
-    const auto& name = function.name;
-    const auto  defined = (function.body != nullptr);
-    
-    const auto label = ti::format("function_start_%s", name.c_str());
-    
-    
-    context.add_to_symbol_table(new ti::FunctionSymbol
-    {
-        SymbolType::FUNCTION,
-        name,
-        defined,
-        function.arguments
-    });
-
-    context.add_to_code(ti::format("@%s:\n", label.c_str()));
-    
-    //generate code to create local variables for each function parameter
-    {
-        auto* var_stmt = new ti::stmt::Variable({});
-        var_stmt->type = ti::StatementType::VARIABLE;
-        var_stmt->variables = {};
-        
-        for (auto i = 0; i < function.arguments.size(); ++i)
-        {
-            const auto& arg = function.arguments[i];
+            std::regex rx(R"(\tjmp\(function_end_([a-zA-Z][a-zA-Z_0-9]*)\)\n@function_end_\1:)");
+            std::smatch matches;
             
-            //will leak
-            auto* var = new ti::Variable();
-
-            context.counter++;
-            var->name = ti::format("%s_%s", name.c_str(), arg.name.c_str());
-            var->type = arg.type;
-            var->visibility = ti::TypeVisibility::LOCAL;
-            var->value = nullptr;
-
-            var_stmt->variables.emplace_back(var);
+            while (std::regex_search(code, matches, rx))
+            {
+                ::replace(code, matches[0].str(), fmt::format("@function_end_{}:", matches[1].str()));
+            }
+        */
         
-        }
-        
-        var_stmt->generate(context, function);
+        // peephole optimizations
     }
-    
-    //if function is defined
-    if (defined)
-    {
-        function.body->generate(context, function);
-    }
-    
-    context.add_to_code(ti::format("@function_end_%s:\n", name.c_str()));
-    
-    //issue function return
-    context.add_to_code("\tpop IP\n");
 }
 
-void ti::generate_statement(ti::Context& context, ti::Function& function, ti::Statement* statement) noexcept
+namespace ti
 {
-    statement->generate(context, function);
+    void compile_program(Program& program, Parameters& parameters) noexcept
+    {
+        auto context = ti::Context{};
+        
+        bool found = false;
+        for (auto function : program.functions)
+        {
+            compile_function(context, function);
+            
+            if (function->name == "main")
+                found = true;
+        }
+        
+        if (!found)
+            throw_error("No \'main\' function was defined");
+        
+        
+        if (parameters.optimize_ast)
+            ::optimize_ast(context);
+        
+        if (parameters.optimize_ir)
+            ::optimize_ir(context);
+        
+        
+        if (auto file = std::ofstream(parameters.file_name + ".s"); file.good())
+        {
+            //const auto data = std::move(generate_
+            const auto data = generate_commands(context.ir_code);
+            
+            
+            /*
+             const auto path = parameters.file_name + ".s";
+             
+             auto file = std::fopen(path.c_str(), "w");
+             
+             std::fwrite(context.code_segment.data(), sizeof(context.code_segment[0]), context.code_segment.size(), file);
+             
+             std::fclose(file);
+             */
+            //file.write(context.)
+        }
+        
+        // TODO: throw error if no file
+    }
+    
+    void compile_function(Context& context, Function* function) noexcept
+    {
+        const auto& name    =  function->name;
+        const auto  defined = (function->body != nullptr);
+        
+        const auto label = fmt::format("function_start_{}", name);
+        
+        context.add_to_symbol_table(new ti::Symbol
+        {
+            .type = SymbolType::FUNCTION,
+            .name = name,
+            .defined = defined,
+            .as.function.arguments = function->arguments,
+        });
+
+        context.emit_label(fmt::format("@{}:\n", label));
+        
+        //generate code to create local variables for each function parameter
+        {
+            auto* var_stmt = new Statement
+            {
+                .type = ti::StatementType::VARIABLE,
+                .as.variable.variables = {},
+            };
+            
+            for (auto i = 0; i < function->arguments.size(); ++i)
+            {
+                const auto& arg = function->arguments[i];
+                
+                //will leak
+                auto* var = new ti::Variable();
+
+                var->name = fmt::format("{}_{}", name, arg.name);
+                var->type = arg.type;
+                var->visibility = ti::TypeVisibility::LOCAL;
+                var->value = nullptr;
+
+                var_stmt->variables.emplace_back(var);
+            
+            }
+            
+            ti::ForcedRegisterAllocation new_allocation{ context };
+            ti::compile_statement(var_stmt, { context, function, new_allocation });
+        }
+        
+        //if function is defined
+        if (defined)
+        {
+            ti::ForcedRegisterAllocation new_allocation{ context };
+            ti::CommonArgs args{ context, *function, new_allocation.location };
+            ti::compile_statement(function->body, args);
+        }
+        
+        context.emit_label(fmt::format("@function_end_{}:\n", name));
+        
+        //issue functionreturn
+        context.emit_pop(RegisterType::IP);
+    }
+
 }

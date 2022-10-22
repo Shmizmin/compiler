@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <limits>
 #include <string>
-#include <vector>
+#include <list>
 
 namespace ti
 {
@@ -17,6 +17,7 @@ namespace ti
     };
     
     struct Directive;
+    enum class RegisterType;
     
     namespace dir
     {
@@ -43,9 +44,9 @@ namespace ti
     
     struct Directive
     {
-        const DirectiveType type;
+        DirectiveType type;
         
-        const union
+        union
         {
             dir::Origin origin;
             dir::Byte byte;
@@ -58,7 +59,7 @@ namespace ti
     
     enum class OperandType
     {
-        A, B, C, D, F,
+        REG,
         IP,
         IMM, MEM,
     };
@@ -67,12 +68,12 @@ namespace ti
     
     namespace op
     {
-        struct A  {};
-        struct B  {};
-        struct C  {};
-        struct D  {};
-        struct F  {};
         struct IP {};
+        
+        struct REG
+        {
+            RegisterType location;
+        };
         
         struct IMM
         {
@@ -87,16 +88,12 @@ namespace ti
     
     struct Operand
     {
-        const OperandType type;
+        OperandType type;
         
-        const union
+        union
         {
-            op::A a;
-            op::B b;
-            op::C c;
-            op::D d;
-            op::F f;
             op::IP ip;
+            op::REG reg;
             op::IMM imm;
             op::MEM mem;
         } as;
@@ -182,9 +179,9 @@ namespace ti
     
     struct Instruction
     {
-        const InstructionType type;
+        InstructionType type;
         
-        const union
+        union
         {
             insn::Nop nop;
             insn::Brk brk;
@@ -215,9 +212,9 @@ namespace ti
     
     struct Command
     {
-        const CommandType type;
+        CommandType type;
         
-        const union
+        union
         {
             Directive directive;
             Instruction instruction;
@@ -225,8 +222,7 @@ namespace ti
         } as;
     };
     
-    std::string generate_commands(const std::vector<Command>&) noexcept;
+    std::string generate_commands(const std::list<Command*>&) noexcept;
 }
 
-
-#endif /* IR_hpp */
+#endif

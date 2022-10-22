@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     std::string buffer(size, '\0');
     file.read(buffer.data(), size);
     
-    cl::preprocess(buffer, filepath);
+    ti::preprocess(buffer, filepath);
     
     const auto new_path = filepath + ".i";
     std::ofstream out(new_path);
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
     out.write(buffer.c_str(), buffer.length());
     out.flush();
     
-    driver drv{};
+    Driver drv{};
     
     if (!drv.parse(new_path))
     {

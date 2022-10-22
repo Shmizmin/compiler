@@ -12,18 +12,18 @@
 #include "location.hh"
 #include "Parser.hpp"
 
-class driver;
+class Driver;
 
 #undef YY_DECL
-#define YY_DECL yy::parser::symbol_type yylex(driver& drv)
+#define YY_DECL yy::parser::symbol_type yylex(Driver& drv)
 
 YY_DECL;
 
 
-class driver
+class Driver
 {
 public:
-    driver(void) noexcept;
+    Driver(void) noexcept;
     
 public:
     int result;

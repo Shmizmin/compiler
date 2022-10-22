@@ -1,17 +1,19 @@
 #include "IR.hpp"
 #include "Central.hpp"
 #include "Error.hpp"
+#include "fmt/format.h"
 
 namespace ti
 {
-    std::string generate_commands(const std::vector<Command>& commands) noexcept
+    std::string generate_commands(const std::vector<Command*>& commands) noexcept
     {
         std::string code;
         
-        for (const auto& command : commands)
+        for (auto command_ptr : commands)
         {
-            using enum CommandType;
+            const auto& command = *command_ptr;
             
+            using enum CommandType;
             switch (command.type)
             {
                 case DIRECTIVE:
@@ -19,10 +21,10 @@ namespace ti
                     using enum DirectiveType;
                     switch (command.as.directive.type)
                     {
-                        case ORIGIN: code.append(ti::format(".org %u",       command.as.directive.as.origin.address));     break;
-                        case   BYTE: code.append(ti::format(".byte $u",      command.as.directive.as.word.value));         break;
-                        case   WORD: code.append(ti::format(".word %u",      command.as.directive.as.word.value));         break;
-                        case  ASCII: code.append(ti::format(".ascii \"%s\"", command.as.directive.as.ascii.text.c_str())); break;
+                        case ORIGIN: code.append(fmt::format(".org {}",       command.as.directive.as.origin.address));     break;
+                        case   BYTE: code.append(fmt::format(".byte {}",      command.as.directive.as.word.value));         break;
+                        case   WORD: code.append(fmt::format(".word {}",      command.as.directive.as.word.value));         break;
+                        case  ASCII: code.append(fmt::format(".ascii \"{}\"", command.as.directive.as.ascii.text.c_str())); break;
                     }
                 } break;
                     
@@ -33,11 +35,7 @@ namespace ti
                         using enum OperandType;
                         switch (op.type)
                         {
-                            case   A: return "r0";
-                            case   B: return "r1";
-                            case   C: return "r2";
-                            case   D: return "r3";
-                            case   F: return "flags";
+                            case REG: return regtype_to_string(op.as.reg.location);
                             case  IP: return "ip";
                             case MEM: return ("%" + std::to_string(op.as.mem.address));
                             case IMM: return ("#" + std::to_string(op.as.imm.value));
@@ -67,14 +65,14 @@ namespace ti
                             
                             if (command.as.instruction.as.math.op != LNOT) [[likely]]
                             {
-                                code.append(format("%s, %s\n",
-                                    cvt(command.as.instruction.as.math.op1).c_str(),
-                                    cvt(command.as.instruction.as.math.op2).c_str()));
+                                code.append(fmt::format("{}, {}\n",
+                                    cvt(command.as.instruction.as.math.op1),
+                                    cvt(command.as.instruction.as.math.op2)));
                             }
                             else [[unlikely]]
                             {
-                                code.append(format("%s\n",
-                                    cvt(command.as.instruction.as.math.op1).c_str()));
+                                code.append(fmt::format("{}\n",
+                                    cvt(command.as.instruction.as.math.op1)));
                             }
                         } break;
                             
@@ -83,31 +81,37 @@ namespace ti
                             using enum OperandType;
                             switch (command.as.instruction.as.move.op1.type)
                             {
-                                case A: [[fallthrough]];
-                                case B: [[fallthrough]];
-                                case C: [[fallthrough]];
-                                case D:
+                                case REG:
                                 {
-                                    switch (command.as.instruction.as.move.op2.type)
+                                    if (command.as.instruction.as.move.op2.type != IMM) [[likely]]
                                     {
-                                        case   A: [[fallthrough]];
-                                        case   B: [[fallthrough]];
-                                        case   C: [[fallthrough]];
-                                        case   D: code.append("\tmvb "); break;
-                                        case IMM: code.append("\tldb "); break;
-                                        
-                                        default: throw_error("Move instruction has invalid source"); break;
+                                        using enum RegisterType;
+                                        switch (command.as.instruction.as.move.op1.as.reg.location)
+                                        {
+                                            case R0: [[fallthrough]];
+                                            case R1: [[fallthrough]];
+                                            case R2: [[fallthrough]];
+                                            case R3: [[fallthrough]];
+                                            case RF: code.append("\tmvb "); break;
+                                                
+                                            case IP: ti::throw_error("Cannot move data directly into or out of the instruction pointer"); break;
+                                        }
                                     }
-                                } break;
-                                
+                                    
+                                    else [[unlikely]]
+                                    {
+                                        code.append("\tldb "); break;
+                                    }
+                                }
+                                    
                                 case MEM: code.append("\tstb "); break;
                                   
                                 default: throw_error("Move instruction has invalid destination"); break;
                             }
                             
-                            code.append(format("%s, %s\n",
-                                cvt(command.as.instruction.as.math.op1).c_str(),
-                                cvt(command.as.instruction.as.math.op2).c_str()));
+                            code.append(fmt::format("{}, {}\n",
+                                cvt(command.as.instruction.as.math.op1),
+                                cvt(command.as.instruction.as.math.op2)));
                         } break;
                             
                         case JMP:
@@ -119,20 +123,19 @@ namespace ti
                                 case JCC: code.append("\tjcc "); break;
                             }
                             
-                            code.append(format("%s\n",
-                                command.as.instruction.as.jmp.label.c_str()));
+                            code.append(fmt::format("{}\n", command.as.instruction.as.jmp.label));
                         } break;
                             
                         case STACK:
                         {
                             using enum insn::Stack::Direction;
-                            using enum insn::Stack::Data;
                             switch (command.as.instruction.as.stack.dir)
                             {
                                 case PUSH: code.append("\tpush "); break;
                                 case  POP: code.append("\tpop ");  break;
                             }
                             
+                            using enum insn::Stack::Data;
                             switch (command.as.instruction.as.stack.data)
                             {
                                 case  A: code.append("r0\n");    break;
@@ -156,7 +159,7 @@ namespace ti
                     }
                 } break;
                     
-                case LABEL: code.append(ti::format("@%s:\n", command.as.label.name)); break;
+                case LABEL: code.append(fmt::format("@{}:\n", command.as.label.name)); break;
             }
         }
         

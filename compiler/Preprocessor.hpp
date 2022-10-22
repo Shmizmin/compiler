@@ -10,4 +10,4 @@ namespace ti
     void preprocess(std::string&, std::string_view) noexcept;
 }
 
-#endif /* Preprocessor_hpp */
+#endif
