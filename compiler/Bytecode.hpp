@@ -1,8 +1,7 @@
-#ifndef IR_hpp
-#define IR_hpp
+#ifndef Bytecode_hpp
+#define Bytecode_hpp
 
 #include <cstdint>
-#include <limits>
 #include <string>
 #include <list>
 
@@ -38,7 +37,7 @@ namespace ti
         
         struct Ascii
         {
-            std::string text{};
+            std::string text;
         };
     }
     
@@ -46,12 +45,15 @@ namespace ti
     {
         DirectiveType type;
         
-        union
+        union As
         {
             dir::Origin origin;
             dir::Byte byte;
             dir::Word word;
             dir::Ascii ascii;
+            
+            As(void) noexcept {}
+            ~As(void) noexcept {}
         } as;
     };
     
@@ -146,10 +148,10 @@ namespace ti
             enum class Condition
             {
                 JEZ,
-                JCC,
+                JCS,
             } cond;
             
-            std::string label{};
+            std::string label;
         };
         
         struct Stack
@@ -181,7 +183,7 @@ namespace ti
     {
         InstructionType type;
         
-        union
+        union As
         {
             insn::Nop nop;
             insn::Brk brk;
@@ -190,6 +192,9 @@ namespace ti
             insn::Jmp jmp;
             insn::Stack stack;
             insn::Deref deref;
+            
+            As(void) noexcept {}
+            ~As(void) noexcept {}
         } as;
     };
     
@@ -197,7 +202,7 @@ namespace ti
     
     struct Label
     {
-        std::string name{};
+        std::string name;
     };
     
     
@@ -214,11 +219,14 @@ namespace ti
     {
         CommandType type;
         
-        union
+        union As
         {
             Directive directive;
             Instruction instruction;
             Label label;
+            
+            As(void) noexcept {}
+            ~As(void) noexcept {}
         } as;
     };
     

@@ -1,14 +1,13 @@
 #include "Central.hpp"
 #include "Error.hpp"
-#include "fmt/format.h"
-#include "IR.hpp"
+#include "Bytecode.hpp"
 
 #include <fstream>
 #include <cstdio>
 #include <cstdarg>
-#include <algorithm>
 #include <iostream>
 #include <regex>
+#include <fmt/format.h>
 
 namespace
 {
@@ -52,11 +51,11 @@ namespace ti
         auto context = ti::Context{};
         
         bool found = false;
-        for (auto function : program.functions)
+        for (auto& function : program.functions)
         {
             compile_function(context, function);
             
-            if (function->name == "main")
+            if (function.name == "main")
                 found = true;
         }
         
@@ -71,31 +70,25 @@ namespace ti
             ::optimize_ir(context);
         
         
-        if (auto file = std::ofstream(parameters.file_name + ".s"); file.good())
+        const auto path = (parameters.file_name + ".s");
+        if (auto file = std::ofstream(path); file.good())
         {
-            //const auto data = std::move(generate_
+            //maybe move return value? unsure of copy elision rules
             const auto data = generate_commands(context.ir_code);
             
-            
-            /*
-             const auto path = parameters.file_name + ".s";
-             
-             auto file = std::fopen(path.c_str(), "w");
-             
-             std::fwrite(context.code_segment.data(), sizeof(context.code_segment[0]), context.code_segment.size(), file);
-             
-             std::fclose(file);
-             */
-            //file.write(context.)
+            file.write(data.data(), data.size());
         }
         
-        // TODO: throw error if no file
+        else
+        {
+            throw_error(fmt::format("File {} could not be opened for writing", path));
+        }
     }
     
-    void compile_function(Context& context, Function* function) noexcept
+    void compile_function(Context& context, Function& function) noexcept
     {
-        const auto& name    =  function->name;
-        const auto  defined = (function->body != nullptr);
+        const auto& name    =  function.name;
+        const auto  defined = (function.body != nullptr);
         
         const auto label = fmt::format("function_start_{}", name);
         
@@ -104,7 +97,7 @@ namespace ti
             .type = SymbolType::FUNCTION,
             .name = name,
             .defined = defined,
-            .as.function.arguments = function->arguments,
+            .as.function.arguments = function.arguments,
         });
 
         context.emit_label(fmt::format("@{}:\n", label));
@@ -117,9 +110,9 @@ namespace ti
                 .as.variable.variables = {},
             };
             
-            for (auto i = 0; i < function->arguments.size(); ++i)
+            for (auto i = 0; i < function.arguments.size(); ++i)
             {
-                const auto& arg = function->arguments[i];
+                const auto& arg = function.arguments[i];
                 
                 //will leak
                 auto* var = new ti::Variable();
@@ -129,20 +122,23 @@ namespace ti
                 var->visibility = ti::TypeVisibility::LOCAL;
                 var->value = nullptr;
 
-                var_stmt->variables.emplace_back(var);
+                //var_stmt.
+                
+                //var_stmt->variables.emplace_back(var);
             
             }
             
             ti::ForcedRegisterAllocation new_allocation{ context };
-            ti::compile_statement(var_stmt, { context, function, new_allocation });
+            ti::CommonArgs args{ context, function, new_allocation.location };
+            ti::compile_statement(var_stmt, args);
         }
         
         //if function is defined
         if (defined)
         {
             ti::ForcedRegisterAllocation new_allocation{ context };
-            ti::CommonArgs args{ context, *function, new_allocation.location };
-            ti::compile_statement(function->body, args);
+            ti::CommonArgs args{ context, function, new_allocation.location };
+            ti::compile_statement(function.body, args);
         }
         
         context.emit_label(fmt::format("@function_end_{}:\n", name));

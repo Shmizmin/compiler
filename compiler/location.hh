@@ -54,7 +54,6 @@
 # endif
 
 namespace yy {
-#line 58 "/Users/connor/Desktop/cpu-design/compiler/compiler/location.hh"
 
   /// A point in a source file.
   class position
@@ -299,6 +298,5 @@ namespace yy {
   }
 
 } // yy
-#line 303 "/Users/connor/Desktop/cpu-design/compiler/compiler/location.hh"
 
 #endif // !YY_YY_USERS_CONNOR_DESKTOP_CPU_DESIGN_COMPILER_COMPILER_LOCATION_HH_INCLUDED

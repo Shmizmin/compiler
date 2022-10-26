@@ -18,7 +18,7 @@ namespace ti
     };
     
     void compile_program(Program&, Parameters&) noexcept;
-    void compile_function(Context&, Function*) noexcept;
+    void compile_function(Context&, Function&) noexcept;
 
     //reformatted from https://stackoverflow.com/questions/2342162/stdstring-formatting-like-sprintf
     template<typename... T>
@@ -43,4 +43,3 @@ namespace ti
 }
 
 #endif
-*

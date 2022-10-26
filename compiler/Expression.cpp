@@ -4,19 +4,17 @@
 #include "Function.hpp"
 #include "Error.hpp"
 #include "Central.hpp"
-#include "IR.hpp"
-#include "fmt/format.h"
+#include "Bytecode.hpp"
 
 #include <iostream>
 #include <stdexcept>
 #include <exception>
+#include <fmt/format.h>
 
 namespace
 {
-    bool funcs_equal(ti::Function* function1, ti::Function* function2)
+    bool funcs_equal(ti::Function& f1, ti::Function& f2)
     {
-        const auto &f1 = *function1, &f2 = *function2;
-        
         bool args_same = (f1.arguments.size() == f2.arguments.size());
         
         if (args_same)
@@ -119,7 +117,7 @@ namespace
                         {
                             argument_symbol->defined = true;
                             
-                            ti::compile_expression(symbol->as.function.arguments[i], common);
+                            ti::compile_expression(function_call.args[i], common);
                             
                             common.context.emit_stb(argument_symbol->as.variable.address, common.allocation);
                         }

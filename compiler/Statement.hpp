@@ -68,13 +68,16 @@ namespace ti
     {
         StatementType type;
         
-        union
+        union As
         {
             stmt::Block block;
             stmt::If ifs;
             stmt::While whiles;
             stmt::Return returns;
             stmt::Variables variable;
+            
+            As(void) noexcept {}
+            ~As(void) noexcept {}
         } as;
     };
     

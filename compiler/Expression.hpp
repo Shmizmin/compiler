@@ -103,7 +103,7 @@ namespace ti
     {
         ExpressionType type;
         
-        union
+        union As
         {
             expr::Numconst numconst;
             expr::Stringconst stringconst;
@@ -112,6 +112,9 @@ namespace ti
             expr::Ternaryop ternaryop;
             expr::Binaryop binaryop;
             expr::Unaryop unaryop;
+            
+            As(void) noexcept {}
+            ~As(void) noexcept {}
         } as;
     };
     

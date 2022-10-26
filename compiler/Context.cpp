@@ -2,10 +2,8 @@
 #include "Error.hpp"
 #include "Central.hpp"
 #include "Types.hpp"
-#include "fmt/format.h"
 
-#include <algorithm>
-
+#include <fmt/format.h>
 
 namespace ti
 {
@@ -140,15 +138,10 @@ namespace ti
                 return static_cast<std::uint16_t>(i);
             }
             
-            else
-                available = true;
-            
+            else available = true;
         }
         
-        if (!available)
-        {
-            ti::throw_error(fmt::format("No contiguous heap region of {} bytes available", bytes));
-        }
+        ti::throw_error(fmt::format("No contiguous heap region of {} bytes available", bytes));
     }
     
     void Context::deallocate_heap(std::uint16_t address, std::uint16_t bytes) noexcept
@@ -177,6 +170,11 @@ namespace ti
         });
     }
     
+    void Context::emit_org(std::uint16_t) noexcept
+    {
+        // TODO: a
+    }
+    
     void Context::emit_jmp(ti::insn::Jmp::Condition condition, const std::string& label) noexcept
     {
         ir_code.emplace_back(new Command
@@ -184,7 +182,7 @@ namespace ti
             .type = CommandType::INSTRUCTION,
             .as.instruction.type = InstructionType::JMP,
             .as.instruction.as.jmp.cond = condition,
-            .as.isntruction.as.jmp.label = label,
+            .as.instruction.as.jmp.label = label,
         });
     }
     
@@ -207,6 +205,21 @@ namespace ti
             },
         });
     }
+
+    void Context::emit_adc(RegisterType, RegisterType) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_sbb(RegisterType, std::uint8_t) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_sbb(RegisterType, RegisterType) noexcept
+    {
+        // TODO: a
+    }
     
     void Context::emit_and(RegisterType location, std::uint8_t value) noexcept
     {
@@ -228,6 +241,11 @@ namespace ti
         });
     }
     
+    void Context::emit_and(RegisterType, RegisterType) noexcept
+    {
+        // TODO: a
+    }
+    
     void Context::emit_lor(RegisterType location, std::uint8_t value) noexcept
     {
         ir_code.emplace_back(new Command
@@ -246,6 +264,61 @@ namespace ti
                 .as.imm.value = value,
             },
         });
+    }
+    
+    void Context::emit_lor(RegisterType, RegisterType) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_rol(RegisterType, std::uint8_t) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_ror(RegisterType, std::uint8_t) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_not(RegisterType) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_xor(RegisterType, RegisterType) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_stb(std::uint16_t, RegisterType) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_mvb(RegisterType, RegisterType) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_ldb(RegisterType, std::uint8_t) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_call(RegisterType, std::string&&) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_push(RegisterType) noexcept
+    {
+        // TODO: a
+    }
+    
+    void Context::emit_pop(RegisterType) noexcept
+    {
+        // TODO: a
     }
 }
 

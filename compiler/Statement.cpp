@@ -4,9 +4,8 @@
 #include "Error.hpp"
 #include "Central.hpp"
 #include "Types.hpp"
-#include "fmt/format.h"
 
-#include <algorithm>
+#include <fmt/format.h>
 
 namespace
 {
@@ -38,7 +37,7 @@ namespace
         
         ti::compile_statement(ifs.statement, common);
         
-        common.context.emit_label(std::move(label_end));
+        common.context.emit_label(label_end);
     }
     
     void compile_while(const ti::stmt::While& whiles, ti::CommonArgs& common) noexcept
@@ -62,9 +61,9 @@ namespace
         common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, oneify_label);
         common.context.emit_and(common.allocation, 0);
         common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, end_label);
-        common.context.emit_label(std::move(oneify_label));
-        common.context.emit_or(common.allocation, 1);
-        common.context.emit_label(std::move(end_label));
+        common.context.emit_label(oneify_label);
+        common.context.emit_lor(common.allocation, 1);
+        common.context.emit_label(end_label);
     }
     
     void compile_return(const ti::stmt::Return& returns, ti::CommonArgs& common) noexcept
@@ -78,7 +77,7 @@ namespace
         common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, fmt::format("function_end_{}", common.parent_function.name));
     }
     
-    void compile_variable(const ti::stmt::Variable& variables, ti::CommonArgs& common) noexcept
+    void compile_variable(const ti::stmt::Variables& variables, ti::CommonArgs& common) noexcept
     {
         ti::write_log("Compiling variable declaration statement");
         

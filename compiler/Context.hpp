@@ -7,11 +7,10 @@
 #include <array>
 #include <string>
 #include <optional>
-#include <ciso646>
 
 
 #include "Types.hpp"
-#include "IR.hpp"
+#include "Bytecode.hpp"
 #include "Expression.hpp"
 
 #define common2 { common.context, common.parent_function, new_allocation.location }
@@ -32,12 +31,12 @@ namespace ti
         {
             std::uint16_t address;
             TypeVisibility visibility;
-            Function* parent_function;
+            Function& parent_function;
         };
         
         struct Function
         {
-            std::vector<Argument> arguments{};
+            std::vector<Argument> arguments;
         };
     }
     
@@ -47,10 +46,13 @@ namespace ti
         std::string name;
         bool defined;
         
-        union
+        union As
         {
             sym::Variable variable;
             sym::Function function;
+            
+            As(void) noexcept : function({}) {}
+            ~As(void) noexcept {}
         } as;
     };
     

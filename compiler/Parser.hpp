@@ -45,24 +45,18 @@
 #ifndef YY_YY_USERS_CONNOR_DESKTOP_CPU_DESIGN_COMPILER_COMPILER_PARSER_HPP_INCLUDED
 # define YY_YY_USERS_CONNOR_DESKTOP_CPU_DESIGN_COMPILER_COMPILER_PARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 10 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.yy"
 
 #include <string>
 #include <vector>
 #include <cstdint>
 #include <cstdlib>
-  class Driver;
-
-#include "Types.hpp"
-#include "Context.hpp"
-#include "Central.hpp"
+#include <cmath>
+  class driver;
+  
 #include "Function.hpp"
 #include "Statement.hpp"
 #include "Expression.hpp"
-#include <cstdint>
-#include <cstdlib>
 
-#line 66 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.hpp"
 
 # include <cassert>
 # include <cstdlib> // std::abort
@@ -202,7 +196,6 @@
 #endif
 
 namespace yy {
-#line 206 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.hpp"
 
 
 
@@ -1193,7 +1186,7 @@ switch (yykind)
     };
 
     /// Build a parser object.
-    parser (Driver& driver_yyarg);
+    parser (driver& drv_yyarg);
     virtual ~parser ();
 
 #if 201103L <= YY_CPLUSPLUS
@@ -2134,7 +2127,7 @@ switch (yykind)
 
 
     // User arguments.
-    Driver& driver;
+    driver& drv;
 
   };
 
@@ -2432,7 +2425,6 @@ switch (yykind)
 
 
 } // yy
-#line 2436 "/Users/connor/Desktop/cpu-design/compiler/compiler/Parser.hpp"
 
 
 

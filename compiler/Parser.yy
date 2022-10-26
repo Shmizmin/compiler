@@ -12,20 +12,16 @@
 #include <vector>
 #include <cstdint>
 #include <cstdlib>
-  class Driver;
-
-#include "Types.hpp"
-#include "Context.hpp"
-#include "Central.hpp"
+#include <cmath>
+  class driver;
+  
 #include "Function.hpp"
 #include "Statement.hpp"
 #include "Expression.hpp"
-#include <cstdint>
-#include <cstdlib>
 }
 
 // The parsing context.
-%param { Driver& driver }
+%param { driver& drv }
 
 %locations
 
@@ -39,9 +35,6 @@
 #include "Driver.hpp"
 #include "Context.hpp"
 #include "Central.hpp"
-#include "Function.hpp"
-#include "Statement.hpp"
-#include "Expression.hpp"
 }
 
 %define api.token.prefix {T_}
@@ -126,13 +119,12 @@
 %type<std::vector<ti::Statement*>> statements statements_opt
 
 %type<ti::Function> definition function_declarator function_header
-
 %type<std::vector<ti::Function>> definitions definitions_opt
 
 %type<std::vector<ti::Argument>> fdecl_args fdecl_args_opt
 
 %type<std::vector<ti::Expression*>> fcall_args fcall_args_opt
-
+ 
 %%
     
 %start translation_unit;
@@ -141,9 +133,9 @@ translation_unit
 : definitions_opt END
 {
     auto program = ti::Program{ $1 };
-    auto parameters = ti::Parameters{ driver.file };
+    auto parameters = ti::Parameters{ drv.file };
     
-    ti::generate_program(program, parameters);
+    ti::compile_program(program, parameters);
 }
 ;
 
@@ -196,12 +188,23 @@ complete_type
 
 // functions
 function_declarator
-: "proto" function_header ";" { $$ = $2; }
-| function_header statement   { auto a = $1; a.body = $2; $$ = a; }
+: "proto" function_header ";"
+{
+    $$ = $2;
+}
+| function_header statement
+{
+    auto a = $1;
+    a.body = $2;
+    $$ = a;
+}
 ;
 
 function_header
-: "function" complete_type IDENTIFIER "=" "(" fdecl_args_opt ")" { $$ = ti::Function{ $3, $2, $6, NULL }; }
+: "function" complete_type IDENTIFIER "=" "(" fdecl_args_opt ")"
+{
+    $$ = ti::Function{ $3, $2, $6, NULL };
+}
 ;
 
     // function definition args
@@ -276,40 +279,29 @@ variable_declarator_i
 ;
 // /variables
 
-
-// errors
-expect_semicolon
-: error { /*Meaningful error message*/ }
-| ";"
-;
-
-expect_rparen
-: error { /*Meaningful error message*/ }
-| ")"
-;
-
-expect_rbrace
-: error { /*Meaningful error message*/ }
-| "}"
-;
-// /errors
-
-
 // statements
-
 // FIXME: a
 statement
-: "{" statements_opt "}"               { $$ = new ti::stmt::Block{ $2 }; }
-| "if" "(" expression ")" statement    { $$ = new ti::stmt::If{ $3, $5 }; }
-| "while" "(" expression ")" statement { $$ = new ti::stmt::While{ $3, $5 }; }
-| "return" expression_opt ";"          { $$ = new ti::stmt::Return{ $2 }; }
+: "{" statements_opt "}"               { $$ = ti::make_block(std::move($2)); }
+| "if" "(" expression ")" statement    { $$ = ti::make_if($3, $5); }
+| "while" "(" expression ")" statement { $$ = ti::make_while($3, $5); }
+| "return" expression_opt ";"          { $$ = ti::make_return($2); }
 | ";"                                  { $$ = nullptr; }
-| variable_declarator ";"              { $$ = new ti::stmt::Variable{ $1 }; }
+| variable_declarator ";"              { $$ = ti::make_variable(std::move($1)); }
 ;
 
 statements
-: statements statement { auto& vec = $1; vec.emplace_back($2); $$ = vec; }
-| statement            { $$ = std::vector<ti::Statement*>(); $$.emplace_back($1); }
+: statements statement
+{
+    auto& vec = $1;
+    vec.emplace_back($2);
+    $$ = vec;
+}
+| statement
+{
+    $$ = std::vector<ti::Statement*>();
+    $$.emplace_back($1);
+}
 ;
 
 statements_opt
@@ -324,38 +316,38 @@ statements_opt
 // FIXME: a
 expression
 : "(" expression ")"                        { $$ = $2; }
-| NUMCONST                                  { $$ = new ti::expr::Numconst{ $1 }; }
-| STRINGCONST                               { $$ = new ti::expr::Stringconst{ $1 }; }
-| IDENTIFIER                                { $$ = new ti::expr::Identifier{ $1 }; }
-| IDENTIFIER "("  fcall_args_opt ")"        { $$ = new ti::expr::FCall{ new ti::expr::Identifier{ $1 }, $3 }; }
-| IDENTIFIER "="  expression                { $$ = new ti::expr::binary::Equals{ new ti::expr::Identifier{ $1 }, $3 }; }
-| expression "+"  expression                { $$ = new ti::expr::binary::Plus{ $1, $3 }; }
-| expression "-"  expression %prec "+"      { $$ = new ti::expr::binary::Minus{ $1, $3 }; }
-| expression "<<" expression                { $$ = new ti::expr::binary::LeftShift{ $1, $3 }; }
-| expression ">>" expression %prec "<<"     { $$ = new ti::expr::binary::RightShift{ $1, $3 }; }
-| expression "^"  expression                { $$ = new ti::expr::binary::BitXor{ $1, $3 }; }
-| expression "&"  expression                { $$ = new ti::expr::binary::BitAnd{ $1, $3 }; }
-| expression "|"  expression                { $$ = new ti::expr::binary::BitOr{ $1, $3 }; }
-| expression "++"                           { $$ = new ti::expr::unary::PlusPlus{ $1 }; }
-| expression "--"            %prec "++"     { $$ = new ti::expr::unary::MinusMinus{ $1 }; }
-| expression "==" expression                { $$ = new ti::expr::binary::EqualsEquals{ $1, $3 }; }
-| expression "!=" expression %prec "=="     { $$ = new ti::expr::binary::NotEquals{ $1, $3 }; }
-|            "+"  expression                { $$ = new ti::expr::unary::Positive{ $2 }; }
-|            "-"  expression %prec "+"      { $$ = new ti::expr::unary::Negative{ $2 }; }
-| expression "?"  expression ":" expression { $$ = new ti::expr::Ternary{ $1, $3, $5 }; }
-| expression "<"  expression                { $$ = new ti::expr::binary::Less{ $1, $3 }; }
-| expression ">"  expression                { $$ = new ti::expr::binary::Greater{ $1, $3 }; }
+| NUMCONST                                  { $$ = ti::make_numconst($1); }
+| STRINGCONST                               { $$ = ti::make_stringconst(std::move($1)); }
+| IDENTIFIER                                { $$ = ti::make_identifier(std::move($1)); }
+| IDENTIFIER "("  fcall_args_opt ")"        { $$ = ti::make_function_call(std::move($1), std::move($3)); }
+|            "+"  expression                { $$ = ti::make_unaryop($2, ti::UnaryOperator::POSITIVE); }
+|            "-"  expression %prec "+"      { $$ = ti::make_unaryop($2, ti::UnaryOperator::NEGATIVE); }
+| expression "++"                           { $$ = ti::make_unaryop($1, ti::UnaryOperator::PLUS_PLUS); }
+| expression "--"            %prec "++"     { $$ = ti::make_unaryop($1, ti::UnaryOperator::MINUS_MINUS); }
+| IDENTIFIER "="  expression                { $$ = ti::make_binaryop(ti::make_identifier(std::move($1)), $3, ti::BinaryOperator::EQUALS); }
+| expression "+"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::PLUS); }
+| expression "-"  expression %prec "+"      { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::MINUS); }
+| expression "<<" expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::LEFT_SHIFT); }
+| expression ">>" expression %prec "<<"     { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::RIGHT_SHIFT); }
+| expression "^"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::BIT_XOR); }
+| expression "&"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::BIT_AND); }
+| expression "|"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::BIT_OR); }
+| expression "==" expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::EQUALS_EQUALS); }
+| expression "!=" expression %prec "=="     { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::NOT_EQUALS); }
+| expression "<"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::LESS); }
+| expression ">"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::GREATER); }
+| expression "?"  expression ":" expression { $$ = ti::make_ternaryop($1, $3, $5); }
 ;
 
 expression_opt
-: %empty     { $$ = NULL; }
+: %empty     { $$ = nullptr; }
 | expression { $$ = $1; }
 ;
 // /expressions
 
 %%
 
-void yy::Parser::error(const location_type& l, const std::string& m)
+void yy::parser::error(const location_type& l, const std::string& m)
 {
-    std::cerr << l << ": " << m << '\n';
+    std::cerr << fmt::format("[Error] {}: [}\n", l, m);
 }

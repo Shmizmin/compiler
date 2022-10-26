@@ -1,11 +1,12 @@
-#include "IR.hpp"
+#include "Bytecode.hpp"
 #include "Central.hpp"
 #include "Error.hpp"
-#include "fmt/format.h"
+
+#include <fmt/format.h>
 
 namespace ti
 {
-    std::string generate_commands(const std::vector<Command*>& commands) noexcept
+    std::string generate_commands(const std::list<Command*>& commands) noexcept
     {
         std::string code;
         
@@ -120,7 +121,7 @@ namespace ti
                             switch (command.as.instruction.as.jmp.cond)
                             {
                                 case JEZ: code.append("\tjez "); break;
-                                case JCC: code.append("\tjcc "); break;
+                                case JCS: code.append("\tjcs "); break;
                             }
                             
                             code.append(fmt::format("{}\n", command.as.instruction.as.jmp.label));

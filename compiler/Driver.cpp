@@ -1,18 +1,18 @@
 #include "Driver.hpp"
 #include "Parser.hpp"
 
-Driver::Driver(void) noexcept
+driver::driver(void) noexcept
   : trace_parsing(false),
     trace_scanning(false)
 {
 }
 
-int Driver::parse(const std::string &f)
+int driver::parse(const std::string &f)
 {
     file = f;
     location.initialize(&file);
     scan_begin();
-    yy::Parser parser(*this);
+    yy::parser parser(*this);
     parser.set_debug_level(trace_parsing);
     int res = parser.parse();
     scan_end();
