@@ -1,10 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
-
-#include <cstdio>
 #include <cstdlib>
+#include <fmt/format.h>
+
 
 #include "Driver.hpp"
 #include "Preprocessor.hpp"
@@ -19,7 +18,7 @@ int main(int argc, char** argv)
         
         if (!file.good())
         {
-            std::fprintf(stderr, "[Error] Could not open file %s for reading\nExiting...\n", filepath.c_str());
+            std::cerr << fmt::format("[Error] Could not open file {} for reading\nExiting...\n", filepath);
             return EXIT_FAILURE;
         }
         
@@ -33,7 +32,7 @@ int main(int argc, char** argv)
         
         if (!out.good())
         {
-            std::fprintf(stderr, "[Error] Could not open file %s for writing\nExiting...\n", new_path.c_str());
+            std::cerr << fmt::format("[Error] Could not open file {} for writing\nExiting...\n", new_path);
             return EXIT_FAILURE;
         }
         
@@ -52,7 +51,7 @@ int main(int argc, char** argv)
    
     else
     {
-        std::fprintf(stderr, "[Error] Incorrect number of command line arguments supplied");
+        std::cerr << fmt::format("[Error] Incorrect number of command line arguments supplied");
         return EXIT_FAILURE;
     }
 }

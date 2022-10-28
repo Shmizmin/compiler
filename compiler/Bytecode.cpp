@@ -136,15 +136,18 @@ namespace ti
                                 case  POP: code.append("\tpop ");  break;
                             }
                             
-                            using enum insn::Stack::Data;
-                            switch (command.as.instruction.as.stack.data)
+                            if (command.as.instruction.as.stack.op.type == OperandType::REG)
                             {
-                                case  A: code.append("r0\n");    break;
-                                case  B: code.append("r1\n");    break;
-                                case  C: code.append("r2\n");    break;
-                                case  D: code.append("r3\n");    break;
-                                case  F: code.append("flags\n"); break;
-                                case IP: code.append("ip\n");    break;
+                                using enum RegisterType;
+                                switch (command.as.instruction.as.stack.op.as.reg.location)
+                                {
+                                    case R0: code.append("r0\n");    break;
+                                    case R1: code.append("r1\n");    break;
+                                    case R2: code.append("r2\n");    break;
+                                    case R3: code.append("r3\n");    break;
+                                    case RF: code.append("flags\n"); break;
+                                    case IP: code.append("ip\n");    break;
+                                }
                             }
                         } break;
                             

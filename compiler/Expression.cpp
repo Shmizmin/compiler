@@ -1,5 +1,5 @@
 #include "Expression.hpp"
-
+#include "Allocation.hpp"
 #include "Context.hpp"
 #include "Function.hpp"
 #include "Error.hpp"
@@ -45,35 +45,29 @@ namespace
 #define symbols common.context.symbol_table
     void compile_numconst(const ti::expr::Numconst& numconst, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("\t\tCompiling 8-bit numeric constant expression");
-        
         common.context.emit_ldb(common.allocation, numconst.value);
     }
     
     void compile_stringconst(const ti::expr::Stringconst& stringconst, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("\t\tCompiling string constant expression");
-        
-        const auto ptr = common.context.allocate_heap(stringconst.text.size());
+        const auto heap_allocation = ti::HeapAllocation(common.context, stringconst.text.size());
         
         // .org ptr
-        common.context.emit_org(ptr);
+        common.context.emit_org(heap_allocation.address);
         
         // .ascii "text"
         common.context.emit_ascii(stringconst.text);
 
         // push rx
-        common.context.emit_ldb(common.allocation, ptr & 0x00FF);
+        common.context.emit_ldb(common.allocation, heap_allocation.address & 0x00FF);
         common.context.emit_push(common.allocation);
         
-        common.context.emit_ldb(common.allocation, ptr & 0xFF00);
+        common.context.emit_ldb(common.allocation, heap_allocation.address & 0xFF00);
         common.context.emit_push(common.allocation);
     }
     
     void compile_identifier(const ti::expr::Identifier& identifier, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("\t\tCompiling identifier expression");
-            
         for (const auto symbol : common.context.symbol_table)
         {
             //add in error checking and messages for each specific case here
@@ -94,10 +88,8 @@ namespace
         }
     }
     
-    void compile_function_call(const ti::expr::Function_Call& function_call, ti::CommonArgs& common) noexcept
+    void compile_functioncall(const ti::expr::FunctionCall& function_call, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("\t\tCompiling function call expression");
-        
         for (const auto symbol : symbols)
         {
             auto defined_arity = symbol->as.function.arguments.size();
@@ -132,8 +124,6 @@ namespace
     
     void compile_ternaryop(const ti::expr::Ternaryop& ternaryop, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("\t\tCompiling ternary expresssion");
-                    
         ti::compile_expression(ternaryop.left, common);
                     
         //verify that we can perform a conditional jump on the expression with valid flags
@@ -163,14 +153,12 @@ namespace
     
     void compile_binaryop(const ti::expr::Binaryop& binaryop, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("\t\tCompiling binary operator expression");
-        
         using enum ti::BinaryOperator;
         switch (binaryop.type)
         {
             case EQUALS:
             {
-                ti::write_log("\t\t\tCompiling assignment binary operator");
+                ti::write_log("\t\tCompiling assignment binary operator");
                 
                 if (binaryop.left->type == ti::ExpressionType::IDENTIFIER)
                 {
@@ -194,11 +182,11 @@ namespace
                 
             case PLUS:
             {
-                ti::write_log("\t\t\tCompiling addition binary operator");
+                ti::write_log("\t\tCompiling addition binary operator");
                 
                 ti::compile_expression(binaryop.left, common);
                 
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
+                ti::RegisterAllocation new_allocation{ common.context, common.allocation };
                 ti::CommonArgs args common2;
                 
                 ti::compile_expression(binaryop.right, args);
@@ -208,9 +196,9 @@ namespace
                 
             case MINUS:
             {
-                ti::write_log("\t\t\tCompiling subtraction binary operator");
+                ti::write_log("\t\tCompiling subtraction binary operator");
                 
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
+                ti::RegisterAllocation new_allocation{ common.context, common.allocation };
                 ti::CommonArgs args common2;
                 
                 ti::compile_expression(binaryop.left, common);
@@ -221,7 +209,7 @@ namespace
                 
             case LEFT_SHIFT:
             {
-                ti::write_log("\t\t\tCompiling left shift binary operator");
+                ti::write_log("\t\tCompiling left shift binary operator");
                 
                 //once constant expressions are implemented, more than just numbers can be on right hand side
                 //ie [5 + 1 << 3] may be considered a valid rvalue
@@ -234,7 +222,7 @@ namespace
                 
             case RIGHT_SHIFT:
             {
-                ti::write_log("\t\t\tCompiling right shift binary operator");
+                ti::write_log("\t\tCompiling right shift binary operator");
                 
                 //see left shift for later improvements
                 if (binaryop.right->type == ti::ExpressionType::NUMCONST)
@@ -244,24 +232,11 @@ namespace
                 }
             } break;
                 
-            case BIT_XOR:
-            {
-                ti::write_log("\t\t\tCompiling bitwise xor binary expression");
-                
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
-                ti::CommonArgs args common2;
-                
-                ti::compile_expression(binaryop.left, common);
-                ti::compile_expression(binaryop.right, args);
-                
-                common.context.emit_xor(common.allocation, new_allocation.location);
-            } break;
-                
             case BIT_AND:
             {
-                ti::write_log("\t\t\tCompiling bitwise and binary expression");
+                ti::write_log("\t\tCompiling bitwise and binary expression");
                 
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
+                ti::RegisterAllocation new_allocation{ common.context, common.allocation };
                 ti::CommonArgs args common2;
                 
                 ti::compile_expression(binaryop.left, common);
@@ -272,9 +247,9 @@ namespace
                 
             case BIT_OR:
             {
-                ti::write_log("\t\t\tCompiling bitwise or binary expression");
+                ti::write_log("\t\tCompiling bitwise or binary expression");
                 
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
+                ti::RegisterAllocation new_allocation{ common.context, common.allocation };
                 ti::CommonArgs args common2;
                 
                 ti::compile_expression(binaryop.left, common);
@@ -285,9 +260,9 @@ namespace
                 
             case EQUALS_EQUALS:
             {
-                ti::write_log("\t\t\tCompiling equality test binary expression");
+                ti::write_log("\t\tCompiling equality test binary expression");
                 
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
+                ti::RegisterAllocation new_allocation{ common.context, common.allocation };
                 ti::CommonArgs args common2;
                 
                 ti::compile_expression(binaryop.left, common);
@@ -299,9 +274,9 @@ namespace
                 
             case NOT_EQUALS:
             {
-                ti::write_log("\t\t\tCompiling non-equality test binary expression");
+                ti::write_log("\t\tCompiling non-equality test binary expression");
                 
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
+                ti::RegisterAllocation new_allocation{ common.context, common.allocation };
                 ti::CommonArgs args common2;
                 
                 ti::compile_expression(binaryop.left, common);
@@ -325,9 +300,9 @@ namespace
                 
             case LESS:
             {
-                ti::write_log("\t\t\tCompiling less-than binary expression");
+                ti::write_log("\t\tCompiling less-than binary expression");
 
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
+                ti::RegisterAllocation new_allocation{ common.context, common.allocation };
                 ti::CommonArgs args common2;
                 
                 ti::compile_expression(binaryop.left, common);
@@ -353,9 +328,9 @@ namespace
                 
             case GREATER:
             {
-                ti::write_log("\t\t\tCompiling greater-than binary expression");
+                ti::write_log("\t\tCompiling greater-than binary expression");
                 
-                ti::ForcedRegisterAllocation new_allocation{ common.context, common.allocation };
+                ti::RegisterAllocation new_allocation{ common.context, common.allocation };
                 ti::CommonArgs args common2;
                 
                 ti::compile_expression(binaryop.left, common);
@@ -380,17 +355,15 @@ namespace
             } break;
         }
     }
-    
+
     void compile_unaryop(const ti::expr::Unaryop& unaryop, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("\t\tCompiling unary operator expression");
-        
         using enum ti::UnaryOperator;
         switch (unaryop.type)
         {
             case PLUS_PLUS:
             {
-                ti::write_log("\t\t\tCompiling increment unary operator");
+                ti::write_log("\t\tCompiling increment unary operator");
                 
                 ti::compile_expression(unaryop.center, common);
                 common.context.emit_adc(common.allocation, 1);
@@ -398,25 +371,17 @@ namespace
                 
             case MINUS_MINUS:
             {
-                ti::write_log("\t\t\tCompiling decrement unary operator");
+                ti::write_log("\t\tCompiling decrement unary operator");
                 
                 ti::compile_expression(unaryop.center, common);
                 common.context.emit_sbb(common.allocation, 1);
             } break;
                 
-            case POSITIVE:
-            {
-                ti::write_log("\t\t\tCompiling positive unary operator");
-                
-                ti::compile_expression(unaryop.center, common);
-            } break;
-                
             case NEGATIVE:
             {
-                ti::write_log("\t\t\tCompiling negation unary operator");
+                ti::write_log("\t\tCompiling negation unary operator");
                 
                 ti::compile_expression(unaryop.center, common);
-                
                 common.context.emit_not(common.allocation);
                 common.context.emit_adc(common.allocation, 1);
             } break;
@@ -432,13 +397,47 @@ namespace ti
         using enum ExpressionType;
         switch (expr->type)
         {
-            case NUMCONST:      return compile_numconst     (expr->as.numconst,     common); break;
-            case STRINGCONST:   return compile_stringconst  (expr->as.stringconst,  common); break;
-            case IDENTIFIER:    return compile_identifier   (expr->as.identifier,   common); break;
-            case FUNCTION_CALL: return compile_function_call(expr->as.functioncall, common); break;
-            case TERNARYOP:     return compile_ternaryop    (expr->as.ternaryop,    common); break;
-            case BINARYOP:      return compile_binaryop     (expr->as.binaryop,     common); break;
-            case UNARYOP:       return compile_unaryop      (expr->as.unaryop,      common); break;
+            case NUMCONST:
+            {
+                ti::write_log("\tCompiling numeric constant expression");
+                return compile_numconst(expr->as.numconst, common);
+            } break;
+                
+            case STRINGCONST:
+            {
+                ti::write_log("\tCompiling string constant expression");
+                return compile_stringconst(expr->as.stringconst, common);
+            } break;
+                
+            case IDENTIFIER:
+            {
+                ti::write_log("\tCompiling identifier expression");
+                return compile_identifier(expr->as.identifier, common);
+            } break;
+                
+            case FUNCTIONCALL:
+            {
+                ti::write_log("\tCompiling function call expression");
+                return compile_functioncall(expr->as.functioncall, common);
+            } break;
+            
+            case TERNARYOP:
+            {
+                ti::write_log("\tCompiling ternary operator expression");
+                return compile_ternaryop(expr->as.ternaryop, common);
+            } break;
+                
+            case BINARYOP:
+            {
+                ti::write_log("\tCompiling binary operator expression");
+                return compile_binaryop(expr->as.binaryop, common);
+            } break;
+                
+            case UNARYOP:
+            {
+                ti::write_log("\tCompiling unary operator expression");
+                return compile_unaryop(expr->as.unaryop, common);
+            } break;
         }
     }
     
@@ -469,11 +468,11 @@ namespace ti
         };
     }
     
-    Expression* make_function_call(std::string&& name, std::vector<Expression*>&& arguments) noexcept
+    Expression* make_functioncall(std::string&& name, std::vector<Expression*>&& arguments) noexcept
     {
         return new Expression
         {
-            .type = ExpressionType::FUNCTION_CALL,
+            .type = ExpressionType::FUNCTIONCALL,
             .as.functioncall.left = expr::Identifier{ std::move(name) },
             .as.functioncall.args = std::move(arguments),
         };

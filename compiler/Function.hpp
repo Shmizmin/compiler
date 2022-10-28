@@ -5,11 +5,12 @@
 #include <vector>
 #include <compare>
 
-#include "Statement.hpp"
 #include "Types.hpp"
 
 namespace ti
 {
+    struct Statement;
+    
     struct Argument
     {
         std::string name;

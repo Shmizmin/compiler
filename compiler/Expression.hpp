@@ -18,7 +18,7 @@ namespace ti
         NUMCONST,
         STRINGCONST,
         IDENTIFIER,
-        FUNCTION_CALL,
+        FUNCTIONCALL,
         TERNARYOP,
         BINARYOP,
         UNARYOP,
@@ -34,7 +34,6 @@ namespace ti
         LEFT_SHIFT,
         RIGHT_SHIFT,
 
-        BIT_XOR,
         BIT_AND,
         BIT_OR,
         
@@ -49,8 +48,7 @@ namespace ti
     {
         PLUS_PLUS,
         MINUS_MINUS,
-
-        POSITIVE,
+        
         NEGATIVE,
     };
     
@@ -73,7 +71,7 @@ namespace ti
             std::string name;
         };
         
-        struct Function_Call
+        struct FunctionCall
         {
             Identifier left;
             std::vector<Expression*> args;
@@ -101,14 +99,14 @@ namespace ti
         
     struct Expression
     {
-        ExpressionType type;
+        const ExpressionType type;
         
-        union As
+        const union As
         {
             expr::Numconst numconst;
             expr::Stringconst stringconst;
             expr::Identifier identifier;
-            expr::Function_Call functioncall;
+            expr::FunctionCall functioncall;
             expr::Ternaryop ternaryop;
             expr::Binaryop binaryop;
             expr::Unaryop unaryop;
@@ -121,7 +119,7 @@ namespace ti
     Expression* make_numconst(std::uint8_t) noexcept;
     Expression* make_stringconst(std::string&&) noexcept;
     Expression* make_identifier(std::string&&) noexcept;
-    Expression* make_function_call(std::string&&, std::vector<Expression*>&&) noexcept;
+    Expression* make_functioncall(std::string&&, std::vector<Expression*>&&) noexcept;
     Expression* make_ternaryop(Expression*, Expression*, Expression*) noexcept;
     Expression* make_binaryop(Expression*, Expression*, BinaryOperator) noexcept;
     Expression* make_unaryop(Expression*, UnaryOperator) noexcept;

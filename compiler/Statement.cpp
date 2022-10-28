@@ -3,6 +3,7 @@
 #include "Context.hpp"
 #include "Error.hpp"
 #include "Central.hpp"
+#include "Allocation.hpp"
 #include "Types.hpp"
 
 #include <fmt/format.h>
@@ -11,8 +12,6 @@ namespace
 {
     void compile_block(const ti::stmt::Block& block, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("Compiling block statement");
-        
         for (const auto statement : block.statements)
         {
             ti::compile_statement(statement, common);
@@ -21,12 +20,10 @@ namespace
     
     void compile_if(const ti::stmt::If& ifs, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("Compiling if statement");
-        
         auto label_end = fmt::format("if_end_{}_{}", common.parent_function.name, ti::generate_uuid());
         
         {
-            ti::ForcedRegisterAllocation new_allocation{ common.context };
+            ti::RegisterAllocation new_allocation{ common.context };
             
             ti::CommonArgs args common2;
             ti::compile_expression(ifs.condition, args);
@@ -42,8 +39,6 @@ namespace
     
     void compile_while(const ti::stmt::While& whiles, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("Compiling while statement");
-        
         const auto label_template = "{}_{}_{}_{}";
         
         auto  begin_label = fmt::format(label_template, "while", "begin",  common.parent_function.name, ti::generate_uuid()),
@@ -68,8 +63,6 @@ namespace
     
     void compile_return(const ti::stmt::Return& returns, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("Compiling return statement");
-        
         ti::compile_expression(returns.value, common);
         
         common.context.emit_push(common.allocation);
@@ -79,14 +72,13 @@ namespace
     
     void compile_variable(const ti::stmt::Variables& variables, ti::CommonArgs& common) noexcept
     {
-        ti::write_log("Compiling variable declaration statement");
-        
         for (const auto variable : variables.variables)
         {
             const auto& name = variable->name;
             const auto defined = (variable->value != nullptr);
             
-            const auto address = common.context.allocate_heap(ti::get_size_by_type(variable->type));
+            const auto heap_allocation = ti::HeapAllocation(common.context, ti::get_size_by_type(variable->type));
+
             common.context.symbol_table.emplace_back(new ti::Symbol
             {
                 .type = ti::SymbolType::VARIABLE,
@@ -94,7 +86,7 @@ namespace
                 .defined = defined,
                 .as.variable = ti::sym::Variable
                 {
-                    .address = address,
+                    .address = heap_allocation.address,
                     .visibility = variable->visibility,
                     .parent_function = common.parent_function,
                 },
@@ -102,12 +94,12 @@ namespace
             
             if (defined)
             {
-                ti::ForcedRegisterAllocation new_allocation{ common.context };
+                ti::RegisterAllocation new_allocation{ common.context };
                 
                 ti::CommonArgs args common2;
                 ti::compile_expression(variable->value, args);
                 
-                common.context.emit_stb(address, new_allocation.location);
+                common.context.emit_stb(heap_allocation.address, new_allocation.location);
             }
         }
     }
@@ -120,11 +112,35 @@ namespace ti
         using enum StatementType;
         switch (stmt->type)
         {
-            case BLOCK:    return compile_block   (stmt->as.block,    common); break;
-            case IF:       return compile_if      (stmt->as.ifs,      common); break;
-            case WHILE:    return compile_while   (stmt->as.whiles,   common); break;
-            case RETURN:   return compile_return  (stmt->as.returns,  common); break;
-            case VARIABLE: return compile_variable(stmt->as.variable, common); break;
+            case BLOCK:
+            {
+                ti::write_log("Compiling block statement");
+                return ::compile_block(stmt->as.block, common);
+            } break;
+                
+            case IF:
+            {
+                ti::write_log("Compiling if statement");
+                return ::compile_if(stmt->as.ifs, common);
+            } break;
+                
+            case WHILE:
+            {
+                ti::write_log("Compiling while statement");
+                return ::compile_while(stmt->as.whiles, common);
+            } break;
+                
+            case RETURN:
+            {
+                ti::write_log("Compiling return statement");
+                return ::compile_return(stmt->as.returns, common);
+            } break;
+                
+            case VARIABLE:
+            {
+                ti::write_log("Compiling variable statement");
+                return ::compile_variable(stmt->as.variable, common);
+            } break;
         }
     }
     

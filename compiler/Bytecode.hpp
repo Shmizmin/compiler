@@ -43,9 +43,9 @@ namespace ti
     
     struct Directive
     {
-        DirectiveType type;
+        const DirectiveType type;
         
-        union As
+        const union As
         {
             dir::Origin origin;
             dir::Byte byte;
@@ -70,19 +70,17 @@ namespace ti
     
     namespace op
     {
-        struct IP {};
-        
-        struct REG
+        struct Reg
         {
             RegisterType location;
         };
         
-        struct IMM
+        struct Imm
         {
             std::uint8_t value;
         };
         
-        struct MEM
+        struct Mem
         {
             std::uint16_t address;
         };
@@ -90,14 +88,16 @@ namespace ti
     
     struct Operand
     {
-        OperandType type;
+        const OperandType type;
         
-        union
+        const union As
         {
-            op::IP ip;
-            op::REG reg;
-            op::IMM imm;
-            op::MEM mem;
+            op::Reg reg;
+            op::Imm imm;
+            op::Mem mem;
+            
+            As(void) noexcept {}
+            ~As(void) noexcept {}
         } as;
     };
 
@@ -118,9 +118,6 @@ namespace ti
     
     namespace insn
     {
-        struct Nop {};
-        struct Brk {};
-        
         struct Math
         {
             enum class Operation
@@ -156,11 +153,7 @@ namespace ti
         
         struct Stack
         {
-            enum class Data
-            {
-                A, B, C, D, F,
-                IP,
-            } data;
+            Operand op;
             
             enum class Direction
             {
@@ -181,12 +174,10 @@ namespace ti
     
     struct Instruction
     {
-        InstructionType type;
+        const InstructionType type;
         
-        union As
+        const union As
         {
-            insn::Nop nop;
-            insn::Brk brk;
             insn::Math math;
             insn::Move move;
             insn::Jmp jmp;
@@ -217,9 +208,9 @@ namespace ti
     
     struct Command
     {
-        CommandType type;
+        const CommandType type;
         
-        union As
+        const union As
         {
             Directive directive;
             Instruction instruction;

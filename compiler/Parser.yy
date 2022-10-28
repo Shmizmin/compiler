@@ -11,8 +11,6 @@
 #include <string>
 #include <vector>
 #include <cstdint>
-#include <cstdlib>
-#include <cmath>
   class driver;
   
 #include "Function.hpp"
@@ -49,7 +47,6 @@
 
     BITOR "|"
     BITAND "&"
-    BITXOR "^"
 
     BITLSHIFT "<<"
     BITRSHIFT ">>"
@@ -88,7 +85,6 @@
 %left ">" "<"
 %left "|"
 %left "&"
-%left "^"
 
 %left ">>" "<<"
 %left "+" "-"
@@ -280,7 +276,6 @@ variable_declarator_i
 // /variables
 
 // statements
-// FIXME: a
 statement
 : "{" statements_opt "}"               { $$ = ti::make_block(std::move($2)); }
 | "if" "(" expression ")" statement    { $$ = ti::make_if($3, $5); }
@@ -312,15 +307,13 @@ statements_opt
 
 
 // expressions
-
-// FIXME: a
 expression
 : "(" expression ")"                        { $$ = $2; }
 | NUMCONST                                  { $$ = ti::make_numconst($1); }
 | STRINGCONST                               { $$ = ti::make_stringconst(std::move($1)); }
 | IDENTIFIER                                { $$ = ti::make_identifier(std::move($1)); }
 | IDENTIFIER "("  fcall_args_opt ")"        { $$ = ti::make_function_call(std::move($1), std::move($3)); }
-|            "+"  expression                { $$ = ti::make_unaryop($2, ti::UnaryOperator::POSITIVE); }
+|            "+"  expression                { $$ = $2; }
 |            "-"  expression %prec "+"      { $$ = ti::make_unaryop($2, ti::UnaryOperator::NEGATIVE); }
 | expression "++"                           { $$ = ti::make_unaryop($1, ti::UnaryOperator::PLUS_PLUS); }
 | expression "--"            %prec "++"     { $$ = ti::make_unaryop($1, ti::UnaryOperator::MINUS_MINUS); }
@@ -329,7 +322,6 @@ expression
 | expression "-"  expression %prec "+"      { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::MINUS); }
 | expression "<<" expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::LEFT_SHIFT); }
 | expression ">>" expression %prec "<<"     { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::RIGHT_SHIFT); }
-| expression "^"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::BIT_XOR); }
 | expression "&"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::BIT_AND); }
 | expression "|"  expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::BIT_OR); }
 | expression "==" expression                { $$ = ti::make_binaryop($1, $3, ti::BinaryOperator::EQUALS_EQUALS); }
@@ -349,5 +341,5 @@ expression_opt
 
 void yy::parser::error(const location_type& l, const std::string& m)
 {
-    std::cerr << fmt::format("[Error] {}: [}\n", l, m);
+    std::cerr << "[Error] " << l << ": " << m << '\n';
 }

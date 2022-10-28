@@ -12,6 +12,7 @@
 		B30556CA28B44CCC00BEAB4D /* Central.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B30556C828B44CCC00BEAB4D /* Central.cpp */; };
 		B306BB5728C3112700445D5F /* Titanium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B306BB5628C3112700445D5F /* Titanium.cpp */; };
 		B306BB8028C4093100445D5F /* Preprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B306BB7F28C4093100445D5F /* Preprocessor.cpp */; };
+		B3820394290B3CAB0083A552 /* Allocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3820392290B3CAB0083A552 /* Allocation.cpp */; };
 		B3A769E52904FD1B005A0D83 /* libfmt.9.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B3A769E42904FD1B005A0D83 /* libfmt.9.1.0.dylib */; };
 		B3D451E128B4057500355D7B /* Expression.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3D451DF28B4057500355D7B /* Expression.cpp */; };
 		B3D9C5FF29038C89004EE1CC /* Optimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3D9C5FD29038C89004EE1CC /* Optimizer.cpp */; };
@@ -50,6 +51,8 @@
 		B306BB7F28C4093100445D5F /* Preprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Preprocessor.cpp; sourceTree = "<group>"; };
 		B33775A327E8E2F9006CA5FA /* compiler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = compiler; sourceTree = BUILT_PRODUCTS_DIR; };
 		B37193B728C24888000799D3 /* location.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = location.hh; sourceTree = "<group>"; };
+		B3820392290B3CAB0083A552 /* Allocation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Allocation.cpp; sourceTree = "<group>"; };
+		B3820393290B3CAB0083A552 /* Allocation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Allocation.hpp; sourceTree = "<group>"; };
 		B3A769E42904FD1B005A0D83 /* libfmt.9.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmt.9.1.0.dylib; path = ../../../../../opt/homebrew/Cellar/fmt/9.1.0/lib/libfmt.9.1.0.dylib; sourceTree = "<group>"; };
 		B3D451DF28B4057500355D7B /* Expression.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Expression.cpp; sourceTree = "<group>"; };
 		B3D451E028B4057500355D7B /* Expression.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Expression.hpp; sourceTree = "<group>"; };
@@ -109,6 +112,8 @@
 				B3F390B628E7906200DA4FE0 /* Bytecode.hpp */,
 				B3D9C5FD29038C89004EE1CC /* Optimizer.cpp */,
 				B3D9C5FE29038C89004EE1CC /* Optimizer.hpp */,
+				B3820392290B3CAB0083A552 /* Allocation.cpp */,
+				B3820393290B3CAB0083A552 /* Allocation.hpp */,
 			);
 			name = backend;
 			sourceTree = "<group>";
@@ -216,6 +221,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3E8090029088AB700CD5A47 /* Driver.cpp in Sources */,
+				B3820394290B3CAB0083A552 /* Allocation.cpp in Sources */,
 				B3F390B728E7906200DA4FE0 /* Bytecode.cpp in Sources */,
 				B30556CA28B44CCC00BEAB4D /* Central.cpp in Sources */,
 				B30556B728B408EA00BEAB4D /* Statement.cpp in Sources */,

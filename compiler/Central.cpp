@@ -1,6 +1,7 @@
 #include "Central.hpp"
 #include "Error.hpp"
 #include "Bytecode.hpp"
+#include "Allocation.hpp"
 
 #include <fstream>
 #include <cstdio>
@@ -11,17 +12,6 @@
 
 namespace
 {
-    void replace(std::string& str, const std::string& from, const std::string& to) noexcept
-    {
-        if(from.empty()) return;
-        std::size_t start_pos = 0;
-        while((start_pos = str.find(from, start_pos)) != std::string::npos)
-        {
-            str.replace(start_pos, from.length(), to);
-            start_pos += to.length();
-        }
-    }
-    
     void optimize_ast(ti::Context& context) noexcept
     {
         
@@ -128,7 +118,7 @@ namespace ti
             
             }
             
-            ti::ForcedRegisterAllocation new_allocation{ context };
+            ti::RegisterAllocation new_allocation{ context };
             ti::CommonArgs args{ context, function, new_allocation.location };
             ti::compile_statement(var_stmt, args);
         }
@@ -136,7 +126,7 @@ namespace ti
         //if function is defined
         if (defined)
         {
-            ti::ForcedRegisterAllocation new_allocation{ context };
+            ti::RegisterAllocation new_allocation{ context };
             ti::CommonArgs args{ context, function, new_allocation.location };
             ti::compile_statement(function.body, args);
         }

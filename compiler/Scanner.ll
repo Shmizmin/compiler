@@ -52,7 +52,6 @@ blank [ \t]
 
 "|" { return yy::parser::make_BITOR(loc); }
 "&" { return yy::parser::make_BITAND(loc); }
-"^" { return yy::parser::make_BITXOR(loc); }
 
 "<<" { return yy::parser::make_BITLSHIFT(loc); }
 ">>" { return yy::parser::make_BITRSHIFT(loc); }

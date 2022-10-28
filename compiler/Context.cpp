@@ -3,6 +3,7 @@
 #include "Central.hpp"
 #include "Types.hpp"
 
+#include <optional>
 #include <fmt/format.h>
 
 namespace ti
@@ -33,124 +34,6 @@ namespace ti
         }
     }
     
-    std::optional<RegisterType> Context::allocate_register(void) noexcept
-    {
-        using enum RegisterType;
-        if (available_registers[0])
-        {
-            available_registers[0] = false;
-            return { R0 };
-        }
-        else if (available_registers[1])
-        {
-            available_registers[1] = false;
-            return { R1 };
-        }
-        else if (available_registers[2])
-        {
-            available_registers[2] = false;
-            return { R2 };
-        }
-        else if (available_registers[3])
-        {
-            available_registers[3] = false;
-            return { R3 };
-        }
-        else
-        {
-            return std::nullopt;
-        }
-    }
-    
-    RegisterType Context::allocate_register_forced(void) noexcept
-    {
-        auto new_allocation = allocate_register();
-        
-        if (!new_allocation.has_value())
-        {
-            emit_push(RegisterType::R0);
-            new_allocation.value() = RegisterType::R0;
-            available_registers[0] = false;
-        }
-        
-        return new_allocation.value();
-    }
-    
-    RegisterType Context::allocate_register_forced_exclude(RegisterType exclude) noexcept
-    {
-        auto new_allocation = allocate_register();
-        
-        if (!new_allocation.has_value())
-        {
-            auto& value = new_allocation.value();
-            
-            using enum RegisterType;
-            switch (value)
-            {
-                case R0: value = R1; available_registers[1] = false; break;
-                case R1: value = R2; available_registers[2] = false; break;
-                case R2: value = R3; available_registers[3] = false; break;
-                case R3: value = R0; available_registers[0] = false; break;
-                default:                                             break;
-            }
-            
-            emit_push(value);
-        }
-        
-        return new_allocation.value();
-    }
-    
-    void Context::deallocate_register(RegisterType location) noexcept
-    {
-        using enum RegisterType;
-        switch (location)
-        {
-            case R0: available_registers[0] = true; break;
-            case R1: available_registers[1] = true; break;
-            case R2: available_registers[2] = true; break;
-            case R3: available_registers[3] = true; break;
-            default:                                break;
-        }
-    }
-    
-    void Context::deallocate_register_forced(RegisterType location) noexcept
-    {
-        emit_pop(location);
-        deallocate_register(location);
-    }
-    
-    std::uint16_t Context::allocate_heap(std::uint16_t bytes) noexcept
-    {
-        auto available = true;
-        for (auto i = 0u; i < available_heap.size(); ++i)
-        {
-            for (auto j = 0u; j < bytes; ++j)
-            {
-                if (!available_heap[i + j])
-                    available = false;
-            }
-            
-            if (available)
-            {
-                for (auto k = 0u; k < bytes; ++k)
-                    available_heap[i + k] = false;
-                
-                return static_cast<std::uint16_t>(i);
-            }
-            
-            else available = true;
-        }
-        
-        ti::throw_error(fmt::format("No contiguous heap region of {} bytes available", bytes));
-    }
-    
-    void Context::deallocate_heap(std::uint16_t address, std::uint16_t bytes) noexcept
-    {
-        for (auto i = address; i < address + bytes; ++i)
-            available_heap[i] = true;
-    }
-    
-    
     void Context::emit_label(const std::string& name) noexcept
     {
         ir_code.emplace_back(new Command
@@ -170,9 +53,14 @@ namespace ti
         });
     }
     
-    void Context::emit_org(std::uint16_t) noexcept
+    void Context::emit_org(std::uint16_t address) noexcept
     {
-        // TODO: a
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::DIRECTIVE,
+            .as.directive.type = DirectiveType::ORIGIN,
+            .as.directive.as.origin.address = address,
+        });
     }
     
     void Context::emit_jmp(ti::insn::Jmp::Condition condition, const std::string& label) noexcept
@@ -186,124 +74,137 @@ namespace ti
         });
     }
     
-    void Context::emit_adc(RegisterType location, std::uint8_t value) noexcept
+#define MATH_OPERATION_REG_IMM(x, y) \
+    void Context::emit_##x(RegisterType location, std::uint8_t value) noexcept \
+    { \
+        ir_code.emplace_back(new Command \
+        { \
+            .type = CommandType::INSTRUCTION, \
+            .as.instruction.type = InstructionType::MATH, \
+            .as.instruction.as.math.op = insn::Math::Operation::y, \
+            .as.instruction.as.math.op1 = Operand \
+            { \
+                .type = OperandType::REG, \
+                .as.reg.location = location, \
+            }, \
+            .as.instruction.as.math.op2 = Operand \
+            { \
+                .type = OperandType::IMM, \
+                .as.imm.value = value, \
+            }, \
+        }); \
+    }
+    
+#define MATH_OPERATION_REG_REG(x, y) \
+    void Context::emit_##x(RegisterType destination, RegisterType source) noexcept \
+    { \
+        ir_code.emplace_back(new Command \
+        { \
+            .type = CommandType::INSTRUCTION, \
+            .as.instruction.type = InstructionType::MATH, \
+            .as.instruction.as.math.op = insn::Math::Operation::y, \
+            .as.instruction.as.math.op1 = Operand \
+            { \
+                .type = OperandType::REG, \
+                .as.reg.location = destination, \
+            }, \
+            .as.instruction.as.math.op2 = Operand \
+            { \
+                .type = OperandType::REG, \
+                .as.reg.location = source, \
+            }, \
+        }); \
+    }
+    
+    MATH_OPERATION_REG_IMM(adc, ADC)
+    MATH_OPERATION_REG_REG(adc, ADC)
+    
+    MATH_OPERATION_REG_IMM(sbb, SBB)
+    MATH_OPERATION_REG_REG(sbb, SBB)
+    
+    MATH_OPERATION_REG_IMM(and, LAND)
+    MATH_OPERATION_REG_REG(and, LAND)
+    
+    MATH_OPERATION_REG_IMM(lor, LOR)
+    MATH_OPERATION_REG_REG(lor, LOR)
+    
+    MATH_OPERATION_REG_IMM(rol, ROL)
+    MATH_OPERATION_REG_IMM(ror, ROR)
+    
+#undef MATH_OPERATION_REG_IMM
+#undef MATH_OPERATION_REG_REG
+  
+    
+    void Context::emit_not(RegisterType location) noexcept
     {
         ir_code.emplace_back(new Command
         {
             .type = CommandType::INSTRUCTION,
             .as.instruction.type = InstructionType::MATH,
-            .as.instruction.as.math.op = insn::Math::Operation::ADC,
+            .as.instruction.as.math.op = insn::Math::Operation::LNOT,
             .as.instruction.as.math.op1 = Operand
             {
                 .type = OperandType::REG,
                 .as.reg.location = location,
             },
-            .as.instruction.as.math.op2 = Operand
-            {
-                .type = OperandType::IMM,
-                .as.imm.value = value,
-            },
         });
     }
-
-    void Context::emit_adc(RegisterType, RegisterType) noexcept
-    {
-        // TODO: a
-    }
     
-    void Context::emit_sbb(RegisterType, std::uint8_t) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_sbb(RegisterType, RegisterType) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_and(RegisterType location, std::uint8_t value) noexcept
+    void Context::emit_stb(std::uint16_t address, RegisterType location) noexcept
     {
         ir_code.emplace_back(new Command
         {
             .type = CommandType::INSTRUCTION,
-            .as.instruction.type = InstructionType::MATH,
-            .as.instruction.as.math.op = insn::Math::Operation::LAND,
-            .as.instruction.as.math.op1 = Operand
+            .as.instruction.type = InstructionType::MOVE,
+            .as.instruction.as.move.op1 = Operand
+            {
+                .type = OperandType::MEM,
+                .as.mem.address = address,
+            },
+            .as.instruction.as.move.op2 = Operand
             {
                 .type = OperandType::REG,
                 .as.reg.location = location,
             },
-            .as.instruction.as.math.op2 = Operand
-            {
-                .type = OperandType::IMM,
-                .as.imm.value = value,
-            },
         });
     }
     
-    void Context::emit_and(RegisterType, RegisterType) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_lor(RegisterType location, std::uint8_t value) noexcept
+    void Context::emit_mvb(RegisterType destination, RegisterType source) noexcept
     {
         ir_code.emplace_back(new Command
         {
             .type = CommandType::INSTRUCTION,
-            .as.instruction.type = InstructionType::MATH,
-            .as.instruction.as.math.op = insn::Math::Operation::LOR,
-            .as.instruction.as.math.op1 = Operand
+            .as.instruction.type = InstructionType::MOVE,
+            .as.instruction.as.move.op1 = Operand
+            {
+                .type = OperandType::REG,
+                .as.reg.location = destination,
+            },
+            .as.instruction.as.move.op2 = Operand
+            {
+                .type = OperandType::REG,
+                .as.reg.location = source,
+            },
+        });
+    }
+    
+    void Context::emit_ldb(RegisterType location, std::uint8_t value) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::INSTRUCTION,
+            .as.instruction.type = InstructionType::MOVE,
+            .as.instruction.as.move.op1 = Operand
             {
                 .type = OperandType::REG,
                 .as.reg.location = location,
             },
-            .as.instruction.as.math.op2 = Operand
+            .as.instruction.as.move.op2 = Operand
             {
                 .type = OperandType::IMM,
                 .as.imm.value = value,
             },
         });
-    }
-    
-    void Context::emit_lor(RegisterType, RegisterType) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_rol(RegisterType, std::uint8_t) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_ror(RegisterType, std::uint8_t) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_not(RegisterType) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_xor(RegisterType, RegisterType) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_stb(std::uint16_t, RegisterType) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_mvb(RegisterType, RegisterType) noexcept
-    {
-        // TODO: a
-    }
-    
-    void Context::emit_ldb(RegisterType, std::uint8_t) noexcept
-    {
-        // TODO: a
     }
     
     void Context::emit_call(RegisterType, std::string&&) noexcept
@@ -311,15 +212,25 @@ namespace ti
         // TODO: a
     }
     
-    void Context::emit_push(RegisterType) noexcept
-    {
-        // TODO: a
+#define STACK_OPERATION_REG(x, y) \
+    void Context::emit_##x(RegisterType location) noexcept \
+    { \
+        ir_code.emplace_back(new Command \
+        { \
+            .type = CommandType::INSTRUCTION, \
+            .as.instruction.type = InstructionType::STACK, \
+            .as.instruction.as.stack.op = Operand \
+            { \
+                .type = OperandType::REG, \
+                .as.reg.location = location, \
+            }, \
+            .as.instruction.as.stack.dir = insn::Stack::Direction::y, \
+        }); \
     }
     
-    void Context::emit_pop(RegisterType) noexcept
-    {
-        // TODO: a
-    }
+    STACK_OPERATION_REG(push, PUSH)
+    STACK_OPERATION_REG(pop, POP)
+#undef STACK_OPERATION_REG
 }
 
 namespace ti

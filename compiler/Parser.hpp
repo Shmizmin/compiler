@@ -49,8 +49,6 @@
 #include <string>
 #include <vector>
 #include <cstdint>
-#include <cstdlib>
-#include <cmath>
   class driver;
   
 #include "Function.hpp"
@@ -524,33 +522,32 @@ namespace yy {
     T_PLUS = 261,                  // "+"
     T_BITOR = 262,                 // "|"
     T_BITAND = 263,                // "&"
-    T_BITXOR = 264,                // "^"
-    T_BITLSHIFT = 265,             // "<<"
-    T_BITRSHIFT = 266,             // ">>"
-    T_LESS = 267,                  // "<"
-    T_GREATER = 268,               // ">"
-    T_NOT_EQ = 269,                // "!="
-    T_IS_EQ = 270,                 // "=="
-    T_SEMICOLON = 271,             // ";"
-    T_COMMA = 272,                 // ","
-    T_EQ = 273,                    // "="
-    T_LPAREN = 274,                // "("
-    T_RPAREN = 275,                // ")"
-    T_LBRACE = 276,                // "{"
-    T_RBRACE = 277,                // "}"
-    T_FUNCTION = 278,              // "function"
-    T_PROTO = 279,                 // "proto"
-    T_VAL = 280,                   // "val"
-    T_VOID = 281,                  // "void"
-    T_BYTE = 282,                  // "byte"
-    T_LOCAL = 283,                 // "local"
-    T_GLOBAL = 284,                // "global"
-    T_IF = 285,                    // "if"
-    T_WHILE = 286,                 // "while"
-    T_RETURN = 287,                // "return"
-    T_IDENTIFIER = 290,            // IDENTIFIER
-    T_STRINGCONST = 291,           // STRINGCONST
-    T_NUMCONST = 292               // NUMCONST
+    T_BITLSHIFT = 264,             // "<<"
+    T_BITRSHIFT = 265,             // ">>"
+    T_LESS = 266,                  // "<"
+    T_GREATER = 267,               // ">"
+    T_NOT_EQ = 268,                // "!="
+    T_IS_EQ = 269,                 // "=="
+    T_SEMICOLON = 270,             // ";"
+    T_COMMA = 271,                 // ","
+    T_EQ = 272,                    // "="
+    T_LPAREN = 273,                // "("
+    T_RPAREN = 274,                // ")"
+    T_LBRACE = 275,                // "{"
+    T_RBRACE = 276,                // "}"
+    T_FUNCTION = 277,              // "function"
+    T_PROTO = 278,                 // "proto"
+    T_VAL = 279,                   // "val"
+    T_VOID = 280,                  // "void"
+    T_BYTE = 281,                  // "byte"
+    T_LOCAL = 282,                 // "local"
+    T_GLOBAL = 283,                // "global"
+    T_IF = 284,                    // "if"
+    T_WHILE = 285,                 // "while"
+    T_RETURN = 286,                // "return"
+    T_IDENTIFIER = 289,            // IDENTIFIER
+    T_STRINGCONST = 290,           // STRINGCONST
+    T_NUMCONST = 291               // NUMCONST
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -567,7 +564,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 38, ///< Number of tokens.
+        YYNTOKENS = 37, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -578,57 +575,56 @@ namespace yy {
         S_PLUS = 6,                              // "+"
         S_BITOR = 7,                             // "|"
         S_BITAND = 8,                            // "&"
-        S_BITXOR = 9,                            // "^"
-        S_BITLSHIFT = 10,                        // "<<"
-        S_BITRSHIFT = 11,                        // ">>"
-        S_LESS = 12,                             // "<"
-        S_GREATER = 13,                          // ">"
-        S_NOT_EQ = 14,                           // "!="
-        S_IS_EQ = 15,                            // "=="
-        S_SEMICOLON = 16,                        // ";"
-        S_COMMA = 17,                            // ","
-        S_EQ = 18,                               // "="
-        S_LPAREN = 19,                           // "("
-        S_RPAREN = 20,                           // ")"
-        S_LBRACE = 21,                           // "{"
-        S_RBRACE = 22,                           // "}"
-        S_FUNCTION = 23,                         // "function"
-        S_PROTO = 24,                            // "proto"
-        S_VAL = 25,                              // "val"
-        S_VOID = 26,                             // "void"
-        S_BYTE = 27,                             // "byte"
-        S_LOCAL = 28,                            // "local"
-        S_GLOBAL = 29,                           // "global"
-        S_IF = 30,                               // "if"
-        S_WHILE = 31,                            // "while"
-        S_RETURN = 32,                           // "return"
-        S_33_ = 33,                              // "?"
-        S_34_ = 34,                              // ":"
-        S_IDENTIFIER = 35,                       // IDENTIFIER
-        S_STRINGCONST = 36,                      // STRINGCONST
-        S_NUMCONST = 37,                         // NUMCONST
-        S_YYACCEPT = 38,                         // $accept
-        S_translation_unit = 39,                 // translation_unit
-        S_definitions_opt = 40,                  // definitions_opt
-        S_definitions = 41,                      // definitions
-        S_definition = 42,                       // definition
-        S_type_specifier = 43,                   // type_specifier
-        S_type_qualifier = 44,                   // type_qualifier
-        S_type_visibility = 45,                  // type_visibility
-        S_complete_type = 46,                    // complete_type
-        S_function_declarator = 47,              // function_declarator
-        S_function_header = 48,                  // function_header
-        S_fdecl_args_opt = 49,                   // fdecl_args_opt
-        S_fdecl_args = 50,                       // fdecl_args
-        S_fcall_args_opt = 51,                   // fcall_args_opt
-        S_fcall_args = 52,                       // fcall_args
-        S_variable_declarator = 53,              // variable_declarator
-        S_variable_declarator_i = 54,            // variable_declarator_i
-        S_statement = 55,                        // statement
-        S_statements = 56,                       // statements
-        S_statements_opt = 57,                   // statements_opt
-        S_expression = 58,                       // expression
-        S_expression_opt = 59                    // expression_opt
+        S_BITLSHIFT = 9,                         // "<<"
+        S_BITRSHIFT = 10,                        // ">>"
+        S_LESS = 11,                             // "<"
+        S_GREATER = 12,                          // ">"
+        S_NOT_EQ = 13,                           // "!="
+        S_IS_EQ = 14,                            // "=="
+        S_SEMICOLON = 15,                        // ";"
+        S_COMMA = 16,                            // ","
+        S_EQ = 17,                               // "="
+        S_LPAREN = 18,                           // "("
+        S_RPAREN = 19,                           // ")"
+        S_LBRACE = 20,                           // "{"
+        S_RBRACE = 21,                           // "}"
+        S_FUNCTION = 22,                         // "function"
+        S_PROTO = 23,                            // "proto"
+        S_VAL = 24,                              // "val"
+        S_VOID = 25,                             // "void"
+        S_BYTE = 26,                             // "byte"
+        S_LOCAL = 27,                            // "local"
+        S_GLOBAL = 28,                           // "global"
+        S_IF = 29,                               // "if"
+        S_WHILE = 30,                            // "while"
+        S_RETURN = 31,                           // "return"
+        S_32_ = 32,                              // "?"
+        S_33_ = 33,                              // ":"
+        S_IDENTIFIER = 34,                       // IDENTIFIER
+        S_STRINGCONST = 35,                      // STRINGCONST
+        S_NUMCONST = 36,                         // NUMCONST
+        S_YYACCEPT = 37,                         // $accept
+        S_translation_unit = 38,                 // translation_unit
+        S_definitions_opt = 39,                  // definitions_opt
+        S_definitions = 40,                      // definitions
+        S_definition = 41,                       // definition
+        S_type_specifier = 42,                   // type_specifier
+        S_type_qualifier = 43,                   // type_qualifier
+        S_type_visibility = 44,                  // type_visibility
+        S_complete_type = 45,                    // complete_type
+        S_function_declarator = 46,              // function_declarator
+        S_function_header = 47,                  // function_header
+        S_fdecl_args_opt = 48,                   // fdecl_args_opt
+        S_fdecl_args = 49,                       // fdecl_args
+        S_fcall_args_opt = 50,                   // fcall_args_opt
+        S_fcall_args = 51,                       // fcall_args
+        S_variable_declarator = 52,              // variable_declarator
+        S_variable_declarator_i = 53,            // variable_declarator_i
+        S_statement = 54,                        // statement
+        S_statements = 55,                       // statements
+        S_statements_opt = 56,                   // statements_opt
+        S_expression = 57,                       // expression
+        S_expression_opt = 58                    // expression_opt
       };
     };
 
@@ -1156,7 +1152,7 @@ switch (yykind)
       {
 #if !defined _MSC_VER || defined __clang__
         YY_ASSERT (tok == token::T_END
-                   || (token::T_YYerror <= tok && tok <= 289));
+                   || (token::T_YYerror <= tok && tok <= 288));
 #endif
       }
 #if 201103L <= YY_CPLUSPLUS
@@ -1364,21 +1360,6 @@ switch (yykind)
       make_BITAND (const location_type& l)
       {
         return symbol_type (token::T_BITAND, l);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
-      make_BITXOR (location_type l)
-      {
-        return symbol_type (token::T_BITXOR, std::move (l));
-      }
-#else
-      static
-      symbol_type
-      make_BITXOR (const location_type& l)
-      {
-        return symbol_type (token::T_BITXOR, l);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -2120,7 +2101,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 208,     ///< Last index in yytable_.
+      yylast_ = 179,     ///< Last index in yytable_.
       yynnts_ = 22,  ///< Number of nonterminal symbols.
       yyfinal_ = 14 ///< Termination state number.
     };
@@ -2170,10 +2151,10 @@ switch (yykind)
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37
+      35,    36
     };
     // Last valid token kind.
-    const int code_max = 292;
+    const int code_max = 291;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;

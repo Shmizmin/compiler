@@ -1,6 +1,7 @@
 #ifndef Statement_hpp
 #define Statement_hpp
 
+#include <string>
 #include <vector>
 
 #include "Expression.hpp"
@@ -9,11 +10,6 @@
 
 namespace ti
 {
-    //avoid circular dependency
-    struct Context;
-    struct Function;
-    
-    
     struct Variable
     {
         TypeVisibility visibility;
@@ -66,9 +62,9 @@ namespace ti
     
     struct Statement
     {
-        StatementType type;
+        const StatementType type;
         
-        union As
+        const union As
         {
             stmt::Block block;
             stmt::If ifs;
