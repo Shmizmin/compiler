@@ -1,7 +1,7 @@
-#include "Central.hpp"
-#include "Error.hpp"
-#include "Bytecode.hpp"
-#include "Allocation.hpp"
+#include "central.hpp"
+#include "error.hpp"
+#include "bytecode.hpp"
+#include "allocation.hpp"
 
 #include <fstream>
 #include <cstdio>
@@ -12,12 +12,12 @@
 
 namespace
 {
-    void optimize_ast(ti::Context& context) noexcept
+    void optimize_ast(ti::Compiler& compiler) noexcept
     {
         
     }
     
-    void optimize_ir(ti::Context& context) noexcept
+    void optimize_ir(ti::Compiler& compiler) noexcept
     {
         /*tail jump elimination
         {
@@ -38,33 +38,45 @@ namespace ti
 {
     void compile_program(Program& program, Parameters& parameters) noexcept
     {
-        auto context = ti::Context{};
+        auto compiler = ti::Compiler{};
         
-        bool found = false;
-        for (auto& function : program.functions)
         {
-            compile_function(context, function);
+            bool found = false;
+            for (auto function : program.functions)
+            {
+                compile_function(compiler, function);
+                
+                if (function->name == "main")
+                {
+                    found = true;
+                }
+            }
             
-            if (function.name == "main")
-                found = true;
+            if (!found)
+            {
+                throw_error("No \'main\' function was defined");
+            }
         }
         
-        if (!found)
-            throw_error("No \'main\' function was defined");
+            
         
         
         if (parameters.optimize_ast)
-            ::optimize_ast(context);
-        
+        {
+            ::optimize_ast(compiler);
+        }
+            
         if (parameters.optimize_ir)
-            ::optimize_ir(context);
-        
+        {
+            ::optimize_ir(compiler);
+        }
+            
         
         const auto path = (parameters.file_name + ".s");
         if (auto file = std::ofstream(path); file.good())
         {
             //maybe move return value? unsure of copy elision rules
-            const auto data = generate_commands(context.ir_code);
+            const auto data = generate_commands(compiler.ir_code);
             
             file.write(data.data(), data.size());
         }
@@ -75,10 +87,10 @@ namespace ti
         }
     }
     
-    void compile_function(Context& context, Function& function) noexcept
+    void compile_function(Compiler& context, Function* function) noexcept
     {
-        const auto& name    =  function.name;
-        const auto  defined = (function.body != nullptr);
+        const auto& name    =  function->name;
+        const auto  defined = (function->body != nullptr);
         
         const auto label = fmt::format("function_start_{}", name);
         
@@ -87,7 +99,7 @@ namespace ti
             .type = SymbolType::FUNCTION,
             .name = name,
             .defined = defined,
-            .as.function.arguments = function.arguments,
+            .as.function.arguments = function->arguments,
         });
 
         context.emit_label(fmt::format("@{}:\n", label));
@@ -100,9 +112,9 @@ namespace ti
                 .as.variable.variables = {},
             };
             
-            for (auto i = 0; i < function.arguments.size(); ++i)
+            for (auto i = 0; i < function->arguments.size(); ++i)
             {
-                const auto& arg = function.arguments[i];
+                const auto& arg = function->arguments[i];
                 
                 //will leak
                 auto* var = new ti::Variable();
@@ -128,7 +140,7 @@ namespace ti
         {
             ti::RegisterAllocation new_allocation{ context };
             ti::CommonArgs args{ context, function, new_allocation.location };
-            ti::compile_statement(function.body, args);
+            ti::compile_statement(function->body, args);
         }
         
         context.emit_label(fmt::format("@function_end_{}:\n", name));

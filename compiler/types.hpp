@@ -1,12 +1,8 @@
-#ifndef types_h
-#define types_h
+#ifndef types_hpp
+#define types_hpp
 
 namespace ti
 {
-    struct Context;
-    struct Function;
-    enum class RegisterType;
-    
     enum class TypeVisibility
     {
         LOCAL,
@@ -30,10 +26,15 @@ namespace ti
         TypeQualifier qualifier;
     };
     
+    
+    struct Compiler;
+    struct Function;
+    enum class RegisterType;
+    
     struct CommonArgs
     {
-        Context& context;
-        Function& parent_function;
+        Compiler& context;
+        Function* parent_function;
         RegisterType& allocation;
     };
     

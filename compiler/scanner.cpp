@@ -597,14 +597,14 @@ char *yytext;
 #include <cstdlib>
 #include <string>
 
-#include "Parser.hpp"
-#include "Types.hpp"
-#include "Driver.hpp"
-#include "Context.hpp"
-#include "Central.hpp"
-#include "Function.hpp"
-#include "Statement.hpp"
-#include "Expression.hpp"
+#include "parser.hpp"
+#include "types.hpp"
+#include "driver.hpp"
+#include "compiler.hpp"
+#include "central.hpp"
+#include "function.hpp"
+#include "statement.hpp"
+#include "expression.hpp"
 
 #include <fmt/format.h>
 
@@ -2247,13 +2247,14 @@ void driver::scan_begin(void)
 {
     yy_flex_debug = trace_scanning;
     
-    if (file.empty () || file == "-")
+    if (file.empty() || file == "-")
     {
         yyin = stdin;
     }
-    else if (!(yyin = std::fopen(file.c_str(), "r")))
+    
+    else if (yyin = std::fopen(file.c_str(), "r"); yyin == nullptr)
     {
-        std::cerr << fmt::format("Cannot open file {}: {}\n", file, std::strerror(errno));
+        std::cerr << fmt::format("[Error] Cannot open file {}: {}\n", file, std::strerror(errno));
         std::exit(EXIT_FAILURE);
     }
 }

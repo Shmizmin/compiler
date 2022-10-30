@@ -1,5 +1,5 @@
-#ifndef Optimizer_hpp
-#define Optimizer_hpp
+#ifndef optimizer_hpp
+#define optimizer_hpp
 
 namespace ti
 {

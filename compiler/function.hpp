@@ -1,11 +1,10 @@
-#ifndef Function_hpp
-#define Function_hpp
+#ifndef function_hpp
+#define function_hpp
 
 #include <string>
 #include <vector>
-#include <compare>
 
-#include "Types.hpp"
+#include "types.hpp"
 
 namespace ti
 {
@@ -27,8 +26,10 @@ namespace ti
     
     struct Program
     {
-        std::vector<Function> functions;
+        std::vector<Function*> functions;
     };
+    
+    void compile_function(Function*, CommonArgs&) noexcept;
 }
 
 #endif

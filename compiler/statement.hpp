@@ -1,15 +1,15 @@
-#ifndef Statement_hpp
-#define Statement_hpp
+#ifndef statement_hpp
+#define statement_hpp
 
 #include <string>
 #include <vector>
 
-#include "Expression.hpp"
-#include "Types.hpp"
-#include "Context.hpp"
+#include "types.hpp"
 
 namespace ti
 {
+    struct Expression;
+    
     struct Variable
     {
         TypeVisibility visibility;

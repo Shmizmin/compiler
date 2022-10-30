@@ -38,15 +38,15 @@
 
 
 
-#include "Parser.hpp"
+#include "parser.hpp"
 
 
 // Unqualified %code blocks.
 
-#include "Types.hpp"
-#include "Driver.hpp"
-#include "Context.hpp"
-#include "Central.hpp"
+#include "types.hpp"
+#include "driver.hpp"
+#include "compiler.hpp"
+#include "central.hpp"
 
 
 
@@ -228,7 +228,7 @@ namespace yy {
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        value.YY_MOVE_OR_COPY< std::vector<ti::Function> > (YY_MOVE (that.value));
+        value.YY_MOVE_OR_COPY< std::vector<ti::Function*> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_statements: // statements
@@ -252,7 +252,7 @@ namespace yy {
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        value.YY_MOVE_OR_COPY< ti::Function > (YY_MOVE (that.value));
+        value.YY_MOVE_OR_COPY< ti::Function* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_statement: // statement
@@ -311,7 +311,7 @@ namespace yy {
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        value.move< std::vector<ti::Function> > (YY_MOVE (that.value));
+        value.move< std::vector<ti::Function*> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_statements: // statements
@@ -335,7 +335,7 @@ namespace yy {
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        value.move< ti::Function > (YY_MOVE (that.value));
+        value.move< ti::Function* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_statement: // statement
@@ -394,7 +394,7 @@ namespace yy {
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        value.copy< std::vector<ti::Function> > (that.value);
+        value.copy< std::vector<ti::Function*> > (that.value);
         break;
 
       case symbol_kind::S_statements: // statements
@@ -418,7 +418,7 @@ namespace yy {
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        value.copy< ti::Function > (that.value);
+        value.copy< ti::Function* > (that.value);
         break;
 
       case symbol_kind::S_statement: // statement
@@ -476,7 +476,7 @@ namespace yy {
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        value.move< std::vector<ti::Function> > (that.value);
+        value.move< std::vector<ti::Function*> > (that.value);
         break;
 
       case symbol_kind::S_statements: // statements
@@ -500,7 +500,7 @@ namespace yy {
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        value.move< ti::Function > (that.value);
+        value.move< ti::Function* > (that.value);
         break;
 
       case symbol_kind::S_statement: // statement
@@ -813,7 +813,7 @@ namespace yy {
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        yylhs.value.emplace< std::vector<ti::Function> > ();
+        yylhs.value.emplace< std::vector<ti::Function*> > ();
         break;
 
       case symbol_kind::S_statements: // statements
@@ -837,7 +837,7 @@ namespace yy {
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        yylhs.value.emplace< ti::Function > ();
+        yylhs.value.emplace< ti::Function* > ();
         break;
 
       case symbol_kind::S_statement: // statement
@@ -882,7 +882,7 @@ namespace yy {
             {
   case 2: // translation_unit: definitions_opt "end of file"
 {
-    auto program = ti::Program{ yystack_[1].value.as < std::vector<ti::Function> > () };
+    auto program = ti::Program{ yystack_[1].value.as < std::vector<ti::Function*> > () };
     auto parameters = ti::Parameters{ drv.file };
     
     ti::compile_program(program, parameters);
@@ -890,30 +890,30 @@ namespace yy {
     break;
 
   case 3: // definitions_opt: %empty
-              { yylhs.value.as < std::vector<ti::Function> > () = {}; }
+              { yylhs.value.as < std::vector<ti::Function*> > () = {}; }
     break;
 
   case 4: // definitions_opt: definitions
-              { yylhs.value.as < std::vector<ti::Function> > () = yystack_[0].value.as < std::vector<ti::Function> > (); }
+              { yylhs.value.as < std::vector<ti::Function*> > () = yystack_[0].value.as < std::vector<ti::Function*> > (); }
     break;
 
   case 5: // definitions: definitions definition
 {
-    auto& vec = yystack_[1].value.as < std::vector<ti::Function> > ();
-    vec.emplace_back(yystack_[0].value.as < ti::Function > ());
-    yylhs.value.as < std::vector<ti::Function> > () = vec;
+    auto& vec = yystack_[1].value.as < std::vector<ti::Function*> > ();
+    vec.emplace_back(yystack_[0].value.as < ti::Function* > ());
+    yylhs.value.as < std::vector<ti::Function*> > () = vec;
 }
     break;
 
   case 6: // definitions: definition
 {
-    yylhs.value.as < std::vector<ti::Function> > () = std::vector<ti::Function>();
-    yylhs.value.as < std::vector<ti::Function> > ().emplace_back(yystack_[0].value.as < ti::Function > ());
+    yylhs.value.as < std::vector<ti::Function*> > () = {};
+    yylhs.value.as < std::vector<ti::Function*> > ().emplace_back(yystack_[0].value.as < ti::Function* > ());
 }
     break;
 
   case 7: // definition: function_declarator
-                      { yylhs.value.as < ti::Function > () = yystack_[0].value.as < ti::Function > (); }
+                      { yylhs.value.as < ti::Function* > () = yystack_[0].value.as < ti::Function* > (); }
     break;
 
   case 8: // type_specifier: "byte"
@@ -942,21 +942,21 @@ namespace yy {
 
   case 14: // function_declarator: "proto" function_header ";"
 {
-    yylhs.value.as < ti::Function > () = yystack_[1].value.as < ti::Function > ();
+    yylhs.value.as < ti::Function* > () = yystack_[1].value.as < ti::Function* > ();
 }
     break;
 
   case 15: // function_declarator: function_header statement
 {
-    auto a = yystack_[1].value.as < ti::Function > ();
-    a.body = yystack_[0].value.as < ti::Statement* > ();
-    yylhs.value.as < ti::Function > () = a;
+    auto header = yystack_[1].value.as < ti::Function* > ();
+    header->body = yystack_[0].value.as < ti::Statement* > ();
+    yylhs.value.as < ti::Function* > () = header;
 }
     break;
 
   case 16: // function_header: "function" complete_type IDENTIFIER "=" "(" fdecl_args_opt ")"
 {
-    yylhs.value.as < ti::Function > () = ti::Function{ yystack_[4].value.as < std::string > (), yystack_[5].value.as < ti::CompleteType > (), yystack_[1].value.as < std::vector<ti::Argument> > (), NULL };
+    yylhs.value.as < ti::Function* > () = new ti::Function{ yystack_[4].value.as < std::string > (), yystack_[5].value.as < ti::CompleteType > (), yystack_[1].value.as < std::vector<ti::Argument> > (), nullptr };
 }
     break;
 
@@ -1029,7 +1029,7 @@ namespace yy {
 
   case 28: // variable_declarator_i: type_visibility complete_type IDENTIFIER
 {
-    yylhs.value.as < ti::Variable* > () = new ti::Variable{ yystack_[2].value.as < ti::TypeVisibility > (), yystack_[1].value.as < ti::CompleteType > (), yystack_[0].value.as < std::string > (), NULL };
+    yylhs.value.as < ti::Variable* > () = new ti::Variable{ yystack_[2].value.as < ti::TypeVisibility > (), yystack_[1].value.as < ti::CompleteType > (), yystack_[0].value.as < std::string > (), nullptr };
 }
     break;
 
@@ -1097,11 +1097,11 @@ namespace yy {
     break;
 
   case 43: // expression: IDENTIFIER "(" fcall_args_opt ")"
-                                            { yylhs.value.as < ti::Expression* > () = ti::make_function_call(std::move(yystack_[3].value.as < std::string > ()), std::move(yystack_[1].value.as < std::vector<ti::Expression*> > ())); }
+                                            { yylhs.value.as < ti::Expression* > () = ti::make_functioncall(std::move(yystack_[3].value.as < std::string > ()), std::move(yystack_[1].value.as < std::vector<ti::Expression*> > ())); }
     break;
 
   case 44: // expression: "+" expression
-                                            { yylhs.value.as < ti::Expression* > () = ti::make_unaryop(yystack_[0].value.as < ti::Expression* > (), ti::UnaryOperator::POSITIVE); }
+                                            { yylhs.value.as < ti::Expression* > () = yystack_[0].value.as < ti::Expression* > (); }
     break;
 
   case 45: // expression: "-" expression
@@ -1828,11 +1828,11 @@ namespace yy {
   {
        0,   129,   129,   140,   141,   145,   151,   159,   166,   167,
      171,   175,   176,   180,   187,   191,   200,   208,   209,   213,
-     218,   229,   230,   234,   239,   253,   258,   267,   271,   281,
-     282,   283,   284,   285,   286,   290,   296,   304,   305,   314,
-     315,   316,   317,   318,   319,   320,   321,   322,   323,   324,
-     325,   326,   327,   328,   329,   330,   331,   332,   333,   334,
-     338,   339
+     218,   229,   230,   234,   239,   253,   258,   267,   271,   280,
+     281,   282,   283,   284,   285,   289,   295,   303,   304,   311,
+     312,   313,   314,   315,   316,   317,   318,   319,   320,   321,
+     322,   323,   324,   325,   326,   327,   328,   329,   330,   331,
+     335,   336
   };
 
   void

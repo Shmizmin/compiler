@@ -1,18 +1,14 @@
-#ifndef Expression_hpp
-#define Expression_hpp
+#ifndef expression_hpp
+#define expression_hpp
 
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "Types.hpp"
+#include "types.hpp"
 
 namespace ti
-{
-    struct Context;
-    struct Function;
-    struct Allocation;
-    
+{    
     enum class ExpressionType
     {
         NUMCONST,

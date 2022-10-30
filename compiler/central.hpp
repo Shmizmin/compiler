@@ -1,13 +1,12 @@
-#ifndef Central_hpp
-#define Central_hpp
+#ifndef central_hpp
+#define central_hpp
 
-#include "Context.hpp"
-#include "Function.hpp"
-#include "Statement.hpp"
-#include "Expression.hpp"
+#include "compiler.hpp"
+#include "function.hpp"
+#include "statement.hpp"
+#include "expression.hpp"
 
 #include <string>
-#include <memory>
 
 namespace ti
 {
@@ -18,7 +17,7 @@ namespace ti
     };
     
     void compile_program(Program&, Parameters&) noexcept;
-    void compile_function(Context&, Function&) noexcept;
+    void compile_function(Compiler&, Function&) noexcept;
 }
 
 #endif

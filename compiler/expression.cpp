@@ -1,28 +1,26 @@
-#include "Expression.hpp"
-#include "Allocation.hpp"
-#include "Context.hpp"
-#include "Function.hpp"
-#include "Error.hpp"
-#include "Central.hpp"
-#include "Bytecode.hpp"
+#include "expression.hpp"
+#include "allocation.hpp"
+#include "compiler.hpp"
+#include "function.hpp"
+#include "error.hpp"
+#include "central.hpp"
+#include "bytecode.hpp"
 
-#include <iostream>
-#include <stdexcept>
-#include <exception>
+
 #include <fmt/format.h>
 
 namespace
 {
-    bool funcs_equal(ti::Function& f1, ti::Function& f2)
+    bool funcs_equal(ti::Function* f1, ti::Function* f2)
     {
-        bool args_same = (f1.arguments.size() == f2.arguments.size());
+        bool args_same = (f1->arguments.size() == f2->arguments.size());
         
         if (args_same)
         {
-            for (auto i = 0; i < f1.arguments.size(); ++i)
+            for (auto i = 0; i < f1->arguments.size(); ++i)
             {
-                const auto& arg1 = f1.arguments[i],
-                            arg2 = f2.arguments[i];
+                const auto& arg1 = f1->arguments[i],
+                            arg2 = f2->arguments[i];
                 
                 if ((arg1.type.specifier != arg2.type.specifier) ||
                     (arg1.type.qualifier != arg2.type.qualifier) ||
@@ -33,10 +31,10 @@ namespace
             }
         }
         
-        return (f1.name                  == f2.name)                  &&
-               (f1.body                  == f2.body)                  &&
-               (f1.return_type.specifier == f2.return_type.specifier) &&
-               (f1.return_type.qualifier == f2.return_type.qualifier) && args_same;
+        return (f1->name                  == f2->name)                  &&
+               (f1->body                  == f2->body)                  &&
+               (f1->return_type.specifier == f2->return_type.specifier) &&
+               (f1->return_type.qualifier == f2->return_type.qualifier) && args_same;
     }
 }
     
@@ -52,13 +50,9 @@ namespace
     {
         const auto heap_allocation = ti::HeapAllocation(common.context, stringconst.text.size());
         
-        // .org ptr
         common.context.emit_org(heap_allocation.address);
-        
-        // .ascii "text"
         common.context.emit_ascii(stringconst.text);
-
-        // push rx
+        
         common.context.emit_ldb(common.allocation, heap_allocation.address & 0x00FF);
         common.context.emit_push(common.allocation);
         
@@ -78,6 +72,7 @@ namespace
                 if (symbol->as.variable.visibility == ti::TypeVisibility::LOCAL &&
                     !funcs_equal(symbol->as.variable.parent_function, common.parent_function))
                 {
+                    //ti::throw_error(fmt::format("Variable {} is local to function {}, not function {}", symbol->name, symbol->as.variable.parent_function.name, common.parent_function));
                     //throw error maybe?
                 }
                 
@@ -132,9 +127,9 @@ namespace
                    
         const auto label_template = "ternary_{}_{}_{}";
                     
-        const auto  true_label = fmt::format(label_template, common.parent_function.name, "true",  ti::generate_uuid()),
-                   false_label = fmt::format(label_template, common.parent_function.name, "false", ti::generate_uuid()),
-                     end_label = fmt::format(label_template, common.parent_function.name, "end",   ti::generate_uuid());
+        const auto  true_label = fmt::format(label_template, common.parent_function->name, "true",  ti::generate_uuid()),
+                   false_label = fmt::format(label_template, common.parent_function->name, "false", ti::generate_uuid()),
+                     end_label = fmt::format(label_template, common.parent_function->name, "end",   ti::generate_uuid());
                     
         common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, false_label);
                     
@@ -284,8 +279,8 @@ namespace
                 
                 const auto label_template = "{}_{}_{}";
                 
-                const auto oneify_label = fmt::format(label_template, "oneify", common.parent_function.name, ti::generate_uuid()),
-                              end_label = fmt::format(label_template, "end",    common.parent_function.name, ti::generate_uuid());
+                const auto oneify_label = fmt::format(label_template, "oneify", common.parent_function->name, ti::generate_uuid()),
+                              end_label = fmt::format(label_template, "end",    common.parent_function->name, ti::generate_uuid());
                 
                 // FIXME: maybe? zero flag will be set if not equal
                 common.context.emit_sbb(common.allocation, new_allocation.location);
@@ -310,8 +305,8 @@ namespace
                 
                 const auto label_template = "{}_{}_{}";
                 
-                const auto less_label = fmt::format(label_template, "less", common.parent_function.name, ti::generate_uuid()),
-                            end_label = fmt::format(label_template, "end",  common.parent_function.name, ti::generate_uuid());
+                const auto less_label = fmt::format(label_template, "less", common.parent_function->name, ti::generate_uuid()),
+                            end_label = fmt::format(label_template, "end",  common.parent_function->name, ti::generate_uuid());
                 
                 common.context.emit_sbb(common.allocation, new_allocation.location);
                 
@@ -338,8 +333,8 @@ namespace
                 
                 const auto label_template = "{}_{}_{}";
                 
-                const auto less_label = fmt::format(label_template, "greater", common.parent_function.name, ti::generate_uuid()),
-                            end_label = fmt::format(label_template, "end",     common.parent_function.name, ti::generate_uuid());
+                const auto less_label = fmt::format(label_template, "greater", common.parent_function->name, ti::generate_uuid()),
+                            end_label = fmt::format(label_template, "end",     common.parent_function->name, ti::generate_uuid());
                 
                 common.context.emit_sbb(common.allocation, new_allocation.location);
                 

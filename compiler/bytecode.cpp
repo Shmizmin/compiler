@@ -1,6 +1,6 @@
-#include "Bytecode.hpp"
-#include "Central.hpp"
-#include "Error.hpp"
+#include "bytecode.hpp"
+#include "central.hpp"
+#include "error.hpp"
 
 #include <fmt/format.h>
 

@@ -1,29 +1,30 @@
-#ifndef Allocation_hpp
-#define Allocation_hpp
+#ifndef allocation_hpp
+#define allocation_hpp
 
 #include <cstdint>
 
 namespace ti
 {
-    struct Context;
+    struct Compiler;
     enum class RegisterType;
 
     struct RegisterAllocation
     {
+        bool was_forced;
         RegisterType location;
-        Context& context;
+        Compiler& context;
         
-        RegisterAllocation(Context&) noexcept;
-        RegisterAllocation(Context&, RegisterType) noexcept;
+        RegisterAllocation(Compiler&) noexcept;
+        RegisterAllocation(Compiler&, RegisterType) noexcept;
         ~RegisterAllocation(void) noexcept;
     };
 
     struct HeapAllocation
     {
         std::uint16_t address, bytes;
-        Context& context;
+        Compiler& context;
         
-        HeapAllocation(Context&, std::uint16_t) noexcept;
+        HeapAllocation(Compiler&, std::uint16_t) noexcept;
         ~HeapAllocation(void) noexcept;
     };
 }

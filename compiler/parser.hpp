@@ -32,7 +32,7 @@
 
 
 /**
- ** \file /Users/connor/Desktop/cpu-design/compiler/compiler/Parser.hpp
+ ** \file /Users/connor/Desktop/cpu-design/compiler/compiler/parser.hpp
  ** Define the yy::parser class.
  */
 
@@ -51,9 +51,9 @@
 #include <cstdint>
   class driver;
   
-#include "Function.hpp"
-#include "Statement.hpp"
-#include "Expression.hpp"
+#include "function.hpp"
+#include "statement.hpp"
+#include "expression.hpp"
 
 
 # include <cassert>
@@ -429,7 +429,7 @@ namespace yy {
 
       // definitions_opt
       // definitions
-      char dummy5[sizeof (std::vector<ti::Function>)];
+      char dummy5[sizeof (std::vector<ti::Function*>)];
 
       // statements
       // statements_opt
@@ -448,7 +448,7 @@ namespace yy {
       // definition
       // function_declarator
       // function_header
-      char dummy10[sizeof (ti::Function)];
+      char dummy10[sizeof (ti::Function*)];
 
       // statement
       char dummy11[sizeof (ti::Statement*)];
@@ -682,7 +682,7 @@ namespace yy {
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        value.move< std::vector<ti::Function> > (std::move (that.value));
+        value.move< std::vector<ti::Function*> > (std::move (that.value));
         break;
 
       case symbol_kind::S_statements: // statements
@@ -706,7 +706,7 @@ namespace yy {
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        value.move< ti::Function > (std::move (that.value));
+        value.move< ti::Function* > (std::move (that.value));
         break;
 
       case symbol_kind::S_statement: // statement
@@ -809,13 +809,13 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, std::vector<ti::Function>&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, std::vector<ti::Function*>&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const std::vector<ti::Function>& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const std::vector<ti::Function*>& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -879,13 +879,13 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, ti::Function&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, ti::Function*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const ti::Function& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const ti::Function*& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -1007,7 +1007,7 @@ switch (yykind)
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        value.template destroy< std::vector<ti::Function> > ();
+        value.template destroy< std::vector<ti::Function*> > ();
         break;
 
       case symbol_kind::S_statements: // statements
@@ -1031,7 +1031,7 @@ switch (yykind)
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        value.template destroy< ti::Function > ();
+        value.template destroy< ti::Function* > ();
         break;
 
       case symbol_kind::S_statement: // statement
@@ -2194,7 +2194,7 @@ switch (yykind)
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        value.copy< std::vector<ti::Function> > (YY_MOVE (that.value));
+        value.copy< std::vector<ti::Function*> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_statements: // statements
@@ -2218,7 +2218,7 @@ switch (yykind)
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        value.copy< ti::Function > (YY_MOVE (that.value));
+        value.copy< ti::Function* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_statement: // statement
@@ -2293,7 +2293,7 @@ switch (yykind)
 
       case symbol_kind::S_definitions_opt: // definitions_opt
       case symbol_kind::S_definitions: // definitions
-        value.move< std::vector<ti::Function> > (YY_MOVE (s.value));
+        value.move< std::vector<ti::Function*> > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_statements: // statements
@@ -2317,7 +2317,7 @@ switch (yykind)
       case symbol_kind::S_definition: // definition
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
-        value.move< ti::Function > (YY_MOVE (s.value));
+        value.move< ti::Function* > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_statement: // statement

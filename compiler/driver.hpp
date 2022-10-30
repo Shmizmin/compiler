@@ -1,10 +1,10 @@
-#ifndef Driver_hpp
-#define Driver_hpp
+#ifndef driver_hpp
+#define driver_hpp
 
 #include <string>
 
 #include "location.hh"
-#include "Parser.hpp"
+#include "parser.hpp"
 
 class driver;
 

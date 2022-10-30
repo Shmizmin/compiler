@@ -1,15 +1,15 @@
-#ifndef Context_hpp
-#define Context_hpp
+#ifndef CompilerContext_hpp
+#define CompilerContext_hpp
 
 #include <vector>
 #include <list>
 #include <array>
 #include <string>
 
-#include "Types.hpp"
-#include "Bytecode.hpp"
-#include "Expression.hpp"
-#include "Function.hpp"
+#include "types.hpp"
+#include "bytecode.hpp"
+#include "expression.hpp"
+#include "function.hpp"
 
 #define common2 { common.context, common.parent_function, new_allocation.location }
 
@@ -27,7 +27,7 @@ namespace ti
         {
             std::uint16_t address;
             TypeVisibility visibility;
-            Function& parent_function;
+            Function* parent_function;
         };
         
         struct Function
@@ -57,7 +57,7 @@ namespace ti
     
     enum class RegisterType;
     
-    struct Context
+    struct Compiler
     {
         std::vector<Symbol*> symbol_table;
         std::list<Command*> ir_code;
@@ -65,16 +65,20 @@ namespace ti
         std::array<bool, 4> available_registers;
         std::array<bool, 0x4000> available_heap;
         
-        Context(void) noexcept
+        Compiler(void) noexcept
         {
             symbol_table = {};
             ir_code = {};
             
-            for (auto&& reg : available_registers)
+            for (auto& reg : available_registers)
+            {
                 reg = true;
-            
-            for (auto&& byte : available_heap)
+            }
+                
+            for (auto& byte : available_heap)
+            {
                 byte = true;
+            }
         }
         
         void add_to_symbol_table(Symbol*) noexcept;
@@ -107,7 +111,7 @@ namespace ti
         void emit_mvb(RegisterType, RegisterType) noexcept;
         void emit_ldb(RegisterType, std::uint8_t) noexcept;
         
-        void emit_call(RegisterType, std::string&&) noexcept;
+        void emit_call(RegisterType, const std::string&) noexcept;
         
         void emit_push(RegisterType) noexcept;
         void emit_pop(RegisterType) noexcept;

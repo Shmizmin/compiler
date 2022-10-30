@@ -1,8 +1,9 @@
-#include "Preprocessor.hpp"
+#include "preprocessor.hpp"
+#include "error.hpp"
 
 #include <cstdlib>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <filesystem>
 #include <regex>
@@ -67,8 +68,7 @@ namespace
             
             if (filepath == parent_filepath)
             {
-                std::cerr << fmt::format("[Error] File include recursion is unsupported\nExiting...\n");
-                std::exit(EXIT_FAILURE);
+                ti::throw_error(fmt::format("File include recursion of {} is unsupported", filepath));
             }
             
             const auto size = std::filesystem::file_size(filepath); //bytes
@@ -76,8 +76,7 @@ namespace
             
             if (!file.good())
             {
-                std::cerr << fmt::format("[Error] Could not open file {} for writing\nExiting...\n", filepath);
-                std::exit(EXIT_FAILURE);
+                ti::throw_error(fmt::format("Could not open file {} for writing", filepath));
             }
             
             std::string buffer(size, '\0');
@@ -111,20 +110,21 @@ namespace
             
             Macro macro{ name, args_delim, mcode };
             
-            bool found = false;
-            for (const auto& m : context.defined_macros)
             {
-                if (m.name == macro.name) [[unlikely]]
+                bool found = false;
+                for (const auto& m : context.defined_macros)
                 {
-                    found = true;
-                    break;
+                    if (m.name == macro.name) [[unlikely]]
+                    {
+                        found = true;
+                        break;
+                    }
                 }
-            }
-            
-            if (!found)
-            {
-                std::cerr << fmt::format("[Error] Macro {} is multiply defined\nExiting...\n", macro.name);
-                std::exit(EXIT_FAILURE);
+                
+                if (!found)
+                {
+                    ti::throw_error(fmt::format("Macro {} is multiply defined", macro.name));
+                }
             }
             
             context.defined_macros.emplace_back(macro);
@@ -148,27 +148,30 @@ namespace
             
             Macro macro{ name, args_delim, "" }, defined_macro;
             
-            bool found = false;
-            for (auto&& m : context.defined_macros)
             {
-                if (m.name == macro.name)
+                bool found = false;
+                for (auto&& m : context.defined_macros)
                 {
-                    defined_macro = m;
-                    found = true;
-                    break;
+                    if (m.name == macro.name)
+                    {
+                        defined_macro = m;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found)
+                {
+                    ti::throw_error(fmt::format("Macro {} is undefed", macro.name));
                 }
             }
             
-            if (!found)
-            {
-                std::cerr << fmt::format("[Error] Macro {} is undefined\nExiting...\n", macro.name);
-                std::exit(EXIT_FAILURE);
-            }
             
             if (defined_macro.args.size() != args_delim.size())
             {
-                std::cerr << fmt::format("[Error] Invokation of macro {} had {} arguments, but expected {}\nExiting...\n", defined_macro.name, args_delim.size(), defined_macro.args.size());
-                std::exit(EXIT_FAILURE);
+                
+                
+                ti::throw_error(fmt::format("Invokation of macro {} had {} arguments, but expected {}", defined_macro.name, args_delim.size(), defined_macro.args.size()));
             }
             
             if (args_delim.size() != 0)

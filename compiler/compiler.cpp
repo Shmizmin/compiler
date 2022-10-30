@@ -1,9 +1,8 @@
-#include "Context.hpp"
-#include "Error.hpp"
-#include "Central.hpp"
-#include "Types.hpp"
+#include "compiler.hpp"
+#include "error.hpp"
+#include "central.hpp"
+#include "types.hpp"
 
-#include <optional>
 #include <fmt/format.h>
 
 namespace ti
@@ -15,7 +14,7 @@ namespace ti
     }
     
     
-    void Context::add_to_symbol_table(Symbol* symbol) noexcept
+    void Compiler::add_to_symbol_table(Symbol* symbol) noexcept
     {
         bool found = false;
         for (const auto s : symbol_table)
@@ -34,7 +33,7 @@ namespace ti
         }
     }
     
-    void Context::emit_label(const std::string& name) noexcept
+    void Compiler::emit_label(const std::string& name) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -43,7 +42,7 @@ namespace ti
         });
     }
     
-    void Context::emit_ascii(const std::string& name) noexcept
+    void Compiler::emit_ascii(const std::string& name) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -53,7 +52,7 @@ namespace ti
         });
     }
     
-    void Context::emit_org(std::uint16_t address) noexcept
+    void Compiler::emit_org(std::uint16_t address) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -63,7 +62,7 @@ namespace ti
         });
     }
     
-    void Context::emit_jmp(ti::insn::Jmp::Condition condition, const std::string& label) noexcept
+    void Compiler::emit_jmp(ti::insn::Jmp::Condition condition, const std::string& label) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -75,7 +74,7 @@ namespace ti
     }
     
 #define MATH_OPERATION_REG_IMM(x, y) \
-    void Context::emit_##x(RegisterType location, std::uint8_t value) noexcept \
+    void Compiler::emit_##x(RegisterType location, std::uint8_t value) noexcept \
     { \
         ir_code.emplace_back(new Command \
         { \
@@ -96,7 +95,7 @@ namespace ti
     }
     
 #define MATH_OPERATION_REG_REG(x, y) \
-    void Context::emit_##x(RegisterType destination, RegisterType source) noexcept \
+    void Compiler::emit_##x(RegisterType destination, RegisterType source) noexcept \
     { \
         ir_code.emplace_back(new Command \
         { \
@@ -135,7 +134,7 @@ namespace ti
 #undef MATH_OPERATION_REG_REG
   
     
-    void Context::emit_not(RegisterType location) noexcept
+    void Compiler::emit_not(RegisterType location) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -150,7 +149,7 @@ namespace ti
         });
     }
     
-    void Context::emit_stb(std::uint16_t address, RegisterType location) noexcept
+    void Compiler::emit_stb(std::uint16_t address, RegisterType location) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -169,7 +168,7 @@ namespace ti
         });
     }
     
-    void Context::emit_mvb(RegisterType destination, RegisterType source) noexcept
+    void Compiler::emit_mvb(RegisterType destination, RegisterType source) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -188,7 +187,7 @@ namespace ti
         });
     }
     
-    void Context::emit_ldb(RegisterType location, std::uint8_t value) noexcept
+    void Compiler::emit_ldb(RegisterType location, std::uint8_t value) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -207,13 +206,15 @@ namespace ti
         });
     }
     
-    void Context::emit_call(RegisterType, std::string&&) noexcept
+    void Compiler::emit_call(RegisterType location, const std::string& label) noexcept
     {
-        // TODO: a
+        emit_and(location, 0);
+        emit_jmp(ti::insn::Jmp::Condition::JEZ, label);
+        emit_pop(location);
     }
     
 #define STACK_OPERATION_REG(x, y) \
-    void Context::emit_##x(RegisterType location) noexcept \
+    void Compiler::emit_##x(RegisterType location) noexcept \
     { \
         ir_code.emplace_back(new Command \
         { \

@@ -1,5 +1,5 @@
-#ifndef Preprocessor_hpp
-#define Preprocessor_hpp
+#ifndef preprocessor_hpp
+#define preprocessor_hpp
 
 #include <vector>
 #include <string>

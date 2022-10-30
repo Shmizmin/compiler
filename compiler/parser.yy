@@ -13,9 +13,9 @@
 #include <cstdint>
   class driver;
   
-#include "Function.hpp"
-#include "Statement.hpp"
-#include "Expression.hpp"
+#include "function.hpp"
+#include "statement.hpp"
+#include "expression.hpp"
 }
 
 // The parsing context.
@@ -29,10 +29,10 @@
 
 %code
 {
-#include "Types.hpp"
-#include "Driver.hpp"
-#include "Context.hpp"
-#include "Central.hpp"
+#include "types.hpp"
+#include "driver.hpp"
+#include "compiler.hpp"
+#include "central.hpp"
 }
 
 %define api.token.prefix {T_}
@@ -114,8 +114,8 @@
 
 %type<std::vector<ti::Statement*>> statements statements_opt
 
-%type<ti::Function> definition function_declarator function_header
-%type<std::vector<ti::Function>> definitions definitions_opt
+%type<ti::Function*> definition function_declarator function_header
+%type<std::vector<ti::Function*>> definitions definitions_opt
 
 %type<std::vector<ti::Argument>> fdecl_args fdecl_args_opt
 
@@ -150,7 +150,7 @@ definitions
 }
 | definition
 {
-    $$ = std::vector<ti::Function>();
+    $$ = {};
     $$.emplace_back($1);
 }
 ;
@@ -190,16 +190,16 @@ function_declarator
 }
 | function_header statement
 {
-    auto a = $1;
-    a.body = $2;
-    $$ = a;
+    auto header = $1;
+    header->body = $2;
+    $$ = header;
 }
 ;
 
 function_header
 : "function" complete_type IDENTIFIER "=" "(" fdecl_args_opt ")"
 {
-    $$ = ti::Function{ $3, $2, $6, NULL };
+    $$ = new ti::Function{ $3, $2, $6, nullptr };
 }
 ;
 
@@ -270,7 +270,7 @@ variable_declarator_i
 }
 | type_visibility complete_type IDENTIFIER
 {
-    $$ = new ti::Variable{ $1, $2, $3, NULL };
+    $$ = new ti::Variable{ $1, $2, $3, nullptr };
 }
 ;
 // /variables
@@ -312,7 +312,7 @@ expression
 | NUMCONST                                  { $$ = ti::make_numconst($1); }
 | STRINGCONST                               { $$ = ti::make_stringconst(std::move($1)); }
 | IDENTIFIER                                { $$ = ti::make_identifier(std::move($1)); }
-| IDENTIFIER "("  fcall_args_opt ")"        { $$ = ti::make_function_call(std::move($1), std::move($3)); }
+| IDENTIFIER "("  fcall_args_opt ")"        { $$ = ti::make_functioncall(std::move($1), std::move($3)); }
 |            "+"  expression                { $$ = $2; }
 |            "-"  expression %prec "+"      { $$ = ti::make_unaryop($2, ti::UnaryOperator::NEGATIVE); }
 | expression "++"                           { $$ = ti::make_unaryop($1, ti::UnaryOperator::PLUS_PLUS); }

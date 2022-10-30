@@ -1,13 +1,13 @@
-#include "Allocation.hpp"
-#include "Context.hpp"
-#include "Error.hpp"
-#include "Types.hpp"
+#include "allocation.hpp"
+#include "compiler.hpp"
+#include "error.hpp"
+#include "types.hpp"
 
 #include <optional>
 
 namespace
 {
-    std::optional<ti::RegisterType> allocate_register(ti::Context& context) noexcept
+    std::optional<ti::RegisterType> allocate_register(ti::Compiler& context) noexcept
     {
         using enum ti::RegisterType;
         if (context.available_registers[0])
@@ -36,7 +36,7 @@ namespace
         }
     }
     
-    void deallocate_register(ti::Context& context, ti::RegisterType location) noexcept
+    void deallocate_register(ti::Compiler& context, ti::RegisterType location) noexcept
     {
         using enum ti::RegisterType;
         switch (location)
@@ -50,15 +50,17 @@ namespace
     }
 }
 
+
 namespace ti
 {
-    RegisterAllocation::RegisterAllocation(Context& context) noexcept
+    RegisterAllocation::RegisterAllocation(Compiler& context) noexcept
         : context(context)
     {
         auto new_allocation = ::allocate_register(context);
         
         if (!new_allocation.has_value())
         {
+            was_forced = true;
             context.emit_push(RegisterType::R0);
             new_allocation.value() = RegisterType::R0;
             context.available_registers[0] = false;
@@ -67,7 +69,7 @@ namespace ti
         location = new_allocation.value();
     }
     
-    RegisterAllocation::RegisterAllocation(Context& context, RegisterType exclude) noexcept
+    RegisterAllocation::RegisterAllocation(Compiler& context, RegisterType exclude) noexcept
         : context(context)
     {
         auto new_allocation = ::allocate_register(context);
@@ -94,12 +96,16 @@ namespace ti
     
     RegisterAllocation::~RegisterAllocation(void) noexcept
     {
-        context.emit_pop(location);
+        if (was_forced)
+        {
+            context.emit_pop(location);
+        }
+            
         ::deallocate_register(context, location);
     }
     
     
-    HeapAllocation::HeapAllocation(Context& context, std::uint16_t bytes) noexcept
+    HeapAllocation::HeapAllocation(Compiler& context, std::uint16_t bytes) noexcept
         : context(context), bytes(bytes)
     {
         auto available = true;
@@ -108,13 +114,17 @@ namespace ti
             for (auto j = 0u; j < bytes; ++j)
             {
                 if (!context.available_heap[i + j])
+                {
                     available = false;
+                }
             }
             
             if (available)
             {
                 for (auto k = 0u; k < bytes; ++k)
+                {
                     context.available_heap[i + k] = false;
+                }
                 
                 address = i;
             }
@@ -127,7 +137,14 @@ namespace ti
     
     HeapAllocation::~HeapAllocation(void) noexcept
     {
-        //for (auto i = address; i < address + bytes; ++i)
-        //    context.available_heap[i] = true;
+        /*
+        may want a flag in the struct to determine of the memory should be freed after destruction
+         ->strings should not be deallocated ever (they are in constant memory, which is faked on the heap directly)m
+         
+        for (auto i = address; i < address + bytes; ++i)
+        {
+            context.available_heap[i] = true;
+        }
+         */
     }
 }

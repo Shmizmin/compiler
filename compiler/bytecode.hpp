@@ -1,5 +1,5 @@
-#ifndef Bytecode_hpp
-#define Bytecode_hpp
+#ifndef bytecode_hpp
+#define bytecode_hpp
 
 #include <cstdint>
 #include <string>

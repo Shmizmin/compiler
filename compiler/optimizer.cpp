@@ -1,4 +1,4 @@
-#include "Optimizer.hpp"
+#include "optimizer.hpp"
 
 namespace
 {

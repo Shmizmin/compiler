@@ -1,10 +1,10 @@
-#include "Statement.hpp"
-#include "Function.hpp"
-#include "Context.hpp"
-#include "Error.hpp"
-#include "Central.hpp"
-#include "Allocation.hpp"
-#include "Types.hpp"
+#include "statement.hpp"
+#include "function.hpp"
+#include "compiler.hpp"
+#include "error.hpp"
+#include "central.hpp"
+#include "allocation.hpp"
+#include "types.hpp"
 
 #include <fmt/format.h>
 
@@ -20,7 +20,7 @@ namespace
     
     void compile_if(const ti::stmt::If& ifs, ti::CommonArgs& common) noexcept
     {
-        auto label_end = fmt::format("if_end_{}_{}", common.parent_function.name, ti::generate_uuid());
+        auto label_end = fmt::format("if_end_{}_{}", common.parent_function->name, ti::generate_uuid());
         
         {
             ti::RegisterAllocation new_allocation{ common.context };
@@ -41,9 +41,9 @@ namespace
     {
         const auto label_template = "{}_{}_{}_{}";
         
-        auto  begin_label = fmt::format(label_template, "while", "begin",  common.parent_function.name, ti::generate_uuid()),
-             oneify_label = fmt::format(label_template, "while", "oneify", common.parent_function.name, ti::generate_uuid()),
-                end_label = fmt::format(label_template, "while", "end",    common.parent_function.name, ti::generate_uuid());
+        auto  begin_label = fmt::format(label_template, "while", "begin",  common.parent_function->name, ti::generate_uuid()),
+             oneify_label = fmt::format(label_template, "while", "oneify", common.parent_function->name, ti::generate_uuid()),
+                end_label = fmt::format(label_template, "while", "end",    common.parent_function->name, ti::generate_uuid());
         
         ti::compile_statement(whiles.statement, common);
         ti::compile_expression(whiles.condition, common);
@@ -67,7 +67,7 @@ namespace
         
         common.context.emit_push(common.allocation);
         common.context.emit_and(common.allocation, 0);
-        common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, fmt::format("function_end_{}", common.parent_function.name));
+        common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, fmt::format("function_end_{}", common.parent_function->name));
     }
     
     void compile_variable(const ti::stmt::Variables& variables, ti::CommonArgs& common) noexcept
