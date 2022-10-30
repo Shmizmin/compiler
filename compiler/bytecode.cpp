@@ -1,5 +1,5 @@
 #include "bytecode.hpp"
-#include "central.hpp"
+#include "compiler.hpp"
 #include "error.hpp"
 
 #include <fmt/format.h>
@@ -22,10 +22,10 @@ namespace ti
                     using enum DirectiveType;
                     switch (command.as.directive.type)
                     {
-                        case ORIGIN: code.append(fmt::format(".org {}",       command.as.directive.as.origin.address));     break;
-                        case   BYTE: code.append(fmt::format(".byte {}",      command.as.directive.as.word.value));         break;
-                        case   WORD: code.append(fmt::format(".word {}",      command.as.directive.as.word.value));         break;
-                        case  ASCII: code.append(fmt::format(".ascii \"{}\"", command.as.directive.as.ascii.text.c_str())); break;
+                        case ORIGIN: code.append(fmt::format(".org {}",       command.as.directive.as.origin.address)); break;
+                        case   BYTE: code.append(fmt::format(".byte {}",      command.as.directive.as.word.value));     break;
+                        case   WORD: code.append(fmt::format(".word {}",      command.as.directive.as.byte.value));     break;
+                        case  ASCII: code.append(fmt::format(".ascii \"{}\"", command.as.directive.as.ascii.text));     break;
                     }
                 } break;
                     

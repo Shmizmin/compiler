@@ -46,7 +46,7 @@
 #include "types.hpp"
 #include "driver.hpp"
 #include "compiler.hpp"
-#include "central.hpp"
+#include "program.hpp"
 
 
 
@@ -255,6 +255,10 @@ namespace yy {
         value.YY_MOVE_OR_COPY< ti::Function* > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_translation_unit: // translation_unit
+        value.YY_MOVE_OR_COPY< ti::Program* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_statement: // statement
         value.YY_MOVE_OR_COPY< ti::Statement* > (YY_MOVE (that.value));
         break;
@@ -336,6 +340,10 @@ namespace yy {
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
         value.move< ti::Function* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_translation_unit: // translation_unit
+        value.move< ti::Program* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_statement: // statement
@@ -421,6 +429,10 @@ namespace yy {
         value.copy< ti::Function* > (that.value);
         break;
 
+      case symbol_kind::S_translation_unit: // translation_unit
+        value.copy< ti::Program* > (that.value);
+        break;
+
       case symbol_kind::S_statement: // statement
         value.copy< ti::Statement* > (that.value);
         break;
@@ -501,6 +513,10 @@ namespace yy {
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
         value.move< ti::Function* > (that.value);
+        break;
+
+      case symbol_kind::S_translation_unit: // translation_unit
+        value.move< ti::Program* > (that.value);
         break;
 
       case symbol_kind::S_statement: // statement
@@ -840,6 +856,10 @@ namespace yy {
         yylhs.value.emplace< ti::Function* > ();
         break;
 
+      case symbol_kind::S_translation_unit: // translation_unit
+        yylhs.value.emplace< ti::Program* > ();
+        break;
+
       case symbol_kind::S_statement: // statement
         yylhs.value.emplace< ti::Statement* > ();
         break;
@@ -882,10 +902,7 @@ namespace yy {
             {
   case 2: // translation_unit: definitions_opt "end of file"
 {
-    auto program = ti::Program{ yystack_[1].value.as < std::vector<ti::Function*> > () };
-    auto parameters = ti::Parameters{ drv.file };
-    
-    ti::compile_program(program, parameters);
+    yylhs.value.as < ti::Program* > () = new ti::Program{ yystack_[1].value.as < std::vector<ti::Function*> > () };
 }
     break;
 
@@ -1826,13 +1843,13 @@ namespace yy {
   const short
   parser::yyrline_[] =
   {
-       0,   129,   129,   140,   141,   145,   151,   159,   166,   167,
-     171,   175,   176,   180,   187,   191,   200,   208,   209,   213,
-     218,   229,   230,   234,   239,   253,   258,   267,   271,   280,
-     281,   282,   283,   284,   285,   289,   295,   303,   304,   311,
-     312,   313,   314,   315,   316,   317,   318,   319,   320,   321,
-     322,   323,   324,   325,   326,   327,   328,   329,   330,   331,
-     335,   336
+       0,   131,   131,   139,   140,   144,   150,   158,   165,   166,
+     170,   174,   175,   179,   186,   190,   199,   207,   208,   212,
+     217,   228,   229,   233,   238,   252,   257,   266,   270,   279,
+     280,   281,   282,   283,   284,   288,   294,   302,   303,   310,
+     311,   312,   313,   314,   315,   316,   317,   318,   319,   320,
+     321,   322,   323,   324,   325,   326,   327,   328,   329,   330,
+     334,   335
   };
 
   void

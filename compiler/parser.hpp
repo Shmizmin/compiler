@@ -53,6 +53,7 @@
   
 #include "function.hpp"
 #include "statement.hpp"
+#include "program.hpp"
 #include "expression.hpp"
 
 
@@ -450,20 +451,23 @@ namespace yy {
       // function_header
       char dummy10[sizeof (ti::Function*)];
 
+      // translation_unit
+      char dummy11[sizeof (ti::Program*)];
+
       // statement
-      char dummy11[sizeof (ti::Statement*)];
+      char dummy12[sizeof (ti::Statement*)];
 
       // type_qualifier
-      char dummy12[sizeof (ti::TypeQualifier)];
+      char dummy13[sizeof (ti::TypeQualifier)];
 
       // type_specifier
-      char dummy13[sizeof (ti::TypeSpecifier)];
+      char dummy14[sizeof (ti::TypeSpecifier)];
 
       // type_visibility
-      char dummy14[sizeof (ti::TypeVisibility)];
+      char dummy15[sizeof (ti::TypeVisibility)];
 
       // variable_declarator_i
-      char dummy15[sizeof (ti::Variable*)];
+      char dummy16[sizeof (ti::Variable*)];
     };
 
     /// The size of the largest semantic type.
@@ -709,6 +713,10 @@ namespace yy {
         value.move< ti::Function* > (std::move (that.value));
         break;
 
+      case symbol_kind::S_translation_unit: // translation_unit
+        value.move< ti::Program* > (std::move (that.value));
+        break;
+
       case symbol_kind::S_statement: // statement
         value.move< ti::Statement* > (std::move (that.value));
         break;
@@ -893,6 +901,20 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, ti::Program*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const ti::Program*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, ti::Statement*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -1032,6 +1054,10 @@ switch (yykind)
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
         value.template destroy< ti::Function* > ();
+        break;
+
+      case symbol_kind::S_translation_unit: // translation_unit
+        value.template destroy< ti::Program* > ();
         break;
 
       case symbol_kind::S_statement: // statement
@@ -2221,6 +2247,10 @@ switch (yykind)
         value.copy< ti::Function* > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_translation_unit: // translation_unit
+        value.copy< ti::Program* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_statement: // statement
         value.copy< ti::Statement* > (YY_MOVE (that.value));
         break;
@@ -2318,6 +2348,10 @@ switch (yykind)
       case symbol_kind::S_function_declarator: // function_declarator
       case symbol_kind::S_function_header: // function_header
         value.move< ti::Function* > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_translation_unit: // translation_unit
+        value.move< ti::Program* > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_statement: // statement

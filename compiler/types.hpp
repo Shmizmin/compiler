@@ -29,14 +29,6 @@ namespace ti
     
     struct Compiler;
     struct Function;
-    enum class RegisterType;
-    
-    struct CommonArgs
-    {
-        Compiler& context;
-        Function* parent_function;
-        RegisterType& allocation;
-    };
     
     enum class RegisterType
     {
@@ -46,6 +38,13 @@ namespace ti
         R3,
         RF,
         IP,
+    };
+    
+    struct CommonArgs
+    {
+        Compiler& context;
+        Function* parent_function;
+        RegisterType& allocation;
     };
 }
 

@@ -15,6 +15,7 @@
   
 #include "function.hpp"
 #include "statement.hpp"
+#include "program.hpp"
 #include "expression.hpp"
 }
 
@@ -32,7 +33,7 @@
 #include "types.hpp"
 #include "driver.hpp"
 #include "compiler.hpp"
-#include "central.hpp"
+#include "program.hpp"
 }
 
 %define api.token.prefix {T_}
@@ -116,6 +117,7 @@
 
 %type<ti::Function*> definition function_declarator function_header
 %type<std::vector<ti::Function*>> definitions definitions_opt
+%type<ti::Program*> translation_unit
 
 %type<std::vector<ti::Argument>> fdecl_args fdecl_args_opt
 
@@ -128,10 +130,7 @@
 translation_unit
 : definitions_opt END
 {
-    auto program = ti::Program{ $1 };
-    auto parameters = ti::Parameters{ drv.file };
-    
-    ti::compile_program(program, parameters);
+    $$ = new ti::Program{ $1 };
 }
 ;
 

@@ -1,6 +1,5 @@
 #include "compiler.hpp"
 #include "error.hpp"
-#include "central.hpp"
 #include "types.hpp"
 
 #include <fmt/format.h>

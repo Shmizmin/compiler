@@ -9,6 +9,7 @@
 namespace ti
 {
     struct Statement;
+    struct RegisterAllocation;
     
     struct Argument
     {
@@ -24,12 +25,7 @@ namespace ti
         Statement* body;
     };
     
-    struct Program
-    {
-        std::vector<Function*> functions;
-    };
-    
-    void compile_function(Function*, CommonArgs&) noexcept;
+    void compile_function(Function*, Compiler&) noexcept;
 }
 
 #endif

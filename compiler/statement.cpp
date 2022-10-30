@@ -2,7 +2,6 @@
 #include "function.hpp"
 #include "compiler.hpp"
 #include "error.hpp"
-#include "central.hpp"
 #include "allocation.hpp"
 #include "types.hpp"
 

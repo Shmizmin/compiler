@@ -601,7 +601,7 @@ char *yytext;
 #include "types.hpp"
 #include "driver.hpp"
 #include "compiler.hpp"
-#include "central.hpp"
+#include "program.hpp"
 #include "function.hpp"
 #include "statement.hpp"
 #include "expression.hpp"
