@@ -26,10 +26,6 @@ namespace ti
         TypeQualifier qualifier;
     };
     
-    
-    struct Compiler;
-    struct Function;
-    
     enum class RegisterType
     {
         R0,
@@ -38,13 +34,6 @@ namespace ti
         R3,
         RF,
         IP,
-    };
-    
-    struct CommonArgs
-    {
-        Compiler& context;
-        Function* parent_function;
-        RegisterType& allocation;
     };
 }
 

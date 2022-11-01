@@ -36,7 +36,18 @@ namespace ti
                         using enum OperandType;
                         switch (op.type)
                         {
-                            case REG: return regtype_to_string(op.as.reg.location);
+                            case REG:
+                            {
+                                using enum RegisterType;
+                                switch (op.as.reg.location)
+                                {
+                                    case R0: return "r0";
+                                    case R1: return "r1";
+                                    case R2: return "r2";
+                                    case R3: return "r3";
+                                    default: ti::throw_error("Unknown register type");
+                                }
+                            }
                             case  IP: return "ip";
                             case MEM: return ("%" + std::to_string(op.as.mem.address));
                             case IMM: return ("#" + std::to_string(op.as.imm.value));

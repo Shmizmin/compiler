@@ -1,4 +1,5 @@
 #include "compiler.hpp"
+#include "allocation.hpp"
 #include "error.hpp"
 #include "types.hpp"
 
@@ -61,6 +62,16 @@ namespace ti
         });
     }
     
+    void Compiler::emit_org(const HeapAllocation& allocation) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::DIRECTIVE,
+            .as.directive.type = DirectiveType::ORIGIN,
+            .as.directive.as.origin.address = allocation.address,
+        });
+    }
+    
     void Compiler::emit_jmp(ti::insn::Jmp::Condition condition, const std::string& label) noexcept
     {
         ir_code.emplace_back(new Command
@@ -73,7 +84,7 @@ namespace ti
     }
     
 #define MATH_OPERATION_REG_IMM(x, y) \
-    void Compiler::emit_##x(RegisterType location, std::uint8_t value) noexcept \
+    void Compiler::emit_##x(const RegisterAllocation& allocation, std::uint8_t value) noexcept \
     { \
         ir_code.emplace_back(new Command \
         { \
@@ -83,7 +94,7 @@ namespace ti
             .as.instruction.as.math.op1 = Operand \
             { \
                 .type = OperandType::REG, \
-                .as.reg.location = location, \
+                .as.reg.location = allocation.location, \
             }, \
             .as.instruction.as.math.op2 = Operand \
             { \
@@ -94,7 +105,7 @@ namespace ti
     }
     
 #define MATH_OPERATION_REG_REG(x, y) \
-    void Compiler::emit_##x(RegisterType destination, RegisterType source) noexcept \
+    void Compiler::emit_##x(const RegisterAllocation& destination, const RegisterAllocation& source) noexcept \
     { \
         ir_code.emplace_back(new Command \
         { \
@@ -104,12 +115,12 @@ namespace ti
             .as.instruction.as.math.op1 = Operand \
             { \
                 .type = OperandType::REG, \
-                .as.reg.location = destination, \
+                .as.reg.location = destination.location, \
             }, \
             .as.instruction.as.math.op2 = Operand \
             { \
                 .type = OperandType::REG, \
-                .as.reg.location = source, \
+                .as.reg.location = source.location, \
             }, \
         }); \
     }
@@ -133,7 +144,7 @@ namespace ti
 #undef MATH_OPERATION_REG_REG
   
     
-    void Compiler::emit_not(RegisterType location) noexcept
+    void Compiler::emit_not(const RegisterAllocation& allocation) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -143,12 +154,12 @@ namespace ti
             .as.instruction.as.math.op1 = Operand
             {
                 .type = OperandType::REG,
-                .as.reg.location = location,
+                .as.reg.location = allocation.location,
             },
         });
     }
     
-    void Compiler::emit_stb(std::uint16_t address, RegisterType location) noexcept
+    void Compiler::emit_stb(std::uint16_t address, const RegisterAllocation& allocation) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -162,12 +173,12 @@ namespace ti
             .as.instruction.as.move.op2 = Operand
             {
                 .type = OperandType::REG,
-                .as.reg.location = location,
+                .as.reg.location = allocation.location,
             },
         });
     }
     
-    void Compiler::emit_mvb(RegisterType destination, RegisterType source) noexcept
+    void Compiler::emit_mvb(const RegisterAllocation& destination, const RegisterAllocation& source) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -176,17 +187,17 @@ namespace ti
             .as.instruction.as.move.op1 = Operand
             {
                 .type = OperandType::REG,
-                .as.reg.location = destination,
+                .as.reg.location = destination.location,
             },
             .as.instruction.as.move.op2 = Operand
             {
                 .type = OperandType::REG,
-                .as.reg.location = source,
+                .as.reg.location = source.location,
             },
         });
     }
     
-    void Compiler::emit_ldb(RegisterType location, std::uint8_t value) noexcept
+    void Compiler::emit_ldb(const RegisterAllocation& allocation, std::uint8_t value) noexcept
     {
         ir_code.emplace_back(new Command
         {
@@ -195,7 +206,7 @@ namespace ti
             .as.instruction.as.move.op1 = Operand
             {
                 .type = OperandType::REG,
-                .as.reg.location = location,
+                .as.reg.location = allocation.location,
             },
             .as.instruction.as.move.op2 = Operand
             {
@@ -205,15 +216,15 @@ namespace ti
         });
     }
     
-    void Compiler::emit_call(RegisterType location, const std::string& label) noexcept
+    void Compiler::emit_call(const RegisterAllocation& allocation, const std::string& label) noexcept
     {
-        emit_and(location, 0);
+        emit_and(allocation, 0);
         emit_jmp(ti::insn::Jmp::Condition::JEZ, label);
-        emit_pop(location);
+        emit_pop(allocation);
     }
     
 #define STACK_OPERATION_REG(x, y) \
-    void Compiler::emit_##x(RegisterType location) noexcept \
+    void Compiler::emit_##x(const RegisterAllocation& allocation) noexcept \
     { \
         ir_code.emplace_back(new Command \
         { \
@@ -222,7 +233,7 @@ namespace ti
             .as.instruction.as.stack.op = Operand \
             { \
                 .type = OperandType::REG, \
-                .as.reg.location = location, \
+                .as.reg.location = allocation.location, \
             }, \
             .as.instruction.as.stack.dir = insn::Stack::Direction::y, \
         }); \
@@ -230,6 +241,7 @@ namespace ti
     
     STACK_OPERATION_REG(push, PUSH)
     STACK_OPERATION_REG(pop, POP)
+    
 #undef STACK_OPERATION_REG
 }
 
@@ -243,20 +255,6 @@ namespace ti
             case BYTE: return 1; break;
             case VOID: throw_error("Type \'void\' is unsized");          break;
             default:   throw_error("Unknown type to query the size of"); break;
-        }
-    }
-    
-    std::string regtype_to_string(RegisterType regtype) noexcept
-    {
-        using enum RegisterType;
-        switch (regtype)
-        {
-            case R0: return "r0";    break;
-            case R1: return "r1";    break;
-            case R2: return "r2";    break;
-            case R3: return "r3";    break;
-            case RF: return "flags"; break;
-            case IP: return "ip";    break;
         }
     }
 }

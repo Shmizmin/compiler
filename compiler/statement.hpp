@@ -9,6 +9,9 @@
 namespace ti
 {
     struct Expression;
+    struct Compiler;
+    struct Function;
+    struct RegisterAllocation;
     
     struct Variable
     {
@@ -63,6 +66,7 @@ namespace ti
     struct Statement
     {
         const StatementType type;
+        const Function* parent_function;
         
         const union As
         {
@@ -83,7 +87,7 @@ namespace ti
     Statement* make_return(Expression*) noexcept;
     Statement* make_variable(std::vector<Variable*>&&) noexcept;
     
-    void compile_statement(Statement*, CommonArgs&) noexcept;
+    void compile_statement(Statement*, Compiler&) noexcept;
 }
 
 #endif

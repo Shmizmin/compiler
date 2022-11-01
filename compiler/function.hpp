@@ -8,8 +8,8 @@
 
 namespace ti
 {
+    struct Compiler;
     struct Statement;
-    struct RegisterAllocation;
     
     struct Argument
     {
@@ -24,6 +24,8 @@ namespace ti
         std::vector<Argument> arguments;
         Statement* body;
     };
+    
+    inline Function* compiling_function;
     
     void compile_function(Function*, Compiler&) noexcept;
 }

@@ -9,76 +9,81 @@
 
 namespace
 {
-    void compile_block(const ti::stmt::Block& block, ti::CommonArgs& common) noexcept
+    void compile_block(ti::Statement* statement, ti::Compiler& compiler, ti::RegisterAllocation allocation) noexcept
     {
-        for (const auto statement : block.statements)
+        const auto& block = statement->as.block;
+        
+        for (const auto stmt : block.statements)
         {
-            ti::compile_statement(statement, common);
+            ti::compile_statement(stmt, compiler);
         }
     }
     
-    void compile_if(const ti::stmt::If& ifs, ti::CommonArgs& common) noexcept
+    void compile_if(ti::Statement* statement, ti::Compiler& compiler, ti::RegisterAllocation allocation) noexcept
     {
-        auto label_end = fmt::format("if_end_{}_{}", common.parent_function->name, ti::generate_uuid());
+        const auto& ifs = statement->as.ifs;
         
-        {
-            ti::RegisterAllocation new_allocation{ common.context };
-            
-            ti::CommonArgs args common2;
-            ti::compile_expression(ifs.condition, args);
+        auto label_end = fmt::format("if_end_{}_{}", statement->parent_function->name, ti::generate_uuid());
         
-            common.context.emit_adc(new_allocation.location, 0);
-            common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, label_end);
-        }
+        ti::compile_expression(ifs.condition, compiler, allocation);
         
-        ti::compile_statement(ifs.statement, common);
+        compiler.emit_adc(allocation, 0);
+        compiler.emit_jmp(ti::insn::Jmp::Condition::JEZ, label_end);
         
-        common.context.emit_label(label_end);
+        ti::compile_statement(ifs.statement, compiler);
+        
+        compiler.emit_label(label_end);
     }
     
-    void compile_while(const ti::stmt::While& whiles, ti::CommonArgs& common) noexcept
+    void compile_while(ti::Statement* statement, ti::Compiler& compiler, ti::RegisterAllocation allocation) noexcept
     {
+        const auto& whiles = statement->as.whiles;
+        
         const auto label_template = "{}_{}_{}_{}";
         
-        auto  begin_label = fmt::format(label_template, "while", "begin",  common.parent_function->name, ti::generate_uuid()),
-             oneify_label = fmt::format(label_template, "while", "oneify", common.parent_function->name, ti::generate_uuid()),
-                end_label = fmt::format(label_template, "while", "end",    common.parent_function->name, ti::generate_uuid());
+        auto  begin_label = fmt::format(label_template, "while", "begin",  statement->parent_function->name, ti::generate_uuid()),
+             oneify_label = fmt::format(label_template, "while", "oneify", statement->parent_function->name, ti::generate_uuid()),
+                end_label = fmt::format(label_template, "while", "end",    statement->parent_function->name, ti::generate_uuid());
         
-        ti::compile_statement(whiles.statement, common);
-        ti::compile_expression(whiles.condition, common);
+        ti::compile_statement(whiles.statement, compiler);
+        ti::compile_expression(whiles.condition, compiler, allocation);
         
         if (whiles.condition->type == ti::ExpressionType::IDENTIFIER)
         {
-            common.context.emit_adc(common.allocation, 0);
+            compiler.emit_adc(allocation, 0);
         }
         
-        common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, oneify_label);
-        common.context.emit_and(common.allocation, 0);
-        common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, end_label);
-        common.context.emit_label(oneify_label);
-        common.context.emit_lor(common.allocation, 1);
-        common.context.emit_label(end_label);
+        compiler.emit_jmp(ti::insn::Jmp::Condition::JEZ, oneify_label);
+        compiler.emit_and(allocation, 0);
+        compiler.emit_jmp(ti::insn::Jmp::Condition::JEZ, end_label);
+        compiler.emit_label(oneify_label);
+        compiler.emit_lor(allocation, 1);
+        compiler.emit_label(end_label);
     }
     
-    void compile_return(const ti::stmt::Return& returns, ti::CommonArgs& common) noexcept
+    void compile_return(ti::Statement* statement, ti::Compiler& compiler, ti::RegisterAllocation allocation) noexcept
     {
-        ti::compile_expression(returns.value, common);
+        const auto& returns = statement->as.returns;
         
-        common.context.emit_push(common.allocation);
-        common.context.emit_and(common.allocation, 0);
-        common.context.emit_jmp(ti::insn::Jmp::Condition::JEZ, fmt::format("function_end_{}", common.parent_function->name));
+        ti::compile_expression(returns.value, compiler, allocation);
+        
+        compiler.emit_push(allocation);
+        compiler.emit_and(allocation, 0);
+        compiler.emit_jmp(ti::insn::Jmp::Condition::JEZ, fmt::format("function_end_{}", statement->parent_function->name));
     }
     
-    void compile_variable(const ti::stmt::Variables& variables, ti::CommonArgs& common) noexcept
+    void compile_variable(ti::Statement* statement, ti::Compiler& compiler, ti::RegisterAllocation allocation) noexcept
     {
+        const auto& variables = statement->as.variable;
+        
         for (const auto variable : variables.variables)
         {
             const auto& name = variable->name;
             const auto defined = (variable->value != nullptr);
             
-            const auto heap_allocation = ti::HeapAllocation(common.context, ti::get_size_by_type(variable->type));
+            const auto heap_allocation = ti::HeapAllocation{ compiler, ti::get_size_by_type(variable->type) };
 
-            common.context.symbol_table.emplace_back(new ti::Symbol
+            compiler.add_to_symbol_table(new ti::Symbol
             {
                 .type = ti::SymbolType::VARIABLE,
                 .name = name,
@@ -87,106 +92,113 @@ namespace
                 {
                     .address = heap_allocation.address,
                     .visibility = variable->visibility,
-                    .parent_function = common.parent_function,
+                    .parent_function = ti::compiling_function,
                 },
             });
             
             if (defined)
             {
-                ti::RegisterAllocation new_allocation{ common.context };
+                ti::RegisterAllocation new_allocation{ compiler };
                 
-                ti::CommonArgs args common2;
-                ti::compile_expression(variable->value, args);
+                ti::compile_expression(variable->value, compiler, new_allocation);
                 
-                common.context.emit_stb(heap_allocation.address, new_allocation.location);
+                compiler.emit_stb(heap_allocation, new_allocation);
             }
         }
     }
 }
 
+
 namespace ti
 {
-    void compile_statement(Statement* stmt, CommonArgs& common) noexcept
+    void compile_statement(Statement* statement, ti::Compiler& compiler) noexcept
     {
+        ti::RegisterAllocation new_allocation{ compiler };
+        
         using enum StatementType;
-        switch (stmt->type)
+        switch (statement->type)
         {
             case BLOCK:
             {
                 ti::write_log("Compiling block statement");
-                return ::compile_block(stmt->as.block, common);
+                return ::compile_block(statement, compiler, new_allocation);
             } break;
                 
             case IF:
             {
                 ti::write_log("Compiling if statement");
-                return ::compile_if(stmt->as.ifs, common);
+                return ::compile_if(statement, compiler, new_allocation);
             } break;
                 
             case WHILE:
             {
                 ti::write_log("Compiling while statement");
-                return ::compile_while(stmt->as.whiles, common);
+                return ::compile_while(statement, compiler, new_allocation);
             } break;
                 
             case RETURN:
             {
                 ti::write_log("Compiling return statement");
-                return ::compile_return(stmt->as.returns, common);
+                return ::compile_return(statement, compiler, new_allocation);
             } break;
                 
             case VARIABLE:
             {
                 ti::write_log("Compiling variable statement");
-                return ::compile_variable(stmt->as.variable, common);
+                return ::compile_variable(statement, compiler, new_allocation);
             } break;
         }
     }
     
-    Statement* make_block(std::vector<Statement*>&& stmts) noexcept
+    
+    Statement* make_block(std::vector<Statement*>&& statements) noexcept
     {
         return new Statement
         {
             .type = ti::StatementType::BLOCK,
-            .as.block.statements = std::move(stmts),
+            .as.block.statements = std::move(statements),
         };
     }
     
-    Statement* make_if(Expression* cond, Statement* stmt) noexcept
+    Statement* make_if(Expression* condition, Statement* statement) noexcept
     {
         return new Statement
         {
             .type = ti::StatementType::IF,
-            .as.ifs.condition = cond,
-            .as.ifs.statement = stmt,
+            .as.ifs.condition = condition,
+            .as.ifs.statement = statement,
+            .parent_function = compiling_function,
         };
     }
     
-    Statement* make_while(Expression* cond, Statement* stmt) noexcept
+    Statement* make_while(Expression* condition, Statement* statement) noexcept
     {
         return new Statement
         {
             .type = ti::StatementType::WHILE,
-            .as.whiles.condition = cond,
-            .as.whiles.statement = stmt,
+            .as.whiles.condition = condition,
+            .as.whiles.statement = statement,
+            .parent_function = compiling_function,
         };
     }
     
-    Statement* make_return(Expression* expr) noexcept
+    Statement* make_return(Expression* expression) noexcept
     {
         return new Statement
         {
             .type = ti::StatementType::RETURN,
-            .as.returns.value = expr,
+            .as.returns.value = expression,
+            .parent_function = compiling_function,
         };
     }
     
-    Statement* make_variable(std::vector<Variable*>&& vars) noexcept
+    Statement* make_variable(std::vector<Variable*>&& variables) noexcept
     {
         return new Statement
         {
             .type = ti::StatementType::VARIABLE,
-            .as.variable.variables = std::move(vars),
+            .as.variable.variables = std::move(variables),
+            .parent_function = compiling_function,
         };
     }
 }

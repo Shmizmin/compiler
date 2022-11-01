@@ -7,27 +7,27 @@
 
 namespace
 {
-    std::optional<ti::RegisterType> allocate_register(ti::Compiler& context) noexcept
+    std::optional<ti::RegisterType> allocate_register(ti::Compiler& compiler) noexcept
     {
         using enum ti::RegisterType;
-        if (context.available_registers[0])
+        if (compiler.available_registers[0])
         {
-            context.available_registers[0] = false;
+            compiler.available_registers[0] = false;
             return { R0 };
         }
-        else if (context.available_registers[1])
+        else if (compiler.available_registers[1])
         {
-            context.available_registers[1] = false;
+            compiler.available_registers[1] = false;
             return { R1 };
         }
-        else if (context.available_registers[2])
+        else if (compiler.available_registers[2])
         {
-            context.available_registers[2] = false;
+            compiler.available_registers[2] = false;
             return { R2 };
         }
-        else if (context.available_registers[3])
+        else if (compiler.available_registers[3])
         {
-            context.available_registers[3] = false;
+            compiler.available_registers[3] = false;
             return { R3 };
         }
         else
@@ -36,15 +36,15 @@ namespace
         }
     }
     
-    void deallocate_register(ti::Compiler& context, ti::RegisterType location) noexcept
+    void deallocate_register(ti::Compiler& compiler, ti::RegisterType location) noexcept
     {
         using enum ti::RegisterType;
         switch (location)
         {
-            case R0: context.available_registers[0] = true; break;
-            case R1: context.available_registers[1] = true; break;
-            case R2: context.available_registers[2] = true; break;
-            case R3: context.available_registers[3] = true; break;
+            case R0: compiler.available_registers[0] = true; break;
+            case R1: compiler.available_registers[1] = true; break;
+            case R2: compiler.available_registers[2] = true; break;
+            case R3: compiler.available_registers[3] = true; break;
             default:                                        break;
         }
     }
@@ -53,26 +53,31 @@ namespace
 
 namespace ti
 {
-    RegisterAllocation::RegisterAllocation(Compiler& context) noexcept
-        : context(context)
+    RegisterAllocation::RegisterAllocation(bool was_forced, RegisterType location, Compiler& compiler) noexcept
+        : was_forced(was_forced), location(location), compiler(compiler)
     {
-        auto new_allocation = ::allocate_register(context);
+    }
+    
+    RegisterAllocation::RegisterAllocation(Compiler& compiler) noexcept
+        : compiler(compiler)
+    {
+        auto new_allocation = ::allocate_register(compiler);
         
         if (!new_allocation.has_value())
         {
             was_forced = true;
-            context.emit_push(RegisterType::R0);
+            compiler.emit_push(RegisterAllocation{ true, RegisterType::R0, compiler });
             new_allocation.value() = RegisterType::R0;
-            context.available_registers[0] = false;
+            compiler.available_registers[0] = false;
         }
         
         location = new_allocation.value();
     }
     
-    RegisterAllocation::RegisterAllocation(Compiler& context, RegisterType exclude) noexcept
-        : context(context)
+    RegisterAllocation::RegisterAllocation(Compiler& compiler, const RegisterAllocation& exclude) noexcept
+        : compiler(compiler)
     {
-        auto new_allocation = ::allocate_register(context);
+        auto new_allocation = ::allocate_register(compiler);
         
         if (!new_allocation.has_value())
         {
@@ -81,14 +86,14 @@ namespace ti
             using enum RegisterType;
             switch (value)
             {
-                case R0: value = R1; context.available_registers[1] = false; break;
-                case R1: value = R2; context.available_registers[2] = false; break;
-                case R2: value = R3; context.available_registers[3] = false; break;
-                case R3: value = R0; context.available_registers[0] = false; break;
+                case R0: value = R1; compiler.available_registers[1] = false; break;
+                case R1: value = R2; compiler.available_registers[2] = false; break;
+                case R2: value = R3; compiler.available_registers[3] = false; break;
+                case R3: value = R0; compiler.available_registers[0] = false; break;
                 default:                                                     break;
             }
             
-            context.emit_push(value);
+            compiler.emit_push({ true, value, compiler });
         }
         
         location = new_allocation.value();
@@ -98,22 +103,22 @@ namespace ti
     {
         if (was_forced)
         {
-            context.emit_pop(location);
+            compiler.emit_pop(RegisterAllocation{ true, location, compiler });
         }
             
-        ::deallocate_register(context, location);
+        ::deallocate_register(compiler, location);
     }
     
     
-    HeapAllocation::HeapAllocation(Compiler& context, std::uint16_t bytes) noexcept
-        : context(context), bytes(bytes)
+    HeapAllocation::HeapAllocation(Compiler& compiler, std::uint16_t bytes) noexcept
+        : compiler(compiler), bytes(bytes)
     {
         auto available = true;
-        for (std::uint16_t i = 0u; i < context.available_heap.size(); ++i)
+        for (std::uint16_t i = 0u; i < compiler.available_heap.size(); ++i)
         {
             for (auto j = 0u; j < bytes; ++j)
             {
-                if (!context.available_heap[i + j])
+                if (!compiler.available_heap[i + j])
                 {
                     available = false;
                 }
@@ -123,7 +128,7 @@ namespace ti
             {
                 for (auto k = 0u; k < bytes; ++k)
                 {
-                    context.available_heap[i + k] = false;
+                    compiler.available_heap[i + k] = false;
                 }
                 
                 address = i;

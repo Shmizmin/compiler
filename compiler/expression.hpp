@@ -8,7 +8,11 @@
 #include "types.hpp"
 
 namespace ti
-{    
+{
+    struct Compiler;
+    struct Function;
+    struct RegisterAllocation;
+    
     enum class ExpressionType
     {
         NUMCONST,
@@ -96,6 +100,7 @@ namespace ti
     struct Expression
     {
         const ExpressionType type;
+        const Function* parent_function;
         
         const union As
         {
@@ -120,7 +125,7 @@ namespace ti
     Expression* make_binaryop(Expression*, Expression*, BinaryOperator) noexcept;
     Expression* make_unaryop(Expression*, UnaryOperator) noexcept;
     
-    void compile_expression(Expression*, CommonArgs&) noexcept;
+    void compile_expression(Expression*, Compiler&, const RegisterAllocation&) noexcept;
 }
 
 #endif

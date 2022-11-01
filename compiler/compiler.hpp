@@ -11,8 +11,6 @@
 #include "expression.hpp"
 #include "function.hpp"
 
-#define common2 { common.context, common.parent_function, new_allocation.location }
-
 namespace ti
 {
     enum class SymbolType
@@ -57,6 +55,8 @@ namespace ti
     
     enum class RegisterType;
     
+    class HeapAllocation;
+    
     struct Compiler
     {
         std::vector<Symbol*> symbol_table;
@@ -86,39 +86,40 @@ namespace ti
         
         void emit_label(const std::string&) noexcept;
         void emit_ascii(const std::string&) noexcept;
+        
         void emit_org(std::uint16_t) noexcept;
+        void emit_org(const HeapAllocation&) noexcept;
         
         void emit_jmp(insn::Jmp::Condition, const std::string&) noexcept;
         
-        void emit_adc(RegisterType, std::uint8_t) noexcept;
-        void emit_adc(RegisterType, RegisterType) noexcept;
+        void emit_adc(const RegisterAllocation&, std::uint8_t) noexcept;
+        void emit_adc(const RegisterAllocation&, const RegisterAllocation&) noexcept;
         
-        void emit_sbb(RegisterType, std::uint8_t) noexcept;
-        void emit_sbb(RegisterType, RegisterType) noexcept;
+        void emit_sbb(const RegisterAllocation&, std::uint8_t) noexcept;
+        void emit_sbb(const RegisterAllocation&, const RegisterAllocation&) noexcept;
         
-        void emit_and(RegisterType, std::uint8_t) noexcept;
-        void emit_and(RegisterType, RegisterType) noexcept;
+        void emit_and(const RegisterAllocation&, std::uint8_t) noexcept;
+        void emit_and(const RegisterAllocation&, const RegisterAllocation&) noexcept;
         
-        void emit_lor(RegisterType, std::uint8_t) noexcept;
-        void emit_lor(RegisterType, RegisterType) noexcept;
+        void emit_lor(const RegisterAllocation&, std::uint8_t) noexcept;
+        void emit_lor(const RegisterAllocation&, const RegisterAllocation&) noexcept;
         
-        void emit_rol(RegisterType, std::uint8_t) noexcept;
-        void emit_ror(RegisterType, std::uint8_t) noexcept;
+        void emit_rol(const RegisterAllocation&, std::uint8_t) noexcept;
+        void emit_ror(const RegisterAllocation&, std::uint8_t) noexcept;
         
-        void emit_not(RegisterType) noexcept;
+        void emit_not(const RegisterAllocation&) noexcept;
         
-        void emit_stb(std::uint16_t, RegisterType) noexcept;
-        void emit_mvb(RegisterType, RegisterType) noexcept;
-        void emit_ldb(RegisterType, std::uint8_t) noexcept;
+        void emit_stb(std::uint16_t, const RegisterAllocation&) noexcept;
+        void emit_mvb(const RegisterAllocation&, const RegisterAllocation&) noexcept;
+        void emit_ldb(const RegisterAllocation&, std::uint8_t) noexcept;
         
-        void emit_call(RegisterType, const std::string&) noexcept;
+        void emit_call(const RegisterAllocation&, const std::string&) noexcept;
         
-        void emit_push(RegisterType) noexcept;
-        void emit_pop(RegisterType) noexcept;
+        void emit_push(const RegisterAllocation&) noexcept;
+        void emit_pop(const RegisterAllocation&) noexcept;
     };
     
     std::uint8_t get_size_by_type(CompleteType) noexcept;
-    std::string regtype_to_string(RegisterType) noexcept;
 }
 
 #endif
