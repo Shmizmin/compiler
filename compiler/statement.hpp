@@ -9,9 +9,9 @@
 namespace ti
 {
     struct Expression;
-    struct Compiler;
+    class Compiler;
     struct Function;
-    struct RegisterAllocation;
+    class RegisterAllocation;
     
     struct Variable
     {

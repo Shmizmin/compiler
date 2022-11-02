@@ -7,7 +7,7 @@
 namespace ti
 {
     struct Function;
-    struct Compiler;
+    class Compiler;
     
     struct Parameters
     {

@@ -8,7 +8,7 @@
 
 namespace ti
 {
-    struct Compiler;
+    class Compiler;
     struct Statement;
     
     struct Argument

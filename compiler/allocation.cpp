@@ -77,11 +77,11 @@ namespace ti
     RegisterAllocation::RegisterAllocation(Compiler& compiler, const RegisterAllocation& exclude) noexcept
         : compiler(compiler)
     {
-        auto new_allocation = ::allocate_register(compiler);
+        auto allocation = ::allocate_register(compiler);
         
-        if (!new_allocation.has_value())
+        if (!allocation.has_value())
         {
-            auto& value = new_allocation.value();
+            auto& value = allocation.value();
             
             using enum RegisterType;
             switch (value)
@@ -96,7 +96,7 @@ namespace ti
             compiler.emit_push({ true, value, compiler });
         }
         
-        location = new_allocation.value();
+        location = allocation.value();
     }
     
     RegisterAllocation::~RegisterAllocation(void) noexcept
@@ -131,7 +131,7 @@ namespace ti
                     compiler.available_heap[i + k] = false;
                 }
                 
-                address = i;
+                iaddress = i;
             }
             
             else available = true;

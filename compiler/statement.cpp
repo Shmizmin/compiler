@@ -90,7 +90,7 @@ namespace
                 .defined = defined,
                 .as.variable = ti::sym::Variable
                 {
-                    .address = heap_allocation.address,
+                    .address = heap_allocation.address(),
                     .visibility = variable->visibility,
                     .parent_function = ti::compiling_function,
                 },

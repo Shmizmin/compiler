@@ -9,9 +9,9 @@
 
 namespace ti
 {
-    struct Compiler;
+    class Compiler;
     struct Function;
-    struct RegisterAllocation;
+    class RegisterAllocation;
     
     enum class ExpressionType
     {

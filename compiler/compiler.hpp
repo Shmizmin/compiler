@@ -54,11 +54,11 @@ namespace ti
     int generate_uuid(void) noexcept;
     
     enum class RegisterType;
-    
     class HeapAllocation;
     
-    struct Compiler
+    class Compiler
     {
+    public:
         std::vector<Symbol*> symbol_table;
         std::list<Command*> ir_code;
         
@@ -110,6 +110,7 @@ namespace ti
         void emit_not(const RegisterAllocation&) noexcept;
         
         void emit_stb(std::uint16_t, const RegisterAllocation&) noexcept;
+        void emit_stb(const HeapAllocation&, const RegisterAllocation&) noexcept;
         void emit_mvb(const RegisterAllocation&, const RegisterAllocation&) noexcept;
         void emit_ldb(const RegisterAllocation&, std::uint8_t) noexcept;
         

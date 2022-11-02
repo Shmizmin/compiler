@@ -68,7 +68,7 @@ namespace ti
         {
             .type = CommandType::DIRECTIVE,
             .as.directive.type = DirectiveType::ORIGIN,
-            .as.directive.as.origin.address = allocation.address,
+            .as.directive.as.origin.address = allocation.address(),
         });
     }
     
@@ -169,6 +169,25 @@ namespace ti
             {
                 .type = OperandType::MEM,
                 .as.mem.address = address,
+            },
+            .as.instruction.as.move.op2 = Operand
+            {
+                .type = OperandType::REG,
+                .as.reg.location = allocation.location,
+            },
+        });
+    }
+    
+    void Compiler::emit_stb(const HeapAllocation& memory, const RegisterAllocation& allocation) noexcept
+    {
+        ir_code.emplace_back(new Command
+        {
+            .type = CommandType::INSTRUCTION,
+            .as.instruction.type = InstructionType::MOVE,
+            .as.instruction.as.move.op1 = Operand
+            {
+                .type = OperandType::MEM,
+                .as.mem.address = memory.address(),
             },
             .as.instruction.as.move.op2 = Operand
             {

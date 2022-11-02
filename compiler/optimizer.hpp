@@ -3,8 +3,9 @@
 
 namespace ti
 {
-    struct Optimizer
+    class Optimizer
     {
+    public:
         bool optimize_ast, optimize_ir;
     };
     
